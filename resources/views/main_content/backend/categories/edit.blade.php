@@ -47,26 +47,19 @@
 
     </div>
 
-     @if ($parent_id != 0)
+       @if ($parent_id == 0)
         <div class="panel panel-default" id="description">
             <div class="panel-heading">
-                <h3 class="panel-title">{{_lang('app.category_description') }}</h3>
+                <h3 class="panel-title">{{_lang('app.Number_of_levels') }}</h3>
             </div>
             <div class="panel-body">
-
-                <div class="form-body">
-                   
-                    @foreach ($languages as $key => $value)
-
-                    <div class="form-group form-md-line-input col-md-6">
-                        <textarea  class="form-control" id="description[{{ $key }}]" name="description[{{ $key }}]" cols="30" rows="10">{{  $translations["$key"]->description }}</textarea>
-                        <label for="description">{{_lang('app.description') }} {{ _lang('app. '.$key.'') }}</label>
-                        <span class="help-block"></span>
-                    </div>
-
-                    @endforeach
-
-
+                <div class="form-group form-md-line-input col-md-3">
+                    <select class="form-control edited" id="no_of_levels" name="no_of_levels">
+                        <option {{ $category->no_of_levels == 2 ?'selected' : '' }} value="2">{{ _lang('app.Two_level') }}</option>
+                        <option {{ $category->no_of_levels == 3 ?'selected' : '' }} value="3">{{ _lang('app.Three_level') }}</option>
+                    </select>
+                     <label for="no_of_levels">{{_lang('app.Number_of_levels') }}</label>
+                    <span class="help-block"></span>
                 </div>
             </div>
     </div>

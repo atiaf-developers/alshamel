@@ -74,15 +74,16 @@ class CategoriesController extends BackendController {
           
 
             $category = new Category;
-            $category->slug = str_slug($request->input('title')['en']);
+            // $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
+            
             $category->parent_id = $request->input('parent_id');
 
             if ($category->parent_id != 0) {
                 $parent = Category::find($category->parent_id);
                 $category->level = $parent->level + 1;
-
+                $category->no_of_levels = $parent->no_of_levels;
                 if ($parent->parents_ids == null) {
                     $category->parents_ids = $parent->id;
                 }
@@ -95,6 +96,7 @@ class CategoriesController extends BackendController {
                
             } else {
                 $category->level = 1;
+                $category->no_of_levels = $request->input('no_of_levels');
             }
             $category->image = Category::upload($request->file('image'), 'categories', true);
             $category->save();
@@ -195,9 +197,12 @@ class CategoriesController extends BackendController {
 
         DB::beginTransaction();
         try {
-            $category->slug = str_slug($request->input('title')['en']);
+            // $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
+            if($parent==0){
+                $category->no_of_levels = $request->input('no_of_levels');
+            }
             if ($request->file('image')) {
                 if ($category->image) {
                     $old_image = $category->image;
@@ -206,6 +211,10 @@ class CategoriesController extends BackendController {
                 $category->image = Category::upload($request->file('image'), 'categories', true);
             }
             $category->save();
+            if($parent==0){
+                Category::where('parents_ids', 'like', '%' . $id . '%')->update(['no_of_levels' => $request->input('no_of_levels')]);
+            }
+            
             CategoryTranslation::where('category_id', $category->id)->delete();
 
             $category_translations = array();
@@ -235,12 +244,14 @@ class CategoriesController extends BackendController {
      */
     public function destroy($id) {
         $category = Category::find($id);
+        
         if (!$category) {
             return _json('error', _lang('app.error_is_occured'), 404);
         }
         DB::beginTransaction();
         try {
             $category->delete();
+            // Category::where('parents_ids', 'like', '%' . $id . '%')->delete();
             DB::commit();
             return _json('success', _lang('app.deleted_successfully'));
         } catch (\Exception $ex) {
@@ -261,7 +272,7 @@ class CategoriesController extends BackendController {
                 ->where('categories_translations.locale', $this->lang_code)
                 ->orderBy('categories.this_order')
                 ->select([
-            'categories.id', "categories_translations.title", "categories.this_order","categories.active", 'categories.level', 'categories.parent_id'
+            'categories.id','categories.no_of_levels', "categories_translations.title", "categories.this_order","categories.active", 'categories.level', 'categories.parent_id'
         ]);
 
         return \Datatables::eloquent($categories)
@@ -304,7 +315,7 @@ class CategoriesController extends BackendController {
                         })
                         ->editColumn('title', function ($item) {
 
-                            if ($item->level == 1) {
+                            if ($item->level == $item->no_of_levels) {
                                 $back = $item->title;
                             } else {
                                 $back = '<a href="' . route('categories.index') . '?parent=' . $item->id . '">' . $item->title . '</a>';

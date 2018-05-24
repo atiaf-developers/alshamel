@@ -1,33 +1,31 @@
-var Categories_grid;
-var parent_id = 0;
+var Currency_grid;
 
-var Categories = function() {
+var Currency = function() {
 
     var init = function() {
 
-        $.extend(lang, new_lang);
-        $.extend(config, new_config);
-        parent_id = config.parent_id;
+        // $.extend(lang, new_lang);
+        // $.extend(config, new_config);
 
         handleRecords();
         handleSubmit();
-        My.readImageMulti('image');
+        // My.readImageMulti('image');
     };
 
     var handleRecords = function() {
 
-        Categories_grid = $('.dataTable').dataTable({
+        Currency_grid = $('.dataTable').dataTable({
             //"processing": true,
             "serverSide": true,
             "ajax": {
-                "url": config.admin_url + "/categories/data",
+                "url": config.admin_url + "/currency/data",
                 "type": "POST",
-                data: { parent_id: parent_id, _token: $('input[name="_token"]').val() },
+                data: { _token: $('input[name="_token"]').val() },
             },
             "columns": [
-                { "data": "title", "name": "categories_translations.title" },
-                { "data": "active", "name": "categories.active", searchable: false },
-                { "data": "this_order", "name": "categories.this_order" },
+                { "data": "title", "name": "currency_translations.title" },
+                { "data": "active", "name": "currency.active", searchable: false },
+                { "data": "this_order", "name": "currency.this_order" },
                 { "data": "options", orderable: false, searchable: false }
             ],
             "order": [
@@ -43,7 +41,7 @@ var Categories = function() {
     var handleSubmit = function() {
 
 
-        $('#addEditCategoriesForm').validate({
+        $('#addEditCurrencyForm').validate({
             rules: {
                 active: {
                     required: true,
@@ -78,7 +76,7 @@ var Categories = function() {
 
         // var $description_div = $('#description');
 
-        // if ( $description_div.length){
+        // if ($description_div.length) {
 
         //     for (var x = 0; x < langs.length; x++) {
         //         var description = "textarea[name='description[" + langs[x] + "]']";
@@ -91,24 +89,24 @@ var Categories = function() {
 
 
 
-        $('#addEditCategoriesForm .submit-form').click(function() {
+        $('#addEditCurrencyForm .submit-form').click(function() {
 
-            if ($('#addEditCategoriesForm').validate().form()) {
-                $('#addEditCategoriesForm .submit-form').prop('disabled', true);
-                $('#addEditCategoriesForm .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
+            if ($('#addEditCurrencyForm').validate().form()) {
+                $('#addEditCurrencyForm .submit-form').prop('disabled', true);
+                $('#addEditCurrencyForm .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
                 setTimeout(function() {
-                    $('#addEditCategoriesForm').submit();
+                    $('#addEditCurrencyForm').submit();
                 }, 1000);
             }
             return false;
         });
-        $('#addEditCategoriesForm input').keypress(function(e) {
+        $('#addEditCurrencyForm input').keypress(function(e) {
             if (e.which == 13) {
-                if ($('#addEditCategoriesForm').validate().form()) {
-                    $('#addEditCategoriesForm .submit-form').prop('disabled', true);
-                    $('#addEditCategoriesForm .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
+                if ($('#addEditCurrencyForm').validate().form()) {
+                    $('#addEditCurrencyForm .submit-form').prop('disabled', true);
+                    $('#addEditCurrencyForm .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
                     setTimeout(function() {
-                        $('#addEditCategoriesForm').submit();
+                        $('#addEditCurrencyForm').submit();
                     }, 1000);
                 }
                 return false;
@@ -117,15 +115,14 @@ var Categories = function() {
 
 
 
-        $('#addEditCategoriesForm').submit(function() {
+        $('#addEditCurrencyForm').submit(function() {
             var id = $('#id').val();
-            var action = config.admin_url + '/categories';
+            var action = config.admin_url + '/currency';
             var formData = new FormData($(this)[0]);
             if (id != 0) {
                 formData.append('_method', 'PATCH');
-                action = config.admin_url + '/categories/' + id;
+                action = config.admin_url + '/currency/' + id;
             }
-            formData.append('parent_id', parent_id);
             $.ajax({
                 url: action,
                 data: formData,
@@ -135,13 +132,13 @@ var Categories = function() {
                 processData: false,
                 success: function(data) {
                     console.log(data);
-                    $('#addEditCategoriesForm .submit-form').prop('disabled', false);
-                    $('#addEditCategoriesForm .submit-form').html(lang.save);
+                    $('#addEditCurrencyForm .submit-form').prop('disabled', false);
+                    $('#addEditCurrencyForm .submit-form').html(lang.save);
 
                     if (data.type == 'success') {
                         My.toast(data.message);
                         if (id == 0) {
-                            Categories.empty();
+                            Currency.empty();
                         }
 
 
@@ -163,8 +160,8 @@ var Categories = function() {
                     }
                 },
                 error: function(xhr, textStatus, errorThrown) {
-                    $('#addEditCategoriesForm .submit-form').prop('disabled', false);
-                    $('#addEditCategoriesForm .submit-form').html(lang.save);
+                    $('#addEditCurrencyForm .submit-form').prop('disabled', false);
+                    $('#addEditCurrencyForm .submit-form').html(lang.save);
                     My.ajax_error_message(xhr);
                 },
                 dataType: "json",
@@ -189,17 +186,17 @@ var Categories = function() {
             var id = $(t).attr("data-id");
             My.editForm({
                 element: t,
-                url: config.admin_url + '/categories/' + id,
+                url: config.admin_url + '/currency/' + id,
                 success: function(data) {
                     console.log(data);
 
-                    Categories.empty();
-                    My.setModalTitle('#addEditCategories', lang.edit);
+                    Currency.empty();
+                    My.setModalTitle('#addEditCurrency', lang.edit);
 
                     for (i in data.message) {
                         $('#' + i).val(data.message[i]);
                     }
-                    $('#addEditCategories').modal('show');
+                    $('#addEditCurrency').modal('show');
                 }
             });
 
@@ -209,18 +206,18 @@ var Categories = function() {
             var id = $(t).attr("data-id");
             My.deleteForm({
                 element: t,
-                url: config.admin_url + '/categories/' + id,
+                url: config.admin_url + '/currency/' + id,
                 data: { _method: 'DELETE', _token: $('input[name="_token"]').val() },
                 success: function(data) {
-                    Categories_grid.api().ajax.reload();
+                    Currency_grid.api().ajax.reload();
                 }
             });
 
         },
         add: function() {
-            Categories.empty();
-            My.setModalTitle('#addEditCategories', lang.add);
-            $('#addEditCategories').modal('show');
+            Currency.empty();
+            My.setModalTitle('#addEditCurrency', lang.add);
+            $('#addEditCurrency').modal('show');
         },
 
         error_message: function(message) {
@@ -252,5 +249,5 @@ var Categories = function() {
 
 }();
 jQuery(document).ready(function() {
-    Categories.init();
+    Currency.init();
 });

@@ -114,6 +114,12 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('locations', 'LocationsController');
     Route::post('locations/data', 'LocationsController@data');
 
+    Route::resource('packages', 'PackagesController');
+    Route::post('packages/data', 'PackagesController@data');
+
+    Route::resource('currency', 'CurrencyController');
+    Route::post('currency/data', 'CurrencyController@data');
+
     Route::resource('categories', 'CategoriesController');
     Route::post('categories/data', 'CategoriesController@data');
 

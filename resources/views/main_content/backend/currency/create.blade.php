@@ -1,28 +1,28 @@
 @extends('layouts.backend')
 
-@section('pageTitle',_lang('app.add_category'))
+@section('pageTitle',_lang('app.add_currency'))
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
-@if($path)
-<li><a href="{{route('categories.index')}}">{{_lang('app.categories')}}</a> <i class="fa fa-circle"></i></li>
-{!!$path!!}
+
+<li><a href="{{route('currency.index')}}">{{_lang('app.currency')}}</a> <i class="fa fa-circle"></i></li>
+
 <li><span> {{_lang('app.create')}}</span></li>
-@else
-<li><span> {{_lang('app.categories')}}</span></li>
-@endif
+
+<li><span> {{_lang('app.currency')}}</span></li>
+
 @endsection
 
 @section('js')
-<script src="{{url('public/backend/js')}}/categories.js" type="text/javascript"></script>
+<script src="{{url('public/backend/js')}}/currency.js" type="text/javascript"></script>
 @endsection
 @section('content')
-<form role="form"  id="addEditCategoriesForm" enctype="multipart/form-data">
+<form role="form"  id="addEditCurrencyForm" enctype="multipart/form-data">
     {{ csrf_field() }}
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.category_title') }}</h3>
+            <h3 class="panel-title">{{_lang('app.currency_title') }}</h3>
         </div>
         <div class="panel-body">
 
@@ -46,27 +46,6 @@
 
 
     </div>
-
-    @if ($parent_id == 0)
-    <div class="panel panel-default" id="description">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.Number_of_levels') }}</h3>
-        </div>
-        <div class="panel-body">
-            <div class="form-group form-md-line-input col-md-3">
-                <select class="form-control edited" id="no_of_levels" name="no_of_levels">
-                    <option value="2">{{ _lang('app.Two_level') }}</option>
-                    <option value="3">{{ _lang('app.Three_level') }}</option>
-                </select>
-                 <label for="no_of_levels">{{_lang('app.Number_of_levels') }}</label>
-                <span class="help-block"></span>
-            </div>
-        </div>
-</div>
- @endif
-     
-
-
     <div class="panel panel-default">
        <div class="panel-heading">
                 <h3 class="panel-title"></h3>
@@ -89,17 +68,6 @@
                     <span class="help-block"></span>
                 </div> 
 
-                <div class="clearfix"></div>
-                <div class="form-group col-md-6">
-                    <label class="control-label">{{_lang('app.image')}}</label>
-
-                    <div class="image_box">
-                        <img src="{{url('no-image.png')}}" width="100" height="80" class="image" />
-                    </div>
-                    <input type="file" name="image" id="image" style="display:none;">     
-                    <span class="help-block"></span>             
-                </div>
-
             </div>
         </div>
 
@@ -118,7 +86,7 @@ var new_lang = {
 
 };
 var new_config = {
-    parent_id: "{{$parent_id}}"
+    
 };
 
 </script>

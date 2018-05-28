@@ -19,13 +19,13 @@ class SettingsController extends BackendController {
 
         $this->data['settings'] = Setting::get()->keyBy('name');
         $this->data['settings_translations'] = SettingTranslation::get()->keyBy('locale');
-        $this->data['settings_sochiel']=(isset($this->data['settings']['sochiel']))?json_decode($this->data['settings']['sochiel']->value):'';
-        // dd($this->data['settings_sochiel']);
+        if (isset($this->data['settings']['social_media'])) {
+            $this->data['settings']['social_media']= json_decode($this->data['settings']['social_media']->value);
+        }
         return $this->_view('settings/index', 'backend');
     }
 
     public function store(Request $request) {
-        // dd($request->input('policy'));
        
         $columns_arr = array(
             'about_us' => 'required',
@@ -45,7 +45,7 @@ class SettingsController extends BackendController {
                 $setting = $request->input('setting');
                 
                 foreach($setting as $key => $value){
-                    if($key=='sochiel'){
+                    if($key=='social_media'){
                         Setting::updateOrCreate(['name' => $key], ['value' => json_encode($value)]);
                     }else{
                         Setting::updateOrCreate(['name' => $key], ['value' => $value]);
@@ -56,8 +56,8 @@ class SettingsController extends BackendController {
                 $policy = $request->input('policy');
                 foreach ($this->languages as $key => $value) {
                     SettingTranslation::updateOrCreate(
-                            ['locale' => $key], 
-                            [ 'locale' => $key,'policy' => $policy[$key], 'about_us' => $about_us[$key] ]
+                        ['locale' => $key], 
+                        [ 'locale' => $key,'policy' => $policy[$key], 'about_us' => $about_us[$key] ]
                             
                     );
                 }

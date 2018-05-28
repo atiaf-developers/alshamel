@@ -51,10 +51,10 @@ class PackagesController extends BackendController
 
             $package_translations = array();
             $title = $request->input('title');
-            foreach ($title as $key => $value) {
+            foreach ($this->languages as $key => $value) {
                 $package_translations[] = array(
                     'locale' => $key,
-                    'title' => $value,
+                    'title' => $title[$key],
                     'package_id' => $package->id
                 );
             }
@@ -71,11 +71,8 @@ class PackagesController extends BackendController
         if (!$find) {
             return $this->err404();
         }
-        $packageTranslation = PackageTranslation::where('package_id', $id)->get();
-        $title = $packageTranslation->pluck('title', 'locale')->all();
         $this->data['package'] = $find;
-        $this->data['translations'] = $title;
-        // dd($this->data['translations']);
+        $this->data['translations'] = PackageTranslation::where('package_id', $id)->get()->keyBy('locale');
         return $this->_view('packages/edit', 'backend');
     }
     public function update(Request $request, $id){
@@ -84,7 +81,7 @@ class PackagesController extends BackendController
             return _json('error', _lang('app.error_is_occured'), 404);
         }
         $columns_arr = array(
-            'title' => 'required',
+            'title' => 'required|unique:packages_translations,title,'.$id .',package_id',
         );
 
         $lang_rules = $this->lang_rules($columns_arr);
@@ -127,7 +124,6 @@ class PackagesController extends BackendController
         }
         DB::beginTransaction();
         try {
-            PackageTranslation::where('package_id', $package->id)->delete();
             $package->delete();
             DB::commit();
             return _json('success', _lang('app.deleted_successfully'));

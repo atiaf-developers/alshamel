@@ -31,7 +31,6 @@ class LocationsController extends BackendController {
     public function index(Request $request) {
         $parent_id = $request->input('parent') ? $request->input('parent') : 0;
         $this->data['path'] = $this->node_path($parent_id);
-        //dd($this->data['path']);
         $this->data['parent_id'] = $parent_id;
         return $this->_view('locations/index', 'backend');
     }
@@ -46,7 +45,7 @@ class LocationsController extends BackendController {
         $this->data['path'] = $this->node_path($request->input('parent'),true);
         $this->data['parent_id'] = $parent_id;
         if($parent_id==0){
-            $this->data['currancy']=Currency::join('currency_translations', function ($join) {
+            $this->data['currency']=Currency::join('currency_translations', function ($join) {
                 $join->on('currency.id', '=', 'currency_translations.currency_id')
                 ->where('currency_translations.locale', $this->lang_code);
             })
@@ -67,6 +66,8 @@ class LocationsController extends BackendController {
         if($request->input('parent_id')!=0){
             unset($this->rules['code']);
             unset($this->rules['currency_id']);
+        }else{
+            $this->rules['location_image'] = 'required|image|mimes:gif,png,jpeg|max:1000';
         }
         $columns_arr = array(
             'title' => 'required|unique:locations_translations,title'
@@ -154,25 +155,29 @@ class LocationsController extends BackendController {
      */
     public function edit($id) {
         $location = Location::where('locations.id', $id)
-                ->select('locations.id', 'locations.parent_id', 'locations.this_order','locations.image', 'locations.code')
+                ->select('locations.id', 'locations.parent_id', 'locations.this_order','locations.image', 'locations.code','locations.currency_id')
                 ->first();
 
         if (!$location) {
             return _json('error', _lang('app.error_is_occured'), 404);
         }
         $this->data['path'] = $this->node_path($location->parent_id,true);
-        $this->data['location_translations'] = LocationTranslation::where('location_id', $id)->pluck('title', 'locale');
+        $this->data['translations'] = LocationTranslation::where('location_id', $id)->get()->keyBy('locale');
 
         $this->data['parent_id'] = $location->parent_id;
         $this->data['location'] = $location;
         if($location->parent_id==0){
-            $this->data['currancy']=Currency::join('currency_translations', function ($join) {
+            $this->data['currency']=Currency::join('currency_translations', function ($join) {
                 $join->on('currency.id', '=', 'currency_translations.currency_id')
                 ->where('currency_translations.locale', $this->lang_code);
             })
             ->where('currency.active',1)
-            ->select(['currency_translations.title','currency.id'])->get();
+            ->select(['currency_translations.title','currency.id'])
+            ->get();
+
+
         }
+       
         return $this->_view('locations/edit', 'backend');
     }
 
@@ -212,9 +217,12 @@ class LocationsController extends BackendController {
 
             $location->code = $request->input('code');
             $location->this_order = $request->input('this_order');
-            if($request->input('parent_id')==0){
+            if($request->input('parent_id') == 0) {
                 $location->currency_id = $request->input('currency_id');
-                $location->image = Location::upload($request->file('location_image'), 'locations', true);
+                if ($request->file('location_image')) {
+                    Location::deleteUploaded('locations',$location->image);
+                    $location->image = Location::upload($request->file('location_image'), 'locations', true);
+                }
             }
             $location->save();
             LocationTranslation::where('location_id', $location->id)->delete();

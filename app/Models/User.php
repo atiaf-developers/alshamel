@@ -17,19 +17,12 @@ class User extends Authenticatable {
     protected $casts = array(
         'id' => 'integer',
         'mobile' => 'string',
-        'gender' => 'integer'
     );
     public static $sizes = array(
         's' => array('width' => 120, 'height' => 120),
         'm' => array('width' => 400, 'height' => 400),
     );
 
-    private static $gender = [
-        1 => 'male',
-        2 => 'female'
-    ];
-    
-    
 
     public function store()
     {
@@ -60,9 +53,8 @@ class User extends Authenticatable {
 
         static::deleted(function($user) {
             if ($user->user_image != 'default.png') {
-                User::deleteUploaded('users',$user->user_image);
+                User::deleteUploaded('users',$user->image);
             }
-            
         });
     }
    

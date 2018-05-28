@@ -1,9 +1,7 @@
 var Settings = function() {
 
     var init = function() {
-        //$.extend(lang, new_lang);
         handleSubmit();
-
     };
 
     var handleSubmit = function() {
@@ -12,6 +10,18 @@ var Settings = function() {
             ignore: "",
             rules: {
                 'setting[num_free_ads]': {
+                    required: true
+                },
+                'setting[social_media][facebook]': {
+                    required: true
+                },
+                'setting[social_media][twitter]': {
+                    required: true
+                },
+                'setting[social_media][google]': {
+                    required: true
+                },
+                'setting[social_media][youtube]': {
                     required: true
                 },
 
@@ -103,7 +113,7 @@ var Settings = function() {
                                     i = key_text;
                                 }
                                 $('[name="' + i + '"]')
-                                    .closest('.form-group').addClass('has-error');
+                                .closest('.form-group').addClass('has-error');
                                 $('#' + i).closest('.form-group').find(".help-block").html(message).css('opacity', 1)
                             }
                         }

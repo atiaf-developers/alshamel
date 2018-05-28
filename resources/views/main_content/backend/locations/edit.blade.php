@@ -34,7 +34,7 @@
                 @foreach ($languages as $key => $value)
 
                 <div class="form-group form-md-line-input col-md-6">
-                    <input type="text" class="form-control" id="title[{{ $key }}]" name="title[{{ $key }}]" value="{{ $location_translations["$key"] }}">
+                    <input type="text" class="form-control" id="title[{{ $key }}]" name="title[{{ $key }}]" value="{{ $translations["$key"]->title }}">
                     <label for="title">{{_lang('app.title') }} {{ _lang('app. '.$key.'') }}</label>
                     <span class="help-block"></span>
                 </div>
@@ -81,13 +81,8 @@
             <div class="form-body">
                     <div class="form-group form-md-line-input col-md-6">
                             <select class="form-control edited" id="currency_id" name="currency_id">
-                                @foreach($currancy as $value)
-                                @if($location->currency_id==$value->id)
-                                <option selected value="{{ $value->id }}">{{ $value->title }}</option>
-                                @else
-                                <option value="{{ $value->id }}">{{ $value->title }}</option>
-                                @endif
-                                 
+                                @foreach($currency as $value)  
+                                <option value="{{ $value->id }}" {{ $value->id == $location->currency_id ? 'selected' : '' }}>{{ $value->title }}</option>
                                 @endforeach
                             </select>
                              <label for="currancy">{{_lang('app.currancy') }}</label>

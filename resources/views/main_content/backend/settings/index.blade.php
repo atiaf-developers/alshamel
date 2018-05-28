@@ -31,14 +31,7 @@
                 </div>
                 <div class="clearfix"></div>
 
-
-
-
             </div>
-
-
-
-
             <!--Table Wrapper Finish-->
         </div>
 
@@ -84,22 +77,22 @@
                         <div class="panel-body">
                                 <div class="col-md-12">
                                     <div class="form-group form-md-line-input col-md-6">
-                                        <input type="text" class="form-control" id="setting[sochiel][facebook]" name="setting[sochiel][facebook]" value="{{ (isset($settings_sochiel->facebook)) ? $settings_sochiel->facebook : '' }}">
-                                        <label for="setting[sochiel][facebook]">{{_lang('app.facebock') }}</label>
+                                        <input type="text" class="form-control" id="setting[social_media][facebook]" name="setting[social_media][facebook]" value="{{ isset($settings['social_media']->facebook) ? $settings['social_media']->facebook :'' }}">
+                                        <label for="setting[social_media][facebook]">{{_lang('app.facebock') }}</label>
                                         <span class="help-block"></span>
                                     </div>
                                     <div class="form-group form-md-line-input col-md-6">
-                                            <input type="text" class="form-control" id="setting[sochiel][twitter]" name="setting[sochiel][twitter]" value="{{ (isset($settings_sochiel->twitter)) ? $settings_sochiel->twitter : '' }}">
-                                            <label for="setting[sochiel][twitter]">{{_lang('app.twitter') }}</label>
+                                            <input type="text" class="form-control" id="setting[social_media][twitter]" name="setting[social_media][twitter]" value="{{ isset($settings['social_media']->twitter) ? $settings['social_media']->twitter :'' }}">
+                                            <label for="setting[social_media][twitter]">{{_lang('app.twitter') }}</label>
                                             <span class="help-block"></span>
                                         </div>
                                     <div class="form-group form-md-line-input col-md-6">
-                                        <input type="text" class="form-control" id="sochiel[google]" name="setting[sochiel][google]" value="{{ (isset($settings_sochiel->google)) ? $settings_sochiel->google : '' }}">
+                                        <input type="text" class="form-control" id="setting[social_media][google]" name="setting[social_media][google]" value="{{ isset($settings['social_media']->google) ?$settings['social_media']->google :'' }}">
                                         <label for="setting[sochiel][google]">{{_lang('app.google') }}</label>
                                         <span class="help-block"></span>
                                     </div>
                                     <div class="form-group form-md-line-input col-md-6">
-                                        <input type="text" class="form-control" id="sochiel[youtupe]" name="setting[sochiel][youtupe]" value="{{ (isset($settings_sochiel->youtupe)) ? $settings_sochiel->youtupe : '' }}">
+                                        <input type="text" class="form-control" id="setting[social_media][youtube]" name="setting[social_media][youtube]" value="{{ isset($settings['social_media']->youtube) ? $settings['social_media']->youtube :'' }}">
                                         <label for="setting[sochiel][youtupe]">{{_lang('app.youtupe') }}</label>
                                         <span class="help-block"></span>
                                     </div>
@@ -115,11 +108,6 @@
                     </div>
 
                 </div>
-
-
-
-
-
 
 
             </form>

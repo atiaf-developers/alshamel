@@ -43,7 +43,6 @@ class CategoriesController extends BackendController {
         $parent_id = $request->input('parent') ? $request->input('parent') : 0;
         $this->data['path'] = $this->node_path($request->input('parent'),true);
         $this->data['parent_id'] = $parent_id;
-
         return $this->_view('categories/create', 'backend');
     }
 
@@ -72,12 +71,10 @@ class CategoriesController extends BackendController {
         DB::beginTransaction();
         try {
           
-
             $category = new Category;
-            // $category->slug = str_slug($request->input('title')['en']);
+            $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
-            
             $category->parent_id = $request->input('parent_id');
 
             if ($category->parent_id != 0) {
@@ -92,8 +89,6 @@ class CategoriesController extends BackendController {
                     array_push($parent_ids,$parent->id);
                     $category->parents_ids = implode(",", $parent_ids);
                 }
-
-               
             } else {
                 $category->level = 1;
                 $category->no_of_levels = $request->input('no_of_levels');
@@ -102,7 +97,6 @@ class CategoriesController extends BackendController {
             $category->save();
 
             $category_translations = array();
-            
 
             foreach ($request->input('title') as $key => $value) {
                 $category_translations[] = array(
@@ -111,13 +105,11 @@ class CategoriesController extends BackendController {
                     'category_id' => $category->id
                 );
             }
-
             CategoryTranslation::insert($category_translations);
 
             DB::commit();
             return _json('success', _lang('app.added_successfully'));
         } catch (\Exception $ex) {
-            dd($ex);
             DB::rollback();
             return _json('error', _lang('app.error_is_occured'), 400);
         }
@@ -131,7 +123,6 @@ class CategoriesController extends BackendController {
      */
     public function show($id) {
         $find = Category::find($id);
-
         if ($find) {
             return _json('success', $find);
         } else {
@@ -197,7 +188,7 @@ class CategoriesController extends BackendController {
 
         DB::beginTransaction();
         try {
-            // $category->slug = str_slug($request->input('title')['en']);
+            $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
             if($parent==0){

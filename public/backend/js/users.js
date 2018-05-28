@@ -8,7 +8,7 @@ var Users = function() {
         $.extend(lang, new_lang);
         //console.log(lang);
         handleRecords();
-        handleDatatables();
+        //handleDatatables();
         handleSubmit();
         handlePasswordActions();
         My.readImageMulti('user_image');
@@ -39,107 +39,24 @@ var Users = function() {
         return myrnd;
     }
 
-    var handleDatatables = function() {
 
-        $(document).on('click', '.data-box', function() {
-            $('.data-box').removeClass('active');
-            $(this).addClass('active');
-            type = 1;
-            $('.table-container').hide();
-            if (type == 1) {
-                if (typeof Famous_grid === 'undefined') {
-                    Famous_grid = $('#famous-table .dataTable').dataTable({
-                        //"processing": true,
-                        "serverSide": true,
-                        "ajax": {
-                            "url": config.admin_url + "/users/data",
-                            "type": "POST",
-                            data: { type: type, _token: $('input[name="_token"]').val() },
-                        },
-                        "columns": [
-                           
-                            { "data": "username", "name": "username" },
-                            {"data": "name", "name": "name"},
-                            { "data": "image", "name": "image" },
-                            { "data": "mobile", "name": "mobile" },
-                            { "data": "active", "name": "active" },
-                            { "data": "options", orderable: false, searchable: false }
-                        ],
-                        "order": [
-                            [1, "desc"]
-                        ],
-                        "oLanguage": { "sUrl": config.url + '/datatable-lang-' + config.lang_code + '.json' }
-
-                    });
-
-                } else {
-                    Famous_grid.on('preXhr.dt', function(e, settings, data) {
-                        data.type = type
-                        data._token = $('input[name="_token"]').val()
-                    })
-                    Famous_grid.api().ajax.url(config.admin_url + "/users/data").load();
-                }
-                $('#famous-table').show();
-            } else {
-                if (typeof Members_grid === 'undefined') {
-
-                    Members_grid = $('#members-table .dataTable').dataTable({
-                        //"processing": true,
-                        "serverSide": true,
-                        "ajax": {
-                            "url": config.admin_url + "/users/data",
-                            "type": "POST",
-                            data: { type: type, _token: $('input[name="_token"]').val() },
-                        },
-                        "columns": [
-                            //                    {"data": "user_input", orderable: false, "class": "text-center"},
-                          { "data": "username", "name": "username" },
-                            {"data": "name", "name": "name"},
-                            { "data": "image", "name": "image" },
-                            { "data": "mobile", "name": "mobile" },
-                            { "data": "active", "name": "active" },
-                            { "data": "options", orderable: false, searchable: false }
-                        ],
-                        "order": [
-                            [1, "desc"]
-                        ],
-                        "oLanguage": { "sUrl": config.url + '/datatable-lang-' + config.lang_code + '.json' }
-
-                    });
-
-                } else {
-                    Members_grid.on('preXhr.dt', function(e, settings, data) {
-                        data.type = type
-                        data._token = $('input[name="_token"]').val()
-                    })
-                    Members_grid.api().ajax.url(config.admin_url + "/users/data").load();
-                }
-                $('#members-table').show();
-            }
-
-
-
-
-            return false;
-        });
-    }
     var handleRecords = function() {
         Famous_grid = $('#famous-table .dataTable').dataTable({
             //"processing": true,
             "serverSide": true,
             "ajax": {
-                "url": config.admin_url + "/users/data?type=clients",
+                "url": config.admin_url + "/users/data",
                 "type": "POST",
                 data: { type: type, _token: $('input[name="_token"]').val() },
             },
             "columns": [
                 //                    {"data": "user_input", orderable: false, "class": "text-center"},
-                 { "data": "username", "name": "username" },
-                            {"data": "name", "name": "name"},
-                            { "data": "image", "name": "image" },
-                            { "data": "mobile", "name": "mobile" },
-                            { "data": "active", "name": "active" },
-                            { "data": "options", orderable: false, searchable: false }
+                { "data": "username", "name": "username" },
+                { "data": "name", "name": "name" },
+                { "data": "image", "name": "image" },
+                { "data": "mobile", "name": "mobile" },
+                { "data": "active", "name": "active" },
+                { "data": "options", orderable: false, searchable: false }
             ],
             "order": [
                 [1, "desc"]
@@ -161,7 +78,7 @@ var Users = function() {
                 fullname: {
                     required: true
                 },
-               
+
             },
             //messages: lang.messages,
             highlight: function(element) { // hightlight error inputs
@@ -378,7 +295,7 @@ var Users = function() {
             var id = $(t).attr("data-id");
             My.editForm({
                 element: t,
-                url: config.admin_url + '/users/' + id + '?type=clients',
+                url: config.admin_url + '/users/' + id,
                 success: function(data) {
                     console.log(data);
 
@@ -400,7 +317,7 @@ var Users = function() {
 
                     }
                     $('#addEditUsers').modal('show');
-                    
+
                 }
             });
 
@@ -437,81 +354,10 @@ var Users = function() {
             });
 
         },
-        allowable: function(t) {
+        status: function(t) {
             var id = $(t).attr("data-id");
 
-            var action = config.admin_url + '/users/allowable/' + id + '?type=clients';
-            $.ajax({
-                url: action,
-                data: '',
-                async: false,
-                cache: false,
-                contentType: false,
-                processData: false,
-                success: function(data) {
-                    if (data.type == 'success') {
-                        toastr.options = {
-                            "debug": false,
-                            "positionClass": "toast-bottom-left",
-                            "onclick": null,
-                            "fadeIn": 300,
-                            "fadeOut": 1000,
-                            "timeOut": 5000,
-                            "extendedTimeOut": 1000,
-                            "showEasing": "swing",
-                            "hideEasing": "linear",
-                            "showMethod": "fadeIn",
-                            "hideMethod": "fadeOut"
-                        };
-                        toastr.success(data.message, 'رسالة');
-                        Famous_grid.api().ajax.reload();
-
-                        // if (id != 0) {
-                        //     $('#addEditUsers').modal('hide');
-                        // } else {
-                        //     Users.empty();
-                        // }
-
-                    } else {
-                        console.log(data)
-                        if (typeof data.errors === 'object') {
-                            for (i in data.errors) {
-                                $('[name="' + i + '"]')
-                                    .closest('.form-group').addClass('has-error');
-                                $('#' + i).closest('.form-group').find(".help-block").html(data.errors[i][0]).css('opacity', 1)
-                            }
-                        } else {
-                            //alert('here');
-                            $.confirm({
-                                title: lang.error,
-                                content: data.message,
-                                type: 'red',
-                                typeAnimated: true,
-                                buttons: {
-                                    tryAgain: {
-                                        text: lang.try_again,
-                                        btnClass: 'btn-red',
-                                        action: function() {}
-                                    }
-                                }
-                            });
-                        }
-                    }
-                },
-                error: function(xhr, textStatus, errorThrown) {
-
-                    My.ajax_error_message(xhr);
-                },
-                dataType: "json",
-                type: "GET"
-            });
-
-            return false;
-        },
-        order: function(t) {
-            var id = $(t).attr("data-id");
-
-            var action = config.admin_url + '/users/order/' + id + '?type=clients';
+            var action = config.admin_url + '/users/status/' + id;
             $.ajax({
                 url: action,
                 data: '',

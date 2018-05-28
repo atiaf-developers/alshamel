@@ -3,7 +3,7 @@ var Settings = function() {
     var init = function() {
         //$.extend(lang, new_lang);
         handleSubmit();
-       
+
     };
 
     var handleSubmit = function() {
@@ -11,15 +11,10 @@ var Settings = function() {
         $('#editSettingsForm').validate({
             ignore: "",
             rules: {
-                'setting[search_range_for_stores]': {
+                'setting[num_free_ads]': {
                     required: true
                 },
-                'setting[commission]': {
-                    required: true
-                },
-                'setting[stores_activation]': {
-                    required: true
-                },
+
             },
             messages: lang.messages,
             highlight: function(element) { // hightlight error inputs
@@ -36,7 +31,7 @@ var Settings = function() {
         var langs = JSON.parse(config.languages);
         for (var x = 0; x < langs.length; x++) {
             var about_us = "textarea[name='about_us[" + langs[x] + "]']";
-            var usage_conditions = "textarea[name='usage_conditions[" + langs[x] + "]']";
+            var usage_conditions = "textarea[name='policy[" + langs[x] + "]']";
             $(about_us).rules('add', {
                 required: true
             });

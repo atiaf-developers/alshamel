@@ -12,24 +12,24 @@ use DB;
 class SettingsController extends BackendController {
 
     private $rules = array(
-        'setting.search_range_for_stores' => 'required',
-        'setting.commission' => 'required',
-        'setting.stores_activation' => 'required',
+        'setting.num_free_ads' => 'required',
     );
 
     public function index() {
 
         $this->data['settings'] = Setting::get()->keyBy('name');
         $this->data['settings_translations'] = SettingTranslation::get()->keyBy('locale');
+        $this->data['settings_sochiel']=(isset($this->data['settings']['sochiel']))?json_decode($this->data['settings']['sochiel']->value):'';
+        // dd($this->data['settings_sochiel']);
         return $this->_view('settings/index', 'backend');
     }
 
     public function store(Request $request) {
-
+        // dd($request->input('policy'));
        
         $columns_arr = array(
             'about_us' => 'required',
-            'usage_conditions' => 'required',
+            'policy' => 'required',
         );
        
         $this->rules = array_merge($this->rules, $this->lang_rules($columns_arr));
@@ -45,16 +45,21 @@ class SettingsController extends BackendController {
                 $setting = $request->input('setting');
                 
                 foreach($setting as $key => $value){
-                    Setting::updateOrCreate(['name' => $key], ['value' => $value]);
+                    if($key=='sochiel'){
+                        Setting::updateOrCreate(['name' => $key], ['value' => json_encode($value)]);
+                    }else{
+                        Setting::updateOrCreate(['name' => $key], ['value' => $value]);
+                    }
+                    
                 }
-               
                 $about_us = $request->input('about_us');
-                $usage_conditions = $request->input('usage_conditions');
+                $policy = $request->input('policy');
                 foreach ($this->languages as $key => $value) {
                     SettingTranslation::updateOrCreate(
                             ['locale' => $key], 
-                            [ 'locale' => $key, 'about_us' => $about_us[$key],'usage_conditions' => $usage_conditions[$key] ]
-                            );
+                            [ 'locale' => $key,'policy' => $policy[$key], 'about_us' => $about_us[$key] ]
+                            
+                    );
                 }
                 DB::commit();
                 return _json('success', _lang('app.updated_successfully'));

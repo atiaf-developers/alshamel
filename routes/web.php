@@ -123,9 +123,13 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('categories', 'CategoriesController');
     Route::post('categories/data', 'CategoriesController@data');
 
-    Route::resource('clients', 'ClientsController');
-    Route::post('clients/data', 'ClientsController@data');
-    Route::get('clients/status/{id}', 'ClientsController@status');
+    Route::resource('users', 'UsersController');
+    Route::post('users/data', 'UsersController@data');
+    Route::get('users/status/{id}', 'UsersController@status');
+
+    // Route::resource('clients', 'ClientsController');
+    // Route::post('clients/data', 'ClientsController@data');
+    // Route::get('clients/status/{id}', 'ClientsController@status');
 
     Route::resource('stores', 'StoresController');
     Route::post('stores/data', 'StoresController@data');

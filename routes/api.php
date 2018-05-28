@@ -41,17 +41,10 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('handle_favourites','UserController@handleFavourites');
         Route::post('send_complaint', 'BasicController@sendContactMessage');
         Route::get('complaints', 'BasicController@getComplaints');
-
-        Route::post('change_status','OrdersController@status');
         
-       
-
-        Route::resource('products', 'ProductsController');
-        Route::resource('stores', 'StoresController');
-        Route::resource('cart','CartController');
-        Route::resource('orders','OrdersController');
+    
         
-
+        Route::resource('ads', 'AdsController');
         
     });
 });

@@ -17,13 +17,6 @@ class BackendController extends Controller {
     protected $lang_code = 'en';
     protected $User;
     protected $data = array();
-    protected $status_text = [
-             0 => 'pending',
-             1 => 'order_processing_is_ongoing',
-             2 => 'order_is_being_delivered',
-             3 => 'order_was_deliverd',
-             4 => 'order_was_rejected',
-    ];
 
     public function __construct() {
         $this->middleware('auth:admin');

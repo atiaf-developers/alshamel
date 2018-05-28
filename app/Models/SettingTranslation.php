@@ -7,9 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class SettingTranslation extends MyModel {
 
     protected $table = "settings_translations";
-    protected $fillable=['locale','about_us','usage_conditions'];
+    protected $fillable=['locale','about_us','policy'];
     protected $hidden = array('id','locale','created_at','updated_at');
-
- 
-
 }

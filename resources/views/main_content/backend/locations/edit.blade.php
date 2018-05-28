@@ -60,13 +60,13 @@
                     <label for="this_order">{{_lang('app.this_order') }}</label>
                     <span class="help-block"></span>
                 </div>
-
+                @if($parent_id==0)
                 <div class="form-group form-md-line-input col-md-6">
-                    <input type="text" class="form-control" id="prefix" name="prefix" value="{{ $location->prefix }}">
-                    <label for="prefix">{{_lang('app.prefix') }}</label>
+                    <input type="text" class="form-control" id="code" name="code" value="{{ $location->code }}">
+                    <label for="code">{{_lang('app.code') }}</label>
                     <span class="help-block"></span>
                 </div>
-
+                @endif
             </div>
         </div>
 
@@ -75,38 +75,37 @@
 
 
     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.supervisor_info') }}</h3>
-        </div>
+       
         <div class="panel-body">
-
+                @if($parent_id==0)
             <div class="form-body">
+                    <div class="form-group form-md-line-input col-md-6">
+                            <select class="form-control edited" id="currency_id" name="currency_id">
+                                @foreach($currancy as $value)
+                                @if($location->currency_id==$value->id)
+                                <option selected value="{{ $value->id }}">{{ $value->title }}</option>
+                                @else
+                                <option value="{{ $value->id }}">{{ $value->title }}</option>
+                                @endif
+                                 
+                                @endforeach
+                            </select>
+                             <label for="currancy">{{_lang('app.currancy') }}</label>
+                            <span class="help-block"></span>
+                        </div>
                 <div class="form-group col-md-6">
                     <label class="control-label">{{_lang('app.image')}}</label>
 
-                    <div class="supervisor_image_box">
-                        <img src="{{url('public/uploads/supervisors').'/'.$location->supervisor_image}}" width="100" height="80" class="supervisor_image" />
+                    <div class="location_image_box">
+                        <img src="{{url('public/uploads/locations').'/'.$location->image}}" width="100" height="80" class="location_image" />
                     </div>
-                    <input type="file" name="supervisor_image" id="supervisor_image" style="display:none;">     
+                    <input type="file" name="location_image" id="location_image" style="display:none;">     
                     <span class="help-block"></span>             
                 </div>
-
-
-
-                <div class="form-group form-md-line-input col-md-6">
-                    <input type="text" class="form-control" id="supervisor_name" name="supervisor_name" value="{{ $location->name }}">
-                    <label for="name">{{_lang('app.supervisor_name') }}</label>
-                    <span class="help-block"></span>
-                </div>
-
-
-                <div class="form-group form-md-line-input col-md-6">
-                    <input type="text" class="form-control" id="supervisor_contact_numbers" name="supervisor_contact_numbers" value="{{ $location->contact_numbers }}" placeholder="+966663635,+96651515156,....">
-                    <label for="supervisor_contact_numbers">{{_lang('app.supervisor_contact_numbers') }}</label>
-                    <span class="help-block"></span>
-                </div>
+                
 
             </div>
+            @endif
         </div>
 
         <div class="panel-footer text-center">

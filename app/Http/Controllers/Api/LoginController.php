@@ -14,7 +14,6 @@ class LoginController extends ApiController {
     private $rules = array(
         'username' => 'required',
         'password' => 'required',
-        'type' => 'required',
         'device_id' => 'required',
         'device_token' => 'required',
         'device_type' => 'required',
@@ -27,7 +26,7 @@ class LoginController extends ApiController {
             $errors = $validator->errors()->toArray();
             return _api_json(new \stdClass(), ['errors' => $errors], 400);
         } else {
-            $credentials = $request->only('username', 'password', 'type');
+            $credentials = $request->only('username', 'password');
             if ($user = $this->auth_check($credentials)) {
                 $token = new \stdClass();
                 $token->id = $user->id;
@@ -47,7 +46,6 @@ class LoginController extends ApiController {
 
     private function auth_check($credentials) {
         $find = User::where('username', $credentials['username'])
-                ->where('type', $credentials['type'])
                 ->where('active', 1)
                 ->first();
         if ($find) {

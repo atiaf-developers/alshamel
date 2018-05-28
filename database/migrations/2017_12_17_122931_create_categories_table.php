@@ -21,6 +21,7 @@ class CreateCategoriesTable extends Migration
             $table->integer('parent_id');
             $table->string('parents_ids');
             $table->integer('level');
+            $table->boolean('type')->default(4);
             $table->integer('no_of_levels');
             $table->timestamps();
         });

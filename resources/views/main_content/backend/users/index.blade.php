@@ -133,7 +133,7 @@
         <div class="clearfix"></div>
 
         <div id="famous-table" class="table-container">
-            <a class = "btn btn-sm btn-info pull-left" style = "margin-bottom: 40px;" href = "" onclick = "Users.add(); return false;" > {{_lang('app.add_new')}} </a>
+            
             <table class = "table table-striped table-bordered table-hover table-checkable order-column dataTable no-footer">
                 <thead>
                     <tr>

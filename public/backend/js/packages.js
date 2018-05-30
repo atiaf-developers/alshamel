@@ -3,13 +3,8 @@ var Packages_grid;
 var Packages = function() {
 
     var init = function() {
-
-        // $.extend(lang, new_lang);
-        // $.extend(config, new_config);
-
         handleRecords();
         handleSubmit();
-        // My.readImageMulti('image');
     };
 
     var handleRecords = function() {
@@ -43,6 +38,9 @@ var Packages = function() {
 
         $('#addEditPackagesForm').validate({
             rules: {
+                num_of_ads: {
+                    required: true,
+                },
                 active: {
                     required: true,
                 },
@@ -73,21 +71,6 @@ var Packages = function() {
                 required: true
             });
         }
-
-        // var $description_div = $('#description');
-
-        // if ($description_div.length) {
-
-        //     for (var x = 0; x < langs.length; x++) {
-        //         var description = "textarea[name='description[" + langs[x] + "]']";
-        //         $(description).rules('add', {
-        //             required: true
-        //         });
-        //     }
-        // }
-
-
-
 
         $('#addEditPackagesForm .submit-form').click(function() {
 

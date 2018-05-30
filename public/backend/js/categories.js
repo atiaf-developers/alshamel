@@ -8,7 +8,6 @@ var Categories = function() {
         $.extend(lang, new_lang);
         $.extend(config, new_config);
         parent_id = config.parent_id;
-
         handleRecords();
         handleSubmit();
         My.readImageMulti('image');
@@ -51,6 +50,7 @@ var Categories = function() {
                 this_order: {
                     required: true,
                 },
+               
 
             },
             //messages: lang.messages,
@@ -75,20 +75,6 @@ var Categories = function() {
                 required: true
             });
         }
-
-        // var $description_div = $('#description');
-
-        // if ( $description_div.length){
-
-        //     for (var x = 0; x < langs.length; x++) {
-        //         var description = "textarea[name='description[" + langs[x] + "]']";
-        //         $(description).rules('add', {
-        //             required: true
-        //         });
-        //     }
-        // }
-
-
 
 
         $('#addEditCategoriesForm .submit-form').click(function() {

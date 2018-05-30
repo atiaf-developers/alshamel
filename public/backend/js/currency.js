@@ -74,20 +74,6 @@ var Currency = function() {
             });
         }
 
-        // var $description_div = $('#description');
-
-        // if ($description_div.length) {
-
-        //     for (var x = 0; x < langs.length; x++) {
-        //         var description = "textarea[name='description[" + langs[x] + "]']";
-        //         $(description).rules('add', {
-        //             required: true
-        //         });
-        //     }
-        // }
-
-
-
 
         $('#addEditCurrencyForm .submit-form').click(function() {
 

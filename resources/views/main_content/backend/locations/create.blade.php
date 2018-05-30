@@ -67,7 +67,7 @@
                     </div>
                     <div class="form-group form-md-line-input col-md-3">
                         <select class="form-control edited" id="currency_id" name="currency_id">
-                            @foreach($currancy as $value)
+                            @foreach($currency as $value)
                              <option  value="{{ $value->id }}">{{ $value->title }}</option>
                             @endforeach
                         </select>

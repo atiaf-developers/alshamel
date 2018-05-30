@@ -12,7 +12,6 @@ use Validator;
 class CurrencyController extends BackendController
 {
     private $rules = array(
-        // 'this_order' => 'required',
         'this_order' => 'required',
         'active' => 'required',
     );
@@ -70,11 +69,8 @@ class CurrencyController extends BackendController
         if (!$find) {
             return $this->err404();
         }
-        $currencyTranslation = CurrencyTranslation::where('currency_id', $id)->get();
-        $title = $currencyTranslation->pluck('title', 'locale')->all();
         $this->data['currency'] = $find;
-        $this->data['translations'] = $title;
-        // dd($this->data['translations']);
+        $this->data['translations'] = CurrencyTranslation::where('currency_id', $id)->get()->keyBy('locale');
         return $this->_view('currency/edit', 'backend');
     }
     public function update(Request $request, $id){
@@ -83,7 +79,7 @@ class CurrencyController extends BackendController
             return _json('error', _lang('app.error_is_occured'), 404);
         }
         $columns_arr = array(
-            'title' => 'required',
+            'title' => 'required|unique:currency_translations,title,'.$id .',currency_id',
         );
 
         $lang_rules = $this->lang_rules($columns_arr);
@@ -125,7 +121,6 @@ class CurrencyController extends BackendController
         }
         DB::beginTransaction();
         try {
-            CurrencyTranslation::where('currency_id', $currency->id)->delete();
             $currency->delete();
             DB::commit();
             return _json('success', _lang('app.deleted_successfully'));

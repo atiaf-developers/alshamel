@@ -127,17 +127,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::post('users/data', 'UsersController@data');
     Route::get('users/status/{id}', 'UsersController@status');
 
-    // Route::resource('clients', 'ClientsController');
-    // Route::post('clients/data', 'ClientsController@data');
-    // Route::get('clients/status/{id}', 'ClientsController@status');
 
-    Route::resource('stores', 'StoresController');
-    Route::post('stores/data', 'StoresController@data');
-    Route::get('stores/status/{id}', 'StoresController@status');
-
-    Route::resource('products', 'ProductController');
-    Route::get('products/status/{id}', 'ProductController@status');
-    Route::post('products/data', 'ProductController@data');
     Route::resource('orders_reports', 'OrdersReportsController');
 
     Route::post('settings', 'SettingsController@store');

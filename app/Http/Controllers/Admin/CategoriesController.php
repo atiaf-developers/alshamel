@@ -13,8 +13,8 @@ use DB;
 class CategoriesController extends BackendController {
 
     private $rules = array(
+        'this_order' => 'required',
         'active' => 'required',
-        'image' => 'required|image|mimes:gif,png,jpeg|max:1000'
     );
 
     public function __construct() {
@@ -44,7 +44,7 @@ class CategoriesController extends BackendController {
         $parent_id = $request->input('parent') ? $request->input('parent') : 0;
         $this->data['path'] = $this->node_path($request->input('parent'),true);
         $this->data['parent_id'] = $parent_id;
-        $this->data['form_type'] = Ad::$form_types;
+        $this->data['form_types'] = Ad::$form_types;
         if($parent_id!=0){
             $level=Category::find($parent_id);
             $this->data['level'] = $level->level+1;
@@ -71,7 +71,9 @@ class CategoriesController extends BackendController {
         );
         $parent = $request->parent_id;
         $this->rules['this_order'] = "required|unique:categories,this_order,NULL,id,parent_id,{$parent}";
-       
+        if ($request->input('parent_id') == 0) {
+          $this->rules['image'] = 'required|image|mimes:gif,png,jpeg|max:1000';
+        }
         $lang_rules = $this->lang_rules($columns_arr);
         $this->rules = array_merge($this->rules, $lang_rules);
         $validator = Validator::make($request->all(), $this->rules);
@@ -85,13 +87,13 @@ class CategoriesController extends BackendController {
           
 
             $category = new Category;
-            // $category->slug = str_slug($request->input('title')['en']);
+            $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
             
             $category->parent_id = $request->input('parent_id');
             if($request->form_type){
-                $category->type = $request->form_type;
+                $category->form_type = $request->form_type;
             }
             
             if ($category->parent_id != 0) {
@@ -169,7 +171,7 @@ class CategoriesController extends BackendController {
         $this->data['translations'] = CategoryTranslation::where('category_id', $id)->get()->keyBy('locale');
         $this->data['parent_id'] = $category->parent_id;
         $this->data['category'] = $category;
-        $this->data['form_type'] = Ad::$form_types;
+        $this->data['form_types'] = Ad::$form_types;
         $this->data['level'] = $category->level;
         $this->data['no_of_levels'] = $category->no_of_levels;
 
@@ -214,14 +216,14 @@ class CategoriesController extends BackendController {
 
         DB::beginTransaction();
         try {
-            // $category->slug = str_slug($request->input('title')['en']);
+            $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
             if($parent==0){
                 $category->no_of_levels = $request->input('no_of_levels');
             }
             if($request->form_type){
-                $category->type = $request->form_type;
+                $category->form_type = $request->form_type;
             }
             if ($request->file('image')) {
                 if ($category->image) {
@@ -271,7 +273,6 @@ class CategoriesController extends BackendController {
         DB::beginTransaction();
         try {
             $category->delete();
-            // Category::where('parents_ids', 'like', '%' . $id . '%')->delete();
             DB::commit();
             return _json('success', _lang('app.deleted_successfully'));
         } catch (\Exception $ex) {

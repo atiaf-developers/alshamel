@@ -64,7 +64,27 @@
             </div>
     </div>
      @endif
-     
+     @if($no_of_levels)
+     @if($level==$no_of_levels)
+     <div class="panel panel-default" id="description">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{_lang('app.form_type') }}</h3>
+        </div>
+        <div class="panel-body">
+            <div class="form-group form-md-line-input col-md-3">
+                <select class="form-control edited" id="form_type" name="form_type" required>
+                    <option value="">{{ _lang('app.Select') }}</option>
+                    @foreach($form_type as $key=>$value)
+                      <option {{ $category->type == $key ?'selected' : '' }} value="{{ $key }}">{{ $value }}</option>
+                    @endforeach
+                </select>
+                <label for="form_type">{{_lang('app.form_type') }}</label>
+                <span class="help-block"></span>
+            </div>
+        </div>
+    </div>
+     @endif
+     @endif
 
 
     <div class="panel panel-default">

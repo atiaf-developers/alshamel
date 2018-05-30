@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\BackendController;
 use App\Models\Category;
 use App\Models\CategoryTranslation;
+use App\Models\Ad;
 use Validator;
 use DB;
 
@@ -43,7 +44,17 @@ class CategoriesController extends BackendController {
         $parent_id = $request->input('parent') ? $request->input('parent') : 0;
         $this->data['path'] = $this->node_path($request->input('parent'),true);
         $this->data['parent_id'] = $parent_id;
-
+        $this->data['form_type'] = Ad::$form_types;
+        if($parent_id!=0){
+            $level=Category::find($parent_id);
+            $this->data['level'] = $level->level+1;
+            $this->data['no_of_levels'] = $level->no_of_levels;
+        }else{
+            $level=1;
+            $this->data['level'] = $level;
+            $this->data['no_of_levels'] = false;
+        }
+        
         return $this->_view('categories/create', 'backend');
     }
 
@@ -79,7 +90,10 @@ class CategoriesController extends BackendController {
             $category->this_order = $request->input('this_order');
             
             $category->parent_id = $request->input('parent_id');
-
+            if($request->form_type){
+                $category->type = $request->form_type;
+            }
+            
             if ($category->parent_id != 0) {
                 $parent = Category::find($category->parent_id);
                 $category->level = $parent->level + 1;
@@ -155,6 +169,9 @@ class CategoriesController extends BackendController {
         $this->data['translations'] = CategoryTranslation::where('category_id', $id)->get()->keyBy('locale');
         $this->data['parent_id'] = $category->parent_id;
         $this->data['category'] = $category;
+        $this->data['form_type'] = Ad::$form_types;
+        $this->data['level'] = $category->level;
+        $this->data['no_of_levels'] = $category->no_of_levels;
 
         return $this->_view('categories/edit', 'backend');
     }
@@ -202,6 +219,9 @@ class CategoriesController extends BackendController {
             $category->this_order = $request->input('this_order');
             if($parent==0){
                 $category->no_of_levels = $request->input('no_of_levels');
+            }
+            if($request->form_type){
+                $category->type = $request->form_type;
             }
             if ($request->file('image')) {
                 if ($category->image) {

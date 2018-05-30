@@ -11,7 +11,13 @@ class Ad extends MyModel
         's' => array('width' => 120, 'height' => 120),
         'm' => array('width' => 400, 'height' => 400),
     );
-    public $fields_type_one=[
+    public static $form_types=[
+        1=>'real estates',
+        2=>'land',
+        3=>'cars',
+        4=>'defualt'
+    ];
+    public static $fields_type_one=[
         'price',
         'area',
         'aqar_type',
@@ -20,12 +26,12 @@ class Ad extends MyModel
         'is_furnished',
         'car_waiting'
     ];
-    public $fields_type_two=[
+    public static $fields_type_two=[
         'price',
         'area',
         'aqar_type'
     ];
-    public $fields_type_three=[
+    public static $fields_type_three=[
         'price',
         'car_status',
         'car_model',
@@ -37,7 +43,7 @@ class Ad extends MyModel
         'unit',
         'fuel_type',
     ];
-    public $fields_type_four=[
+    public static $fields_type_four=[
         'category_one_id',
         'category_two_id',
         'country_id',
@@ -47,6 +53,6 @@ class Ad extends MyModel
         'lat',
         'lng',
         'email',
-        'phone',
+        'mobile',
     ];
 }

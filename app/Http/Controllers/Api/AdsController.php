@@ -8,43 +8,46 @@ use App\Models\Ad;
 use App\Models\Category;
 use App\Models\UserPackage;
 use App\Models\Feature;
+use Validator;
+use DB;
 class AdsController extends ApiController
 {
     private $rules = array(
         'form_type' => 'required',
+        'category_one_id'=>'required',
     );
-    private $form_types=[1,2,3,4];
+    
    
     public function index(){}
     public function store(Request $req){
-        $validator = Validator::make($request->all(), $this->rules);
+        $validator = Validator::make($req->all(), $this->rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
             return _api_json(new \stdClass(), ['errors' => $errors], 400);
         }else{
             $level=Category::find($req->category_one_id)->level;
-            if(in_array($req->form_type, $this->form_types)){
-                if($this->form_type==1){
-                    foreach(Ad::fields_type_one as $value){
+            if(isset(Ad::$form_types[$req->form_type])){
+                if($req->form_type==1){
+                    foreach(Ad::$fields_type_one as $value){
                         $this->ruels[$value]='required';
                     }
-                }elseif($this->form_type==2){
-                    foreach(Ad::fields_type_two as $value){
+                }elseif($req->form_type==2){
+                    foreach(Ad::$fields_type_two as $value){
                         $this->ruels[$value]='required';
                     }
-                }elseif($this->form_type==3){
-                    foreach(Ad::fields_type_three as $value){
+                }elseif($req->form_type==3){
+                    foreach(Ad::$fields_type_three as $value){
                         $this->ruels[$value]='required';
                     }
-                }elseif($this->form_type==4){
-                    foreach(Ad::fields_type_four as $value){
+                }elseif($req->form_type==4){
+                    foreach(Ad::$fields_type_four as $value){
                         $this->ruels[$value]='required';
                     }
                 }
                 if($level==3){
                     $this->ruels['category_three_id']='required';  
                 }
-                $validator = Validator::make($request->all(), $this->rules);
+                $validator = Validator::make($req->all(), $this->rules);
                 if ($validator->fails()) {
                     $errors = $validator->errors()->toArray();
                     return _api_json(new \stdClass(), ['errors' => $errors], 400);
@@ -60,41 +63,57 @@ class AdsController extends ApiController
                     DB::beginTransaction();
                     try{
                         $Ad=new Ad;
-                        foreach(Ad::fields_type_four as $value){
+                        foreach(Ad::$fields_type_four as $value){
                             $Ad->$value=$req->$value;
                         }
                         if($level==3){
                             $Ad->category_three_id=$req->$category_three_id;  
                         }
+                        $Ad->user_id=$user->id;
+                        if(isset($req->images) && !empty($req->images)){
+                            $images = [];
+                            foreach (json_decode($req->images) as $image) {
+                                $image = preg_replace("/\r|\n/", "", $image);
+                                if (!isBase64image($image)) {
+                                    continue;
+                                }
+                                $images[] = Ad::upload($image, 'ads', true, false, true);
+                            }
+                            $Ad->images = json_encode($images);
+                        }
                         $Ad->save();
-                        $Features=new Feature;
-                        if(in_array($this->form_type,[1,2,3])){
-                            if($this->form_type==1){
-                                foreach(Ad::fields_type_one as $key=>$value){
-                                    $Features->name=$value;
-                                    $Features->value=$req->$value;
-                                    $Features->ad_id=$Ad->id;
+                        if(in_array($req->form_type,[1,2,3])){
+                            $array=[];
+                            $arr=[];
+                            if($req->form_type==1){
+                                foreach(Ad::$fields_type_one as $key=>$value){
+                                    $arr['name']=$value;
+                                    $arr['value']=$req->$value;
+                                    $arr['ad_id']=$Ad->id;
+                                    $array[]=$arr;
                                 }
-                            }elseif($this->form_type==2){
-                                foreach(Ad::fields_type_two as $value){
-                                    $Features->name=$value;
-                                    $Features->value=$req->$value;
-                                    $Features->ad_id=$Ad->id;
+                            }elseif($req->form_type==2){
+                                foreach(Ad::$fields_type_two as $value){
+                                    $arr['name']=$value;
+                                    $arr['value']=$req->$value;
+                                    $arr['ad_id']=$Ad->id;
+                                    $array[]=$arr;
                                 }
-                            }elseif($this->form_type==3){
-                                foreach(Ad::fields_type_three as $value){
-                                    $Features->name=$value;
-                                    $Features->value=$req->$value;
-                                    $Features->ad_id=$Ad->id;
+                            }elseif($req->form_type==3){
+                                foreach(Ad::$fields_type_three as $value){
+                                    $arr['name']=$value;
+                                    $arr['value']=$req->$value;
+                                    $arr['ad_id']=$Ad->id;
+                                    $array[]=$arr;
                                 }
                             }
+                            Feature::insert($array);
                         }
-                        $Features->save();
                         DB::commit();
-                        return _api_json('message', _lang('app.added_successfully'),201);
+                        return _api_json(new \stdClass(),['message'=>_lang('app.added_successfully')]);
                     }catch(\Exception $ex){
                         DB::rollback();
-                        return _api_json('error', $ex->getMessage(), 400);
+                        return _api_json(new \stdClass(), ['message'=>$ex->getMessage()], 400);
                     }
                 }
             }else{

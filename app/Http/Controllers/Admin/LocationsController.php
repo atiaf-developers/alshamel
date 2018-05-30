@@ -261,7 +261,6 @@ class LocationsController extends BackendController {
             }
         }
     }
-
     public function data(Request $request) {
         $parent_id = $request->input('parent_id');
         $locations = Location::Join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')

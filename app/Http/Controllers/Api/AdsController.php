@@ -18,14 +18,24 @@ class AdsController extends ApiController
     );
     
    
-    public function index(){}
+    public function index(Request $req){
+        $rules=array(
+            'city_id' => 'required',
+        );
+        $validator = Validator::make($req->all(), $rules);
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            return _api_json(new \stdClass(), ['errors' => $errors], 400);
+        }
+        return _api_json(Ad::get_all($req));
+    }
     public function store(Request $req){
         $validator = Validator::make($req->all(), $this->rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
             return _api_json(new \stdClass(), ['errors' => $errors], 400);
         }else{
-            $level=Category::find($req->category_one_id)->level;
+            $level=Category::find($req->category_one_id)->no_of_levels;
             if(isset(Ad::$form_types[$req->form_type])){
                 if($req->form_type==1){
                     foreach(Ad::$fields_type_one as $value){

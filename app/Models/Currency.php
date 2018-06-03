@@ -9,8 +9,10 @@ class Currency extends MyModel
     protected $table = "currency";
 
     public function translations() {
-        return $this->hasMany(CurrencyTranslation::class, 'currency_id');
+        return $this->hasOne(CurrencyTranslation::class, 'currency_id')->where('currency_translations.locale',static::getLangCode());
     }
+
+
 
     protected static function boot() {
         parent::boot();

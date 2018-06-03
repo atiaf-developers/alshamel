@@ -17,6 +17,10 @@ class Location extends MyModel {
                         ->get();
     }
 
+    public function currancy() {
+        return $this->hasOne(Currency::class,'id' ,'currency_id');
+    }
+
     public function childrens() {
         return $this->hasMany(Location::class, 'parent_id');
     }

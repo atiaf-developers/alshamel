@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-
+use DB;
 class Ad extends MyModel
 {
     protected $table = "ads";
@@ -14,18 +14,7 @@ class Ad extends MyModel
             $join->on('favourites.ad_id','ads.id')
                  ->where('favourites.user_id', $user->id);
         });
-        if($req->is_filter==1){
-             $data_filter=$req->filter;
-            // $data_filter=array("price"=>12,"room_count"=>4);
-            // print_r((Array)json_decode($data_filter));die;
-           $Ads=$Ads->join('features',function ($join) use($data_filter) {
-               $join->on('features.ad_id','ads.id');
-               foreach((Array)json_decode($data_filter) as $key=>$value){
-                   $join->where('features.name', $key);
-                   $join->where('features.value', $value);
-               }
-           });
-        }
+        
         $Ads=$Ads->where('active',0);
         if($req->cat_id){
             $category=Category::find($req->cat_id);
@@ -35,13 +24,21 @@ class Ad extends MyModel
                 $Ads=$Ads->where('category_three_id',$req->cat_id);
             }
         }else{
-            $Ads=$Ads->where('special',1);
+            $Ads=$Ads->where('ads.special',1);
         }
 
-         $Ads=$Ads->where('city_id',$req->city_id);
-         $Ads=$Ads->groupBy('ads.id');
-         $Ads=$Ads->select(['ads.*','favourites.id as is_favourite'])->toSql();
-         dd($Ads);
+         $Ads=$Ads->where('ads.city_id',$req->city_id);
+        if($req->is_filter==1){
+            $data_filter=$req->filter;
+            $joins='';
+            $f=1;
+            foreach((Array)json_decode($data_filter) as $key=>$value){
+                $joins .=' INNER JOIN features f'.$f.' on f'.$f.'.ad_id=ad.id AND f'.$f.'.name="'.$key.'" AND f'.$f.'.value="'.$value.'"';
+                $f++;
+            }
+            $Ads=$Ads->whereIn('ads.id',[DB::raw('select ad.id from ads ad '.$joins.' GROUP BY ad.id')]);
+        }
+         $Ads=$Ads->select(['ads.*','favourites.id as is_favourite'])->get();
          return Ad::transformCollection($Ads);
     }
     public static $sizes = array(

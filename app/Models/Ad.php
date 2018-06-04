@@ -23,20 +23,29 @@ class Ad extends MyModel
             }else{
                 $Ads=$Ads->where('category_three_id',$req->cat_id);
             }
-        }else{
-            $Ads=$Ads->where('ads.special',1);
         }
-
         $Ads=$Ads->where('ads.city_id',$req->city_id);
         if($req->is_filter==1){
             $data_filter=$req->filter;
             $joins='';
             $f=1;
+            // dd((Array)json_decode($data_filter));
+            // foreach((Array)json_decode($data_filter) as $key=>$value){
+            //     $joins .=' INNER JOIN features f'.$f.' on f'.$f.'.ad_id=ad.id AND f'.$f.'.name="'.$key.'" AND f'.$f.'.value="'.$value.'"';
+            //     $f++;
+            // }
+            // $Ads=$Ads->whereIn('ads.id',[DB::raw('select ad.id from ads ad '.$joins.' GROUP BY ad.id')]);
+            $ad2=new Ad;
             foreach((Array)json_decode($data_filter) as $key=>$value){
-                $joins .=' INNER JOIN features f'.$f.' on f'.$f.'.ad_id=ad.id AND f'.$f.'.name="'.$key.'" AND f'.$f.'.value="'.$value.'"';
+                $ad2=$ad2->join('features as f'.$f.'',function ($join) use($f,$key,$value) {
+                        $join->on('f'.$f.'.ad_id','ads.id')
+                        ->where('f'.$f.'.name', $key)
+                        ->where('f'.$f.'.value', $value);
+                    });
                 $f++;
             }
-            $Ads=$Ads->whereIn('ads.id',[DB::raw('select ad.id from ads ad '.$joins.' GROUP BY ad.id')]);
+            $ad2=$ad2->select(['ads.id'])->groupBy('ads.id')->get()->toArray();
+            $Ads=$Ads->whereIn('ads.id',[$ad2]);
         }
         $Ads=$Ads->select(['ads.*','favourites.id as is_favourite'])->get();
         return Ad::transformCollection($Ads);
@@ -134,11 +143,11 @@ class Ad extends MyModel
             $featuers=$item->Features;
             foreach($featuers as $value){
                 if($form_type==1)
-                    $array=Ad::$fields_type_one;
+                    $array=Ad::$real_states_features;
                 elseif($form_type==2)
-                    $array=Ad::$fields_type_two;
+                    $array=Ad::$lands_features;
                 else
-                    $array=Ad::$fields_type_three;
+                    $array=Ad::$cars_features;
                 $title=$value->name;
                 if(in_array($title,$array)){
                     $value=$value->value;
@@ -150,9 +159,6 @@ class Ad extends MyModel
 
         $transformer->is_favourite = $item->is_favourite ? 1 : 0;
         $transformer->is_special = $item->special==0 ? 0 : 1;
-        if(!empty($filters)){
-
-        }
         return $transformer;
     }
 

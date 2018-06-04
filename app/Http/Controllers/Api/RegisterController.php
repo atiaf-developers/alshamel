@@ -14,11 +14,11 @@ use DB;
 
 class RegisterController extends ApiController {
 
-    private $client_rules_step_one = array(
+    private $step_one_rules = array(
         'step' => 'required',
         'mobile' => 'required|unique:users',
     );
-    private $client_rules = array(
+    private $rules = array(
         'step' => 'required',
         'name' => 'required',
         'username' => 'required|unique:users',
@@ -36,9 +36,9 @@ class RegisterController extends ApiController {
     public function register(Request $request) {
 
         if ($request->step == 1) {
-            $rules = $this->client_rules_step_one;
+            $rules = $this->step_one_rules;
         } else if ($request->step == 2) {
-            $rules = $this->client_rules;
+            $rules = $this->rules;
         } else {
             return _api_json(new \stdClass(), ['message' => _lang('app.error_is_occured')], 400);
         }
@@ -75,26 +75,28 @@ class RegisterController extends ApiController {
 
     private function createUser($request) {
 
-        $User = new User;
-        $active_user=1;
+        $user = new User;
+        
         $settings = $this->settings();
         $num_free_ads = $settings['num_free_ads']->value;
 
-        $User->username = $request->input('username');
-        $User->email = $request->input('email');
-        $User->password = bcrypt($request->input('password'));
-        $User->mobile = $request->input('mobile');
-        $User->name = $request->input('name');
-        $User->image = "default.png";
-        $User->num_free_ads = $num_free_ads;
-        $User->active = $active_user;
-        $User->save();
-        $Device = new Device;
-        $Device->device_id = $request->input('device_id');
-        $Device->device_token = $request->input('device_token');
-        $Device->device_type = $request->input('device_type');
-        $Device->user_id = $User->id;
-        $Device->save();
-        return $User;
+        $user->name = $request->input('name');
+        $user->username = $request->input('username');
+        $user->email = $request->input('email');
+        $user->password = bcrypt($request->input('password'));
+        $user->mobile = $request->input('mobile');
+        $user->image = "default.png";
+        $user->num_free_ads = $num_free_ads;
+        $user->active = 1;
+        $user->save();
+
+        $device = new Device;
+        $device->device_id = $request->input('device_id');
+        $device->device_token = $request->input('device_token');
+        $device->device_type = $request->input('device_type');
+        $device->user_id = $user->id;
+        $device->save();
+
+        return $user;
     }
 }

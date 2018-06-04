@@ -32,19 +32,11 @@ class User extends Authenticatable {
     public static function transform($item)
     {
         $transformer = new \stdClass();
-        if ($item->type == 1) {
-            $transformer->first_name = $item->fname;
-            $transformer->last_name = $item->lname;
-            $transformer->gender = $item->gender;
-            $transformer->gender_text = _lang('app.'.static::$gender[$item->gender]);
-            $transformer->mobile = $item->mobile;
-        }
+        $transformer->name = $item->name;
         $transformer->username = $item->username;
-        $transformer->email = $item->email ? $item->email : "";
+        $transformer->email = $item->email;
+        $transformer->mobile = $item->mobile;
         $transformer->image = url('public/uploads/users').'/'.$item->image;
-        if ($item->type == 2) {
-            $transformer->store = Store::transform($item->store);
-        }
         return $transformer;
     }
     

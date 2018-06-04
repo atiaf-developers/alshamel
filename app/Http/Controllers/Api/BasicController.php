@@ -19,11 +19,10 @@ use DB;
 class BasicController extends ApiController {
 
     private $contact_rules = array(
-        'message' => 'required',
-        'email' => 'required|email',
-        'subject' => 'required',
         'name' => 'required',
-        'store_id' => 'required'
+        'email' => 'required|email',
+        'message' => 'required',
+        'type' => 'required',
     );
 
     private $categories_rules = array(
@@ -79,32 +78,14 @@ class BasicController extends ApiController {
                 $ContactMessage = new ContactMessage;
                 $ContactMessage->name = $request->input('name');
                 $ContactMessage->email = $request->input('email');
-                $ContactMessage->subject = $request->input('subject');
                 $ContactMessage->message = $request->input('message');
-                $ContactMessage->store_id = $request->input('store_id');
+                $ContactMessage->type = $request->input('type');
                 $ContactMessage->save();
                 return _api_json('', ['message' => _lang('app.message_is_sent_successfully')]);
             } catch (\Exception $ex) {
                 return _api_json('', ['message' => _lang('app.error_is_occured')], 400);
             }
         }
-    }
-
-    public function getComplaints(Request $request) {
-        $validator = Validator::make($request->all(), ['store_id' => 'required']);
-        if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-            return _api_json([], ['errors' => $errors], 400);
-        } 
-        try {
-            $complaints = ContactMessage::where('store_id',$request->input('store_id'))
-            ->select('name','email','subject','message')
-            ->paginate($this->limit);
-            return _api_json(ContactMessage::transformCollection($complaints));
-        } catch (\Exception $ex) {
-            return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
-        }
-        
     }
 
 

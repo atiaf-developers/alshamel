@@ -12,7 +12,7 @@ class Ad extends MyModel
         $user=static::auth_user();
         $Ads=Ad::leftJoin('favourites',function ($join) use($user) {
             $join->on('favourites.ad_id','ads.id')
-                 ->where('favourites.user_id', $user->id);
+            ->where('favourites.user_id', $user->id);
         });
         
         $Ads=$Ads->where('active',0);
@@ -27,7 +27,7 @@ class Ad extends MyModel
             $Ads=$Ads->where('ads.special',1);
         }
 
-         $Ads=$Ads->where('ads.city_id',$req->city_id);
+        $Ads=$Ads->where('ads.city_id',$req->city_id);
         if($req->is_filter==1){
             $data_filter=$req->filter;
             $joins='';
@@ -38,46 +38,46 @@ class Ad extends MyModel
             }
             $Ads=$Ads->whereIn('ads.id',[DB::raw('select ad.id from ads ad '.$joins.' GROUP BY ad.id')]);
         }
-         $Ads=$Ads->select(['ads.*','favourites.id as is_favourite'])->get();
-         return Ad::transformCollection($Ads);
+        $Ads=$Ads->select(['ads.*','favourites.id as is_favourite'])->get();
+        return Ad::transformCollection($Ads);
     }
     public static $sizes = array(
         's' => array('width' => 120, 'height' => 120),
         'm' => array('width' => 400, 'height' => 400),
     );
     public static $form_types=[
-        1=>'real estates',
-        2=>'land',
-        3=>'cars',
-        4=>'defualt'
+        1 =>'real estates',
+        2 =>'lands',
+        3 =>'cars',
+        4 =>'defualt'
     ];
-    public static $fields_type_one=[
+    public static $real_states_features=[
         'price',
         'area',
-        'aqar_type',
-        'room_count',
-        'bath_count',
+        'property_type',
+        'rooms_count',
+        'baths_count',
         'is_furnished',
-        'car_waiting'
+        'has_parking'
     ];
-    public static $fields_type_two=[
+    public static $lands_features=[
         'price',
         'area',
-        'aqar_type'
     ];
-    public static $fields_type_three=[
+    public static $cars_features=[
         'price',
         'car_status',
         'car_model',
         'manufacturing_year',
         'motion_vector',
-        'power',
-        'drive_system',
+        'engine_capacity',
+        'propulsion_system',
         'counter',
         'unit',
         'fuel_type',
     ];
-    public static $fields_type_four=[
+    public static $defualt_features=[
+        'form_type',
         'category_one_id',
         'category_two_id',
         'country_id',
@@ -89,6 +89,31 @@ class Ad extends MyModel
         'email',
         'mobile',
     ];
+
+    public static function validation_rules($type)
+    {
+        $features = array();
+        $rules = array();
+        switch ($type) {
+            case 1:
+            $validation_rules =static::$real_states_features;
+            break;
+            case 2:
+            $validation_rules = static::$lands_features;
+            break;
+            case 3:
+            $validation_rules = static::$cars_features;
+            break;
+            default:
+            $validation_rules = array();
+            break;
+        }
+        $features = array_merge($validation_rules,static::$defualt_features);
+        foreach($features as $value){
+            $rules[$value]='required';
+        }
+        return $rules;
+    }
     public static function transform(Ad $item,$filters=array()){
         $transformer = new \stdClass();
         $transformer->id = $item->id;
@@ -109,11 +134,11 @@ class Ad extends MyModel
             $featuers=$item->Features;
             foreach($featuers as $value){
                 if($form_type==1)
-                $array=Ad::$fields_type_one;
+                    $array=Ad::$fields_type_one;
                 elseif($form_type==2)
-                $array=Ad::$fields_type_two;
+                    $array=Ad::$fields_type_two;
                 else
-                $array=Ad::$fields_type_three;
+                    $array=Ad::$fields_type_three;
                 $title=$value->name;
                 if(in_array($title,$array)){
                     $value=$value->value;
@@ -126,7 +151,7 @@ class Ad extends MyModel
         $transformer->is_favourite = $item->is_favourite ? 1 : 0;
         $transformer->is_special = $item->special==0 ? 0 : 1;
         if(!empty($filters)){
-            
+
         }
         return $transformer;
     }
@@ -136,11 +161,11 @@ class Ad extends MyModel
     }
     public function Categories() {
         if(Ad::$level==1)
-        return $this->hasOne(Category::class,'id', 'category_one_id');
+            return $this->hasOne(Category::class,'id', 'category_one_id');
         elseif(Ad::$level==2)
-        return $this->hasOne(Category::class,'id', 'category_two_id');
+            return $this->hasOne(Category::class,'id', 'category_two_id');
         else
-        return $this->hasOne(Category::class,'id', 'category_three_id');
+            return $this->hasOne(Category::class,'id', 'category_three_id');
     }
     public function Location(){
         return $this->hasOne(Location::class,'id', 'city_id');

@@ -27,20 +27,21 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('register', 'RegisterController@register');
 
     Route::get('setting', 'BasicController@getSettings');
-    Route::get('get_categories', 'BasicController@getCategories');
+    
 
     Route::group(['middleware' => 'jwt.auth'], function () {
 
         Route::post('user/update', 'UserController@update');
         Route::get('logout', 'UserController@logout');
+        Route::get('get_categories', 'BasicController@getCategories');
         
-        Route::get('store_categories', 'BasicController@getStoreCategories');
         Route::get('get_user', 'UserController@getUser');
-        Route::post('rate', 'UserController@rate');
+
         Route::get('favourites', 'UserController@favourites');
+
         Route::post('handle_favourites','UserController@handleFavourites');
-        Route::post('send_complaint', 'BasicController@sendContactMessage');
-        Route::get('complaints', 'BasicController@getComplaints');
+        Route::post('send_contact_message', 'BasicController@sendContactMessage');
+       
         
     
         

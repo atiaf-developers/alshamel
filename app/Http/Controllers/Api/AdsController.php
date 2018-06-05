@@ -16,6 +16,8 @@ class AdsController extends ApiController
     public function index(Request $request){
         $rules=array(
             'city_id' => 'required',
+            'lat' => 'required',
+            'lng' => 'required',
         );
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
@@ -36,7 +38,6 @@ class AdsController extends ApiController
             $ruels['category_three_id']='required';
         }
         $rules = Ad::validation_rules($request->input('form_type'));
-
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();

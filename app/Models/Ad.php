@@ -15,7 +15,7 @@ class Ad extends MyModel
             ->where('favourites.user_id', $user->id);
         });
         
-        $Ads=$Ads->where('active',0);
+        $Ads=$Ads->where('active',1);
         if($req->cat_id){
             $category=Category::find($req->cat_id);
             if($category->no_of_levels==2){
@@ -29,31 +29,52 @@ class Ad extends MyModel
             $data_filter=$req->filter;
             $joins='';
             $f=1;
-            // dd((Array)json_decode($data_filter));
-            // foreach((Array)json_decode($data_filter) as $key=>$value){
-            //     $joins .=' INNER JOIN features f'.$f.' on f'.$f.'.ad_id=ad.id AND f'.$f.'.name="'.$key.'" AND f'.$f.'.value="'.$value.'"';
-            //     $f++;
-            // }
-            // $Ads=$Ads->whereIn('ads.id',[DB::raw('select ad.id from ads ad '.$joins.' GROUP BY ad.id')]);
             $ad2=new Ad;
             foreach((Array)json_decode($data_filter) as $key=>$value){
                 $ad2=$ad2->join('features as f'.$f.'',function ($join) use($f,$key,$value) {
+                    if(is_array($value)){
+                        $join->on('f'.$f.'.ad_id','ads.id')
+                        ->where('f'.$f.'.name', $key)
+                        ->whereBetween('f'.$f.'.value', [$value[0],$value[1]]);
+                    }else{
                         $join->on('f'.$f.'.ad_id','ads.id')
                         ->where('f'.$f.'.name', $key)
                         ->where('f'.$f.'.value', $value);
-                    });
+                    }    
+                });
                 $f++;
             }
             $ad2=$ad2->select(['ads.id'])->groupBy('ads.id')->get()->toArray();
+            if($ad2)
             $Ads=$Ads->whereIn('ads.id',[$ad2]);
+            else
+            $Ads=$Ads->whereIn('ads.id',array());
+
+            if($req->filter_show){
+                $filter_show_array=json_decode($req->filter_show);
+                if(is_array($filter_show_array)){
+                    if(in_array(1,$filter_show_array)){
+                        $day=date('Y-m-d');
+                        $Ads=$Ads->whereDate('ads.created_at',$day);
+                    }elseif(in_array(2,$filter_show_array)){
+                        $Ads=$Ads->whereNull('ads.images');
+                    }elseif(in_array(3,$filter_show_array)){
+                        $Ads=$Ads->whereNotNull('ads.images');
+                    }elseif(in_array(4,$filter_show_array)){
+                        $Ads=$Ads->orderBy('distance', 'asc');
+                    }
+                }
+            }
         }
-        $Ads=$Ads->select(['ads.*','favourites.id as is_favourite'])->get();
+        $Ads=$Ads->select(['ads.*','favourites.id as is_favourite',DB::raw(static::iniDiffLocations('ads',$req->lat,$req->lng))])->get();
+        // dd($Ads);
         return Ad::transformCollection($Ads);
     }
     public static $sizes = array(
         's' => array('width' => 120, 'height' => 120),
         'm' => array('width' => 400, 'height' => 400),
     );
+    public static $filter=[1,2,3,4];
     public static $form_types=[
         1 =>'real estates',
         2 =>'lands',

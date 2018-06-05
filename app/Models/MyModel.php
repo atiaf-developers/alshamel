@@ -27,6 +27,11 @@ class MyModel extends Model {
 
         return $user;
     }
+    protected static function iniDiffLocations($tableName, $lat, $lng)
+    {
+        $diffLocations = "SQRT(POW(69.1 * ($tableName.lat - {$lat}), 2) + POW(69.1 * ({$lng} - $tableName.lng) * COS($tableName.lat / 57.3), 2)) as distance";
+        return $diffLocations;
+    }
 
  
    

@@ -17,6 +17,7 @@ class AdsController extends ApiController
         $rules=array(
             'city_id' => 'required',
         );
+
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();

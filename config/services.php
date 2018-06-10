@@ -36,9 +36,9 @@ return [
     ],
 
     'facebook' => [
-    'client_id' => '2170570492972312',         
-    'client_secret' => 'f72c89d9602989a66163be1f48929afe', 
-    'redirect' => 'http://localhost/ga3aaan/'.app()->getLocale().'/login/facebook/callback',
-],
+        'client_id' => '2170570492972312',         
+        'client_secret' => 'f72c89d9602989a66163be1f48929afe', 
+        'redirect' => 'http://localhost/ga3aaan/'.app()->getLocale().'/login/facebook/callback',
+    ],
 
 ];

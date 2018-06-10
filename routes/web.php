@@ -127,6 +127,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::post('users/data', 'UsersController@data');
     Route::get('users/status/{id}', 'UsersController@status');
 
+    Route::resource('ads', 'AdsController');
+    Route::post('ads/data', 'AdsController@data');
+    Route::get('ads/special/{id}', 'AdsController@special');
+    Route::get('ads/active/{id}', 'AdsController@active');
+
 
     Route::resource('orders_reports', 'OrdersReportsController');
 

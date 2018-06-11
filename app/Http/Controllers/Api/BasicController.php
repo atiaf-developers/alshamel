@@ -10,8 +10,10 @@ use App\Models\User;
 use App\Models\Setting;
 use App\Models\SettingTranslation;
 use App\Models\Category;
-use App\Models\Store;
+use App\Models\Location;
 use App\Models\ContactMessage;
+use App\Models\Rating;
+use App\Models\Ad;
 use App\Helpers\Fcm;
 use Carbon\Carbon;
 use DB;
@@ -25,13 +27,8 @@ class BasicController extends ApiController {
         'type' => 'required',
     );
 
-    private $categories_rules = array(
-        'lat' => 'required',
-        'lng' => 'required'
-    );
-
-    private $store_categories_rules = array(
-        'store_id' => 'required',
+    private $raters = array(
+        'ad_id' => 'required',
     );
 
 
@@ -61,7 +58,12 @@ class BasicController extends ApiController {
 
     public function getSettings() {
         try {
-            $settings = SettingTranslation::where('locale', $this->lang_code)->first();
+            $settings = Setting::select('name', 'value')->get()->keyBy('name');
+            $settings['social_media'] = json_decode($settings['social_media']->value);
+            $settings['phone'] =  explode(",",$settings['phone']->value);
+            $settings['email'] =  explode(",",$settings['email']->value);
+            $settings['info'] = SettingTranslation::where('locale', $this->lang_code)->first();
+            unset($settings['num_free_ads']);
             return _api_json($settings);
         } catch (\Exception $e) {
             return _api_json(new \stdClass(), ['message' => $e->getMessage()], 400);
@@ -88,74 +90,70 @@ class BasicController extends ApiController {
         }
     }
 
-
-    public function getCategories(Request $request) {
+    public function getLocations()
+    {
         try {
-            $user = $this->auth_user();
-            if ($user) {
-                $validator = Validator::make($request->all(), $this->categories_rules);
-                if ($validator->fails()) {
-                    $errors = $validator->errors()->toArray();
-                    return _api_json('', ['errors' => $errors], 400);
-                }
-            }
-            $categories = $this->categories($request,$user);
-            return $categories;
+            $locations = Location::getAll();
+            return _api_json(Location::transformCollection($locations));
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
     }
 
-    public function getStoreCategories(Request $request) {
+    public function getCategories(Request $request) {
         try {
-            $validator = Validator::make($request->all(), $this->store_categories_rules);
+            $categories_tree = array();
+            $categories = Category::getAll();
+            $categories_tree = $this->buildTree($categories);
+            return _api_json($categories_tree);
+        } catch (\Exception $e) {
+            return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
+        }
+    }
+
+    public function getAdRaters(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), $this->raters);
             if ($validator->fails()) {
                 $errors = $validator->errors()->toArray();
                 return _api_json('', ['errors' => $errors], 400);
             }
-            $categories = $this->storeCategories($request->input('store_id'));
-            return _api_json(Category::transformCollection($categories));
+            $ad = Ad::find($request->input('ad_id'));
+            if (!$ad) {
+                $message = _lang('app.not_found');
+                return _api_json('', ['message' => $message], 404);
+            }
+            $raters = array();
+
+            $raters = Rating::join('rating_users','rating.id','=','rating_users.rating_id')
+                              ->join('users','users.id','=','rating_users.user_id')
+                              ->where('rating.entity_id',$ad->id)
+                              ->select('users.name','users.image','rating.score','rating_users.comment','rating.created_at')
+                              ->paginate($this->limit);
+            return _api_json(Rating::transformCollection($raters));
+            
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
     }
 
 
-    private function categories($request,$user = null)
-    {
-        $settings = $this->settings();
-        $distance = $settings['search_range_for_stores']->value;
-        $columns = ["categories.id", "categories_translations.title"];
-        
-        if ($user) {
-            $columns[] = "categories.image";
-            $lat = $request->input('lat');
-            $lng = $request->input('lng');
-
-            $store = Store::leftJoin('ratings', function ($join) use($user) {
-                $join->on('ratings.store_id', '=', 'stores.id');
-                $join->where('ratings.user_id',  $user->id);
-            })
-            ->where('stores.active',true)
-            ->select(['stores.id','stores.name','stores.description','stores.image','stores.mobile','stores.lat','stores.lng','stores.address','stores.available','ratings.id as is_rated',DB::raw("(SELECT Count(*) FROM products WHERE store_id = stores.id and active = 1) as number_of_products"),'stores.rate',DB::raw($this->iniDiffLocations('stores', $lat, $lng))])
-            ->having('distance','<=',$distance)
-            ->orderBy('distance')
-            ->first();
+    private function buildTree($elements, $parentId = 0) {
+        $branch = array();
+        foreach ($elements as $element) {
+            if ($element->parent_id == $parentId) {
+                $children = $this->buildTree($elements, $element->id);
+                if ($children) { 
+                   $element['childrens'] = $children;
+                }
+                $branch[] = Category::transform($element);
+            }
         }
-
-        $categories =  Category::Join('categories_translations', 'categories.id', '=', 'categories_translations.category_id')
-        ->where('categories_translations.locale', $this->lang_code)
-        ->where('categories.active', true)
-        ->where('categories.parent_id', 0)
-        ->orderBy('categories.this_order')
-        ->select($columns)
-        ->get();
-
-        if ($user) {
-            return _api_json(Category::transformCollection($categories),['store' => Store::transform($store)]);
-        }else{
-            return _api_json(Category::transformCollection($categories));
-        } 
+        return $branch;
     }
+
+
 
 }

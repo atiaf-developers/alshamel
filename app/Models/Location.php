@@ -8,14 +8,24 @@ class Location extends MyModel {
 
     protected $table = "locations";
 
-    public static function getAll() {
+    protected $casts = [
+        'id' => 'integer'
+    ];
+    public static $sizes = array(
+        's' => array('width' => 120, 'height' => 120),
+        'm' => array('width' => 400, 'height' => 400),
+    );
+
+    public static function getAll($parent_id = 0) {
         return static::join('locations_translations as trans', 'locations.id', '=', 'trans.location_id')
-                        ->select('locations.id', "trans.title")
                         ->orderBy('locations.this_order', 'ASC')
-                        ->where('locations.parent_id',0)
+                        ->where('locations.parent_id',$parent_id)
                         ->where('trans.locale', static::getLangCode())
+                        ->select('locations.id','locations.parent_id','trans.title','locations.image')
                         ->get();
     }
+
+   
 
     public function currancy() {
         return $this->hasOne(Currency::class,'id' ,'currency_id');
@@ -29,9 +39,19 @@ class Location extends MyModel {
         return $this->hasMany(LocationTranslation::class, 'location_id');
     }
 
-    public function supervisor() {
-        return $this->belongsTo(Supervisor::class, 'supervisor_id');
-    }
+   public static function transform($item)
+   {
+       $transformer = new \stdClass();
+       $transformer->id = $item->id;
+       $transformer->title = $item->title;
+
+       if ($item->parent_id == 0) {
+        $transformer->cities = static::transformCollection(static::getAll($item->id));
+        $transformer->image = url('public/uploads/locations').'/'.$item->image;
+       }
+
+       return $transformer;
+   }
 
     protected static function boot() {
         parent::boot();

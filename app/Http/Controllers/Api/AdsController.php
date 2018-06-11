@@ -115,4 +115,22 @@ class AdsController extends ApiController
         }
     }
 
+
+    public function update(Request $request,$id)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), $rules);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                return _api_json('', ['errors' => $errors], 400);
+            }
+            $rules = Ad::validation_rules($request->input('form_type'));
+            
+        } catch (\Exception $e) {
+            return _api_json(new \stdClass(), ['message'=> _lang('app.error_is_occured')], 400);
+        }
+        
+    }
+
 }

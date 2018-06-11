@@ -9,15 +9,22 @@ use App\Models\User;
 use App\Models\Device;
 use App\Models\Ad;
 use App\Models\Favourite;
+use App\Models\AdReport;
 use Validator;
 use DB;
 
 class UserController extends ApiController {
 
     private $rate_rules = array(
-        'store_id' => 'required',
-        'rate' => 'required'
+        'ad_id' => 'required',
+        'rate' => 'required',
     );
+
+    private $report_rules = array(
+        'ad_id' => 'required',
+        'type' => 'required|in:1,2,3',
+    );
+    
 
     private $favourite_rules = array(
         'ad_id' => 'required'
@@ -117,7 +124,6 @@ class UserController extends ApiController {
     }
 
     public function rate(Request $request) {
-
         $validator = Validator::make($request->all(), $this->rate_rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
@@ -125,30 +131,23 @@ class UserController extends ApiController {
         }
         
         $user = $this->auth_user();
-        $store = Store::find($request->input('store_id'));
-        if (!$store) {
+        $ad = Ad::find($request->input('ad_id'));
+        if (!$ad) {
             $message = _lang('app.not_found');
             return _api_json('', ['message' => $message], 404);
         }
         DB::beginTransaction();
         try {
-
-            $rate = new Rating;
-            $rate->user_id = $user->id;
-            $rate->store_id = $request->input('store_id');
-            $rate->rate = $request->input('rate');
-            $rate->save();
-
-            $store_new_rate = Rating::where('store_id', $request->input('store_id'))
-            ->select(DB::raw(' SUM(rate)/COUNT(*) as rate'))
-            ->first();
-            $store->rate = $store_new_rate->rate;
-            $store->save();
+            $comment = $request->input('comment') ? $request->input('comment') : "";
+            $this->new_rate($ad->id, $request->rate, $user->id, $comment);
+            $ad->rate = $this->countRates($ad->id);
+            $ad->save();
             DB::commit();
             $message = _lang('app.rated_successfully');
             return _api_json('', ['message' => $message]);
         } catch (\Exception $e) {
             DB::rollback();
+
             $message = _lang('app.error_is_occured');
             return _api_json('', ['message' => $message], 400);
         }
@@ -188,6 +187,40 @@ class UserController extends ApiController {
             $message = _lang('app.error_is_occured');
             return _api_json('', ['message' => $message],400);
         }
+    }
+
+
+    public function reportAd(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(), $this->report_rules);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                return _api_json('', ['errors' => $errors], 400);
+            } 
+
+            $ad = Ad::find($request->input('ad_id'));
+            if (!$ad) {
+                $message = _lang('app.not_found');
+                return _api_json('', ['message' => $message], 404);
+            }
+            
+            $user = $this->auth_user();
+            $report = new AdReport;
+            $report->user_id = $user->id;
+            $report->ad_id = $request->input('ad_id');
+            $report->type = $request->input('type');
+            $report->save();
+
+            $message = _lang('app.ad_was_reported');
+            return _api_json('', ['message' => $message]);
+            
+        } catch (\Exception $e) {
+            $message = _lang('app.error_is_occured');
+            return _api_json('', ['message' => $message],400);
+        }
+        
     }
 
 

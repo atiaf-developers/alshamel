@@ -25,7 +25,19 @@
             <div class="form-body">
 
                 <div class="form-group form-md-line-input col-md-6">
-                    <input type="number" class="form-control" id="search_range_for_stores" name="setting[num_free_ads]" value="{{ isset($settings['num_free_ads']) ? $settings['num_free_ads']->value : '' }}">
+                    <input type="text" class="form-control" id="phone" name="setting[phone]" value="{{ isset($settings['phone']) ? $settings['phone']->value : '' }}">
+                    <label for="phone">{{_lang('app.phone') }}</label>
+                    <span class="help-block"></span>
+                </div>
+
+                <div class="form-group form-md-line-input col-md-6">
+                    <input type="text" class="form-control" id="email" name="setting[email]" value="{{ isset($settings['email']) ? $settings['email']->value : '' }}">
+                    <label for="phone">{{_lang('app.email') }}</label>
+                    <span class="help-block"></span>
+                </div>
+
+                <div class="form-group form-md-line-input col-md-6">
+                    <input type="number" class="form-control" id="num_free_ads" name="setting[num_free_ads]" value="{{ isset($settings['num_free_ads']) ? $settings['num_free_ads']->value : '' }}">
                     <label for="phone">{{_lang('app.num_of_free_ads') }}</label>
                     <span class="help-block"></span>
                 </div>

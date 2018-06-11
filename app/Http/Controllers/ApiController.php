@@ -12,12 +12,14 @@ use App\Models\Order;
 use App\Models\Notification;
 use App\Models\Setting;
 use App\Traits\Basic;
+use App\Traits\Rate;
 use App\Models\Category;
 use Request;
 
 class ApiController extends Controller {
 
     use Basic;
+    use Rate;
 
     protected $lang_code;
     protected $User;

@@ -113,8 +113,9 @@ class CategoriesController extends BackendController {
             } else {
                 $category->level = 1;
                 $category->no_of_levels = $request->input('no_of_levels');
+                $category->image = Category::upload($request->file('image'), 'categories', true);
             }
-            $category->image = Category::upload($request->file('image'), 'categories', true);
+            
             $category->save();
 
             $category_translations = array();

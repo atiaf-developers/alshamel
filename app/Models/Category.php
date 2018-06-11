@@ -14,9 +14,10 @@ class Category extends MyModel {
 
     public static function getAll() {
         return static::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
-                        ->select('categories.id', "trans.title")
                         ->orderBy('categories.this_order', 'ASC')
                         ->where('trans.locale', static::getLangCode())
+                        ->where('categories.active', true)
+                        ->select('categories.id','categories.parent_id','trans.title','categories.image')
                         ->get();
     }
 
@@ -30,6 +31,9 @@ class Category extends MyModel {
         $transformer->title = $item->title;
         if ($item->image) {
             $transformer->image = url('public/uploads/categories').'/'.$item->image;
+        }
+        if ($item->childrens) {
+            $transformer->childrens = $item->childrens;
         }
         return $transformer;
     }

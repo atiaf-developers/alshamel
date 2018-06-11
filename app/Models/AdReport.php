@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Favourit extends MyModel
+class AdReport extends MyModel
 {
-    protected $table = "favourites";
+    protected $table = "ad_reports";
 }

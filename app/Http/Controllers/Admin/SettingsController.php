@@ -13,6 +13,8 @@ class SettingsController extends BackendController {
 
     private $rules = array(
         'setting.num_free_ads' => 'required',
+        'setting.phone' => 'required',
+        'setting.email' => 'required',
     );
 
     public function index() {
@@ -65,7 +67,6 @@ class SettingsController extends BackendController {
                 return _json('success', _lang('app.updated_successfully'));
             } catch (\Exception $ex) {
                 DB::rollback();
-                dd($ex->getMessage());
                 return _json('error', _lang('app.error_is_occured'), 400);
             }
         }

@@ -18,33 +18,27 @@ Route::get('user', function (Request $request) {
 })->middleware('jwt.auth');
 Route::group(['namespace' => 'Api'], function () {
 
-
-
     Route::get('token', 'BasicController@getToken');
-    
-
+    Route::get('settings', 'BasicController@getSettings');
     Route::post('login', 'LoginController@login');
     Route::post('register', 'RegisterController@register');
-
+    Route::get('locations', 'BasicController@getLocations');
     Route::get('setting', 'BasicController@getSettings');
+    Route::get('categories', 'BasicController@getCategories');
+    Route::post('ad_raters', 'BasicController@getAdRaters');
+    
     
 
     Route::group(['middleware' => 'jwt.auth'], function () {
 
         Route::post('user/update', 'UserController@update');
         Route::get('logout', 'UserController@logout');
-        Route::get('get_categories', 'BasicController@getCategories');
-        
         Route::get('get_user', 'UserController@getUser');
-
         Route::get('favourites', 'UserController@favourites');
-
+        Route::post('rate','UserController@rate');
         Route::post('handle_favourites','UserController@handleFavourites');
+        Route::post('report', 'UserController@reportAd');
         Route::post('send_contact_message', 'BasicController@sendContactMessage');
-       
-        
-    
-        
         Route::resource('ads', 'AdsController');
         
     });

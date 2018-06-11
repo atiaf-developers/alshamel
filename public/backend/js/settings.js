@@ -12,6 +12,12 @@ var Settings = function() {
                 'setting[num_free_ads]': {
                     required: true
                 },
+                'setting[phone]': {
+                    required: true
+                },
+                'setting[email]': {
+                    required: true
+                },
                 'setting[social_media][facebook]': {
                     required: true
                 },
@@ -112,9 +118,8 @@ var Settings = function() {
                                     var key_text = key_arr[0] + '[' + key_arr[1] + ']';
                                     i = key_text;
                                 }
-                                $('[name="' + i + '"]')
-                                .closest('.form-group').addClass('has-error');
-                                $('#' + i).closest('.form-group').find(".help-block").html(message).css('opacity', 1)
+                                $('[name="' + i + '"]').closest('.form-group').addClass('has-error');
+                                $('[name="' + i + '"]').closest('.form-group').find(".help-block").html(message).css('opacity', 1);
                             }
                         }
                         if (typeof data.message !== 'undefined') {

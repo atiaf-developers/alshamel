@@ -7,10 +7,11 @@
 @if($path)
 <li><a href="{{route('categories.index')}}">{{_lang('app.categories')}}</a> <i class="fa fa-circle"></i></li>
 {!!$path!!}
-<li><span> {{_lang('app.edit')}}</span></li>
 @else
-<li><span> {{_lang('app.categories')}}</span></li>
+<li><a href="{{route('categories.index')}}">{{_lang('app.categories')}}</a> <i class="fa fa-circle"></i></li>
 @endif
+
+<li><span> {{_lang('app.edit')}}</span></li>
 @endsection
 
 @section('js')
@@ -22,7 +23,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.category_title') }}</h3>
+            <h3 class="panel-title">{{_lang('app.title') }}</h3>
         </div>
         <div class="panel-body">
 
@@ -34,7 +35,7 @@
 
                 <div class="form-group form-md-line-input col-md-6">
                     <input type="text" class="form-control" id="title[{{ $key }}]" name="title[{{ $key }}]" value="{{  $translations["$key"]->title }}">
-                    <label for="title">{{_lang('app.title') }} {{ _lang('app. '.$key.'') }}</label>
+                    <label for="title">{{ _lang('app.'.$value) }}</label>
                     <span class="help-block"></span>
                 </div>
 
@@ -47,107 +48,83 @@
 
     </div>
 
-    @if ($parent_id == 0)
-    <div class="panel panel-default" id="description">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.Number_of_levels') }}</h3>
-        </div>
-        <div class="panel-body">
-            <div class="form-group form-md-line-input col-md-3">
-                <select class="form-control edited" id="no_of_levels" name="no_of_levels">
-                    <option {{ $category->no_of_levels == 2 ?'selected' : '' }} value="2">{{ _lang('app.Two_level') }}</option>
-                    <option {{ $category->no_of_levels == 3 ?'selected' : '' }} value="3">{{ _lang('app.Three_level') }}</option>
-                </select>
-                <label for="no_of_levels">{{_lang('app.Number_of_levels') }}</label>
-                <span class="help-block"></span>
-            </div>
-        </div>
-    </div>
-    @endif
-    @if($no_of_levels)
-    @if($level==$no_of_levels)
-    <div class="panel panel-default" id="description">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.form_type') }}</h3>
-        </div>
-        <div class="panel-body">
-            <div class="form-group form-md-line-input col-md-3">
-                <select class="form-control edited" id="form_type" name="form_type" required>
-                    <option value="">{{ _lang('app.Select') }}</option>
-                    @foreach($form_types as $key=>$value)
-                    <option {{ $category->type == $key ?'selected' : '' }} value="{{ $key }}">{{ $value }}</option>
-                    @endforeach
-                </select>
-                <label for="form_type">{{_lang('app.form_type') }}</label>
-                <span class="help-block"></span>
-            </div>
-        </div>
-    </div>
-    @endif
-    @endif
+ 
 
 
     <div class="panel panel-default">
-     <div class="panel-heading">
-        <h3 class="panel-title"></h3>
-    </div>
-    <div class="panel-body">
+        <div class="panel-heading">
+            <h3 class="panel-title"></h3>
+        </div>
+        <div class="panel-body">
 
 
-        <div class="form-body">
-            <div class="form-group form-md-line-input col-md-4">
-                <input type="number" class="form-control" id="this_order" name="this_order" value="{{ $category->this_order }}">
-                <label for="this_order">{{_lang('app.this_order') }}</label>
-                <span class="help-block"></span>
-            </div>
-            <div class="form-group form-md-line-input col-md-3">
-                <select class="form-control edited" id="active" name="active">
-                    <option {{ $category->active == 1 ?'selected' : '' }} value="1">{{ _lang('app.active') }}</option>
-                    <option {{ $category->active == 0 ?'selected' : '' }} value="0">{{ _lang('app.not_active') }}</option>
-                </select>
-                <label for="status">{{_lang('app.status') }}</label>
-                <span class="help-block"></span>
-            </div> 
-
-            <div class="clearfix"></div>
-            @if ($category->parent_id == 0)
-            <div class="form-group col-md-6">
-                <label class="control-label">{{_lang('app.image')}}</label>
-
-                <div class="image_box">
-                    @if ($category->image)
-                    <img src="{{url('public/uploads/categories').'/'.$category->image}}" width="100" height="80" class="image" />
-                    @else
-                    <img src="{{url('no-image.png')}}" width="100" height="80" class="image" />
+            <div class="form-body">
+                <div class="form-group form-md-line-input col-md-4">
+                    <input type="number" class="form-control" id="this_order" name="this_order" value="{{ $category->this_order }}">
+                    <label for="this_order">{{_lang('app.this_order') }}</label>
+                    <span class="help-block"></span>
+                </div>
+                <div class="form-group form-md-line-input col-md-3">
+                    <select class="form-control" id="active" name="active">
+                        <option {{ $category->active == 1 ?'selected' : '' }} value="1">{{ _lang('app.active') }}</option>
+                        <option {{ $category->active == 0 ?'selected' : '' }} value="0">{{ _lang('app.not_active') }}</option>
+                    </select>
+                    <label for="status">{{_lang('app.status') }}</label>
+                    <span class="help-block"></span>
+                </div> 
+                @if($level==2||$level==3)
+                <div class="form-group form-md-line-input col-md-3">
+                    <select class="form-control" id="form_type" name="form_type" required>
+                        <option value="">{{ _lang('app.Select') }}</option>
+                        @foreach($form_types as $key=>$value)
+                        <option {{ $category->form_type == $key ?'selected' : '' }} value="{{ $key }}">{{ $value }}</option>
+                        @endforeach
+                    </select>
+                    <label for="form_type">{{_lang('app.form_type') }}</label>
+                    <span class="help-block"></span>
+                </div>
                     @endif
 
+                <div class="clearfix"></div>
+                @if ($level==1||$level==2)
+                <div class="form-group col-md-6">
+                    <label class="control-label">{{_lang('app.image')}}</label>
 
+                    <div class="image_box">
+                        @if ($category->image)
+                        <img src="{{url('public/uploads/categories').'/'.$category->image}}" width="100" height="80" class="image" />
+                        @else
+                        <img src="{{url('no-image.png')}}" width="100" height="80" class="image" />
+                        @endif
+
+
+                    </div>
+                    <input type="file" name="image" id="image" style="display:none;">     
+                    <span class="help-block"></span>             
                 </div>
-                <input type="file" name="image" id="image" style="display:none;">     
-                <span class="help-block"></span>             
+                @endif
+
             </div>
-            @endif
-
         </div>
+
+        <div class="panel-footer text-center">
+            <button type="button" class="btn btn-info submit-form"
+                    >{{_lang('app.save') }}</button>
+        </div>
+
+
     </div>
-
-    <div class="panel-footer text-center">
-        <button type="button" class="btn btn-info submit-form"
-        >{{_lang('app.save') }}</button>
-    </div>
-
-
-</div>
 
 
 </form>
 <script>
-    var new_lang = {
+var new_lang = {
 
-    };
-    var new_config = {
-        parent_id: "{{$parent_id}}"
-    };
+};
+var new_config = {
+    parent_id: "{{$parent_id}}",
+    level: "{{$level}}",
+};
 
 </script>
 @endsection

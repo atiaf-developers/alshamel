@@ -122,6 +122,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
 
     Route::resource('categories', 'CategoriesController');
     Route::post('categories/data', 'CategoriesController@data');
+    Route::resource('property_types', 'PropertyTypesController');
+    Route::post('property_types/data', 'PropertyTypesController@data');
 
     Route::resource('users', 'UsersController');
     Route::post('users/data', 'UsersController@data');

@@ -13,10 +13,12 @@ use DB;
 class CategoriesController extends BackendController {
 
     private $rules = array(
+        'this_order' => 'required',
         'active' => 'required',
     );
 
     public function __construct() {
+
         parent::__construct();
         $this->middleware('CheckPermission:categories,open', ['only' => ['index']]);
         $this->middleware('CheckPermission:categories,add', ['only' => ['store']]);
@@ -25,7 +27,7 @@ class CategoriesController extends BackendController {
     }
 
     public function index(Request $request) {
-
+      
         $parent_id = $request->input('parent') ? $request->input('parent') : 0;
         $this->data['path'] = $this->node_path($parent_id);
         $this->data['parent_id'] = $parent_id;
@@ -40,16 +42,19 @@ class CategoriesController extends BackendController {
      */
     public function create(Request $request) {
         $parent_id = $request->input('parent') ? $request->input('parent') : 0;
-        $this->data['path'] = $this->node_path($request->input('parent'), true);
+        $this->data['path'] = $this->node_path($request->input('parent'),true);
         $this->data['parent_id'] = $parent_id;
         $this->data['form_types'] = Ad::$form_types;
-        if ($parent_id != 0) {
-            $category = Category::find($parent_id);
-            $this->data['level'] = $category->level + 1;
-        } else {
-            $this->data['level'] = 1;
+        if($parent_id!=0){
+            $level=Category::find($parent_id);
+            $this->data['level'] = $level->level+1;
+            $this->data['no_of_levels'] = $level->no_of_levels;
+        }else{
+            $level=1;
+            $this->data['level'] = $level;
+            $this->data['no_of_levels'] = false;
         }
-
+        
         return $this->_view('categories/create', 'backend');
     }
 
@@ -60,14 +65,17 @@ class CategoriesController extends BackendController {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $this->rules['this_order'] = "required|unique:categories,this_order,NULL,id,parent_id,{$request->parent_id}";
-        if ($request->level == 1 || $request->level == 2) {
-            $this->rules['image'] = 'required|image|mimes:gif,png,jpeg|max:1000';
+
+        $columns_arr = array(
+            'title' => 'required|unique:categories_translations,title'
+        );
+        $parent = $request->parent_id;
+        $this->rules['this_order'] = "required|unique:categories,this_order,NULL,id,parent_id,{$parent}";
+        if ($request->input('parent_id') == 0) {
+          $this->rules['image'] = 'required|image|mimes:gif,png,jpeg|max:1000';
         }
-        if ($request->level == 2 || $request->level == 3) {
-            $this->rules['form_type'] = 'required';
-        }
-        $this->rules = array_merge($this->rules, $this->lang_rules(['title' => 'required|unique:categories_translations,title']));
+        $lang_rules = $this->lang_rules($columns_arr);
+        $this->rules = array_merge($this->rules, $lang_rules);
         $validator = Validator::make($request->all(), $this->rules);
 
         if ($validator->fails()) {
@@ -76,38 +84,42 @@ class CategoriesController extends BackendController {
         }
         DB::beginTransaction();
         try {
-
+          
 
             $category = new Category;
             $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
+            
             $category->parent_id = $request->input('parent_id');
-            if ($request->level == 2 || $request->level == 3) {
+            if($request->form_type){
                 $category->form_type = $request->form_type;
             }
-            if ($request->level == 1 || $request->level == 2) {
-                $category->image = Category::upload($request->file('image'), 'categories', true);
-            }
-
+            
             if ($category->parent_id != 0) {
                 $parent = Category::find($category->parent_id);
                 $category->level = $parent->level + 1;
+                $category->no_of_levels = $parent->no_of_levels;
                 if ($parent->parents_ids == null) {
                     $category->parents_ids = $parent->id;
-                } else {
-                    $parent_ids = explode(",", $parent->parents_ids);
-                    array_push($parent_ids, $parent->id);
+                }
+                else{
+                    $parent_ids = explode(",",$parent->parents_ids);
+                    array_push($parent_ids,$parent->id);
                     $category->parents_ids = implode(",", $parent_ids);
                 }
+
+               
             } else {
                 $category->level = 1;
+                $category->no_of_levels = $request->input('no_of_levels');
+                $category->image = Category::upload($request->file('image'), 'categories', true);
             }
-
+            
             $category->save();
 
             $category_translations = array();
-
+            
 
             foreach ($request->input('title') as $key => $value) {
                 $category_translations[] = array(
@@ -152,16 +164,17 @@ class CategoriesController extends BackendController {
      */
     public function edit($id) {
         $category = Category::find($id);
-
+              
         if (!$category) {
             return _json('error', _lang('app.error_is_occured'), 404);
         }
-        $this->data['path'] = $this->node_path($category->parent_id, true);
+        $this->data['path'] = $this->node_path($category->parent_id,true);
         $this->data['translations'] = CategoryTranslation::where('category_id', $id)->get()->keyBy('locale');
         $this->data['parent_id'] = $category->parent_id;
         $this->data['category'] = $category;
         $this->data['form_types'] = Ad::$form_types;
         $this->data['level'] = $category->level;
+        $this->data['no_of_levels'] = $category->no_of_levels;
 
         return $this->_view('categories/edit', 'backend');
     }
@@ -180,17 +193,22 @@ class CategoriesController extends BackendController {
         if (!$category) {
             return _json('error', _lang('app.error_is_occured'), 404);
         }
-     
 
-        $this->rules['this_order'] = "required|unique:categories,this_order,{$id},id,parent_id,{$request->parent_id}";
-        if ($request->level == 1 || $request->level == 2) {
-            $this->rules['image'] = 'image|mimes:gif,png,jpeg|max:1000';
+        $columns_arr = array(
+            'title' => 'required|unique:categories_translations,title,'.$id .',category_id'
+        );
+        $parent = $request->parent_id;
+
+        $this->rules['this_order'] = "required|unique:categories,this_order,{$id},id,parent_id,{$parent}";
+
+       
+        if (!$request->file('image')) {
+            unset($this->rules['image']);
         }
-        if ($request->level == 2 || $request->level == 3) {
-            $this->rules['form_type'] = 'required';
-        }
-        $this->rules = array_merge($this->rules, $this->lang_rules(['title' => 'required|unique:categories_translations,title,' . $id . ',category_id']));
+        $lang_rules = $this->lang_rules($columns_arr);
+        $this->rules = array_merge($this->rules, $lang_rules);
         $validator = Validator::make($request->all(), $this->rules);
+
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
             return _json('error', $errors);
@@ -202,24 +220,29 @@ class CategoriesController extends BackendController {
             $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
-            if ($request->level == 2 || $request->level == 3) {
+            if($parent==0){
+                $category->no_of_levels = $request->input('no_of_levels');
+            }
+            if($request->form_type){
                 $category->form_type = $request->form_type;
             }
-            if ($request->level == 1 || $request->level == 2) {
-                if ($request->file('image')) {
-                    if ($category->image) {
-                        $old_image = $category->image;
-                        Category::deleteUploaded('categories', $old_image);
-                    }
-                    $category->image = Category::upload($request->file('image'), 'categories', true);
+            if ($request->file('image')) {
+                if ($category->image) {
+                    $old_image = $category->image;
+                    Category::deleteUploaded('categories', $old_image);
                 }
+                $category->image = Category::upload($request->file('image'), 'categories', true);
             }
             $category->save();
-
+            if($parent==0){
+                Category::where('parents_ids', 'like', '%' . $id . '%')->update(['no_of_levels' => $request->input('no_of_levels')]);
+            }
+            
             CategoryTranslation::where('category_id', $category->id)->delete();
 
             $category_translations = array();
             $description_translations = $request->input('description');
+
             foreach ($request->input('title') as $key => $value) {
                 $category_translations[] = array(
                     'locale' => $key,
@@ -244,6 +267,7 @@ class CategoriesController extends BackendController {
      */
     public function destroy($id) {
         $category = Category::find($id);
+        
         if (!$category) {
             return _json('error', _lang('app.error_is_occured'), 404);
         }
@@ -264,13 +288,13 @@ class CategoriesController extends BackendController {
 
     public function data(Request $request) {
         $parent_id = $request->input('parent_id');
-
+        
         $categories = Category::Join('categories_translations', 'categories.id', '=', 'categories_translations.category_id')
                 ->where('categories.parent_id', $parent_id)
                 ->where('categories_translations.locale', $this->lang_code)
                 ->orderBy('categories.this_order')
                 ->select([
-            'categories.id', "categories_translations.title", "categories.this_order", "categories.active", 'categories.level', 'categories.parent_id'
+            'categories.id','categories.no_of_levels', "categories_translations.title", "categories.this_order","categories.active", 'categories.level', 'categories.parent_id'
         ]);
 
         return \Datatables::eloquent($categories)
@@ -298,9 +322,9 @@ class CategoriesController extends BackendController {
                                     $back .= '</a>';
                                     $back .= '</li>';
                                 }
-                                if (\Permissions::check('products', 'open')) {
+                                if(\Permissions::check('products', 'open')){
                                     $back .= '<li>';
-                                    $back .= '<a href="' . url('admin/products') . '?category_id=' . $item->id . '" data-id = "' . $item->id . '">';
+                                    $back .= '<a href="'.url('admin/products').'?category_id='.$item->id.'" data-id = "' . $item->id . '">';
                                     $back .= '<i class = "icon-docs"></i>' . _lang('app.products');
                                     $back .= '</a>';
                                     $back .= '</li>';
@@ -313,29 +337,29 @@ class CategoriesController extends BackendController {
                         })
                         ->editColumn('title', function ($item) {
 
-                            if ($item->level == 3) {
+                            if ($item->level == $item->no_of_levels) {
                                 $back = $item->title;
                             } else {
                                 $back = '<a href="' . route('categories.index') . '?parent=' . $item->id . '">' . $item->title . '</a>';
                             }
                             return $back;
                         })
-                        ->addColumn('active', function ($item) {
-                            if ($item->active == 1) {
-                                $message = _lang('app.active');
-                                $class = 'label-success';
-                            } else {
-                                $message = _lang('app.not_active');
-                                $class = 'label-danger';
-                            }
-                            $back = '<span class="label label-sm ' . $class . '">' . $message . '</span>';
-                            return $back;
-                        })
+                         ->addColumn('active', function ($item) {
+                          if ($item->active == 1) {
+                          $message = _lang('app.active');
+                          $class = 'label-success';
+                          } else {
+                          $message = _lang('app.not_active');
+                          $class = 'label-danger';
+                          }
+                          $back = '<span class="label label-sm ' . $class . '">' . $message . '</span>';
+                          return $back;
+                          }) 
                         ->escapeColumns([])
                         ->make(true);
     }
 
-    private function node_path($id, $action = false) {
+    private function node_path($id,$action=false) {
         $category = Category::where('id', $id)->first();
         $categories = null;
         if ($category) {
@@ -347,23 +371,24 @@ class CategoriesController extends BackendController {
                     ->orderBy('categories.id', 'ASC')
                     ->select('categories.id', 'trans.title')
                     ->get();
-            $categories = $this->format_path($categories, $action);
+            $categories= $this->format_path($categories,$action);
         }
         return $categories;
     }
 
-    private function format_path($categories, $action) {
+    private function format_path($categories,$action) {
         $html = '';
         if ($categories && $categories->count() > 0) {
             foreach ($categories as $key => $category) {
                 if ($key < ($categories->count() - 1)) {
                     $html .= '<li><a href="' . url('admin/categories?parent=' . $category->id) . '">' . $category->title . '</a><i class="fa fa-circle"></i></li>';
                 } else {
-                    if ($action) {
+                    if($action){
                         $html .= '<li><a href="' . url('admin/categories?parent=' . $category->id) . '">' . $category->title . '</a><i class="fa fa-circle"></i></li>';
-                    } else {
-                        $html .= '<li><span>' . $category->title . '</span></li>';
+                    }else{
+                         $html .= '<li><span>' . $category->title . '</span></li>';
                     }
+                   
                 }
             }
         }

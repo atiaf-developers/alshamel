@@ -1,5 +1,6 @@
 var Categories_grid;
-var parent_id = 0;
+var parent_id;
+var level;
 
 var Categories = function() {
 
@@ -8,6 +9,7 @@ var Categories = function() {
         $.extend(lang, new_lang);
         $.extend(config, new_config);
         parent_id = config.parent_id;
+        level = config.level;
         handleRecords();
         handleSubmit();
         My.readImageMulti('image');
@@ -112,6 +114,7 @@ var Categories = function() {
                 action = config.admin_url + '/categories/' + id;
             }
             formData.append('parent_id', parent_id);
+            formData.append('level', level);
             $.ajax({
                 url: action,
                 data: formData,

@@ -3,9 +3,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PropertyTypeTranslation extends MyModel {
+class EngineCapacityTranslation extends MyModel {
 
-    protected $table = "property_types_translations";
+    protected $table = "engine_capacities_translations";
     protected $fillable=['title'];
 
  

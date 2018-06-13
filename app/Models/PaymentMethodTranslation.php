@@ -3,9 +3,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PropertyTypeTranslation extends MyModel {
+class PaymentMethodTranslation extends MyModel {
 
-    protected $table = "property_types_translations";
+    protected $table = "payment_methods_translations";
     protected $fillable=['title'];
 
  

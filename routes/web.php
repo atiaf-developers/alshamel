@@ -31,53 +31,10 @@ if (in_array($currentLanguageCode, $languages)) {
         app()->setLocale($currentLanguageCode);
         app()->setLocale($currentLanguageCode);
         Route::get('/', 'HomeController@index')->name('home');
-        Route::get('getRegionByCity/{id}', 'AjaxController@getRegionByCity');
-        Route::get('getAddress/{id}', 'AjaxController@getAddress');
-        Route::get('ajax/checkAvailability', 'AjaxController@checkAvailability');
-        Route::post('ajax/reserve_submit', 'AjaxController@reserve_submit');
+       
         Auth::routes();
 
-        Route::get('user-activation-code', 'Auth\RegisterController@showActivationForm')->name('activation');
-        Route::post('activateuser', 'Auth\RegisterController@activate_user')->name('activationuser');
-
-        Route::get('edit-user-phone', 'Auth\RegisterController@showEditMobileForm')->name('edit-phone');
-        Route::post('edituserphone', 'Auth\RegisterController@EditPhone')->name('editphone');
-
-        Route::get('about-us', 'StaticController@about_us')->name('about_us');
-
-
-        Route::get('news-and-events', 'NewsController@index')->name('news_events');
-        Route::get('news-and-events/{slug}', 'NewsController@show')->name('show_news');
-
-        Route::get('corporation-activities', 'ActivitiesController@index')->name('corporation_activities');
-        Route::get('corporation-activities/{slug}', 'ActivitiesController@show')->name('show_corporation_activities');
-
-        Route::get('gallary', 'AlbumsController@index')->name('gallary');
-        Route::get('gallary/{slug}', 'AlbumsController@show')->name('show_gallary');
-
-        Route::get('video-gallary', 'VideosController@index')->name('video_gallary');
-
-
-
-        Route::get('news-and-events', 'NewsController@index')->name('news_events');
-        Route::get('news-and-events/{slug}', 'NewsController@show')->name('show_news');
-
-        Route::get('corporation-activities', 'ActivitiesController@index')->name('corporation_activities');
-        Route::get('corporation-activities/{slug}', 'ActivitiesController@show')->name('show_corporation_activities');
-
-        Route::get('gallary', 'AlbumsController@index')->name('gallary');
-        Route::get('gallary/{slug}', 'AlbumsController@show')->name('show_gallary');
-
-        Route::get('video-gallary', 'VideosController@index')->name('video_gallary');
-
-
-        Route::get('others/{slug}', 'OthersController@index')->name('others');
-        Route::get('others/{section}/{slug}', 'OthersController@show')->name('show_others');
-
-        Route::get('donation-request', 'DonationRequestsController@showDonationRequestForm');
-        Route::post('donation-request', 'DonationRequestsController@submitDonationRequestForm');
-        Route::post('user/edit', 'UserController@edit');
-        Route::post('contact-us', 'StaticController@sendContactMessage');
+      
 
 
         /*         * ************************* user ************** */
@@ -122,8 +79,29 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
 
     Route::resource('categories', 'CategoriesController');
     Route::post('categories/data', 'CategoriesController@data');
-    Route::resource('property_types', 'PropertyTypesController');
-    Route::post('property_types/data', 'PropertyTypesController@data');
+
+    Route::resource('property_types', 'BathesController');
+    Route::post('property_types/data', 'BathesController@data');
+
+    Route::resource('rooms', 'RoomsController');
+    Route::post('rooms/data', 'RoomsController@data');
+
+    Route::resource('bathes', 'BathesController');
+    Route::post('bathes/data', 'BathesController@data');
+
+    Route::resource('engine_capacities', 'EngineCapacitiesController');
+    Route::post('engine_capacities/data', 'EngineCapacitiesController@data');
+
+    Route::resource('fuel_types', 'FuelTypesController');
+    Route::post('fuel_types/data', 'FuelTypesController@data');
+
+
+    Route::resource('motion_vectors', 'MotionVectorsController');
+    Route::post('motion_vectors/data', 'MotionVectorsController@data');
+
+    Route::resource('payment_methods', 'PaymentMethodsController');
+    Route::post('payment_methods/data', 'PaymentMethodsController@data');
+    
 
     Route::resource('users', 'UsersController');
     Route::post('users/data', 'UsersController@data');

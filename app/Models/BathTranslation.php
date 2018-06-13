@@ -1,11 +1,12 @@
 <?php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PropertyTypeTranslation extends MyModel {
+class BathTranslation extends MyModel {
 
-    protected $table = "property_types_translations";
+    protected $table = "bathes_translations";
     protected $fillable=['title'];
 
  

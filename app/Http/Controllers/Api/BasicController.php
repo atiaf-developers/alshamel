@@ -27,11 +27,13 @@ class BasicController extends ApiController {
         'type' => 'required',
     );
 
-    private $raters = array(
+    private $raters_rules = array(
         'ad_id' => 'required',
     );
 
-
+    private $basic_data_rules = array(
+        'type' => 'required',
+    );
 
     public function getToken(Request $request) {
         $token = $request->header('authorization');
@@ -115,7 +117,7 @@ class BasicController extends ApiController {
     {
         try {
 
-            $validator = Validator::make($request->all(), $this->raters);
+            $validator = Validator::make($request->all(), $this->raters_rules);
             if ($validator->fails()) {
                 $errors = $validator->errors()->toArray();
                 return _api_json('', ['errors' => $errors], 400);
@@ -143,7 +145,12 @@ class BasicController extends ApiController {
     public function getBasicData(Request $request)
     {
         try {
-            
+            $validator = Validator::make($request->all(), $this->basic_data_rules);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                return _api_json([], ['errors' => $errors], 400);
+            }
+            $data = BasicData::getAll($request->input('type'));
             return _api_json(BasicData::transformCollection($data));
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);

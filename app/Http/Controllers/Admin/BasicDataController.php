@@ -49,8 +49,7 @@ class BasicDataController extends BackendController
             return $this->_view('basic_data/create', 'backend');
         }else{
             $this->err404();
-        }
-        
+        }  
     }
 
     /**

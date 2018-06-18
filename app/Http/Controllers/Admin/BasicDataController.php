@@ -29,7 +29,8 @@ class BasicDataController extends BackendController
         if(array_key_exists($request->type,BasicData::$types)){
             $this->data['type']=$request->type;
             $this->data['type_title']=BasicData::$types[$request->type];
-            $this->middleware('CheckPermission:'.$this->data['type_title'].',open', ['only' => ['index']]);
+            // dd($this->data['type_title']);
+            $this->middleware('CheckPermission:'.$this->data['type_title'].',open');
             return $this->_view('basic_data/index', 'backend');
         }else{
             $this->err404();
@@ -46,6 +47,7 @@ class BasicDataController extends BackendController
             $this->data['type']=$request->type;
             $this->data['type_title']=BasicData::$types[$request->type];
             $this->middleware('CheckPermission:'.$this->data['type_title'].',add', ['only' => ['create']]);
+           // dd($this->middleware('CheckPermission:'.$this->data['type_title'].',add', ['only' => ['create']]));
             return $this->_view('basic_data/create', 'backend');
         }else{
             $this->err404();
@@ -251,6 +253,7 @@ class BasicDataController extends BackendController
 
     public function data(Request $request) {
         $type=$request->type;
+        $this->data['type_title']=BasicData::$types[$type];
         $bathes = BasicData::Join('basic_data_translations', 'basic_data.id', '=', 'basic_data_translations.basic_data_id')
                 ->where('basic_data_translations.locale', $this->lang_code)
                 ->where('basic_data.type', $type)
@@ -262,13 +265,13 @@ class BasicDataController extends BackendController
                         ->addColumn('options', function ($item) {
 
                             $back = "";
-                            if (\Permissions::check('basic_data', 'edit') || \Permissions::check('basic_data', 'delete')) {
+                            if (\Permissions::check(''.$this->data['type_title'].'', 'edit') || \Permissions::check(''.$this->data['type_title'].'', 'delete')) {
                                 $back .= '<div class="btn-group">';
                                 $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> ' . _lang('app.options');
                                 $back .= '<i class="fa fa-angle-down"></i>';
                                 $back .= '</button>';
                                 $back .= '<ul class = "dropdown-menu" role = "menu">';
-                                if (\Permissions::check('basic_data', 'edit')) {
+                                if (\Permissions::check(''.$this->data['type_title'].'', 'edit')) {
                                     $back .= '<li>';
                                     $back .= '<a href="' . route('basic_data.edit', $item->id) . '">';
                                     $back .= '<i class = "icon-docs"></i>' . _lang('app.edit');
@@ -276,7 +279,7 @@ class BasicDataController extends BackendController
                                     $back .= '</li>';
                                 }
 
-                                if (\Permissions::check('basic_data', 'delete')) {
+                                if (\Permissions::check(''.$this->data['type_title'].'', 'delete')) {
                                     $back .= '<li>';
                                     $back .= '<a href="" data-toggle="confirmation" onclick = "BasicData.delete(this);return false;" data-id = "' . $item->id . '">';
                                     $back .= '<i class = "icon-docs"></i>' . _lang('app.delete');

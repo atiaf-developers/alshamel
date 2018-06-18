@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BathTranslation extends MyModel {
+class BasicDataTranslation extends MyModel {
 
-    protected $table = "bathes_translations";
+    protected $table = "basic_data_translations";
     protected $fillable=['title'];
 
  

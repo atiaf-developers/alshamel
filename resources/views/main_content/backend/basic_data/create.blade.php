@@ -1,18 +1,18 @@
 @extends('layouts.backend')
 
-@section('pageTitle',_lang('app.add_donation_type'))
+@section('pageTitle',_lang('app.add_'.$type_title.''))
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
-<li><a href="{{route('property_types.index')}}">{{_lang('app.property_types')}}</a> <i class="fa fa-circle"></i></li>
+<li><a href="{{route('basic_data.index')}}?type={{ $type }}">{{_lang('app.'.$type_title.'')}}</a> <i class="fa fa-circle"></i></li>
 <li><span> {{_lang('app.create')}}</span></li>
 @endsection
 
 @section('js')
-<script src="{{url('public/backend/js')}}/property_types.js" type="text/javascript"></script>
+<script src="{{url('public/backend/js')}}/basic_data.js" type="text/javascript"></script>
 @endsection
 @section('content')
-<form role="form"  id="addEditPropertyTypesForm" enctype="multipart/form-data">
+<form role="form"  id="addEditBasicDataForm" enctype="multipart/form-data">
     {{ csrf_field() }}
 
     <div class="panel panel-default">
@@ -24,7 +24,7 @@
 
             <div class="form-body">
                 <input type="hidden" name="id" id="id" value="0">
-
+                <input type="hidden" name="type" id="type" value="{{ $type }}">
                 @foreach ($languages as $key => $value)
 
                 <div class="form-group form-md-line-input col-md-6">

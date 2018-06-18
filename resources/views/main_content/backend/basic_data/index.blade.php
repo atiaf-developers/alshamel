@@ -1,14 +1,14 @@
 @extends('layouts.backend')
 
-@section('pageTitle', _lang('app.property_types'))
+@section('pageTitle', _lang('app.'.$type_title .''))
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
-<li><span> {{_lang('app.property_types')}}</span></li>
+<li><span> {{_lang('app.'.$type_title.'')}}</span></li>
 @endsection
 
 @section('js')
-<script src="{{url('public/backend/js')}}/property_types.js" type="text/javascript"></script>
+<script src="{{url('public/backend/js')}}/basic_data.js" type="text/javascript"></script>
 @endsection
 @section('content')
 {{ csrf_field() }}
@@ -19,7 +19,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="btn-group">
-                        <a class="btn green" style="margin-bottom: 40px;" href = "{{ route('property_types.create') }}" onclick="">{{ _lang('app.add_new')}}<i class="fa fa-plus"></i> </a>
+                        <a class="btn green" style="margin-bottom: 40px;" href = "{{ route('basic_data.create') }}?type={{ $type }}" onclick="">{{ _lang('app.add_new')}}<i class="fa fa-plus"></i> </a>
                     </div>
                 </div>
             </div>
@@ -49,5 +49,6 @@ var new_lang = {
 var new_config = {
 
 };
+var type={{ $type }}
 </script>
 @endsection

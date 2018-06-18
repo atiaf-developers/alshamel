@@ -80,27 +80,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('categories', 'CategoriesController');
     Route::post('categories/data', 'CategoriesController@data');
 
-    Route::resource('property_types', 'PropertyTypesController');
-    Route::post('property_types/data', 'PropertyTypesController@data');
 
-    Route::resource('rooms', 'RoomsController');
-    Route::post('rooms/data', 'RoomsController@data');
-
-    Route::resource('bathes', 'BathesController');
-    Route::post('bathes/data', 'BathesController@data');
-
-    Route::resource('engine_capacities', 'EngineCapacitiesController');
-    Route::post('engine_capacities/data', 'EngineCapacitiesController@data');
-
-    Route::resource('fuel_types', 'FuelTypesController');
-    Route::post('fuel_types/data', 'FuelTypesController@data');
+    Route::resource('basic_data', 'BasicDataController');
+    Route::post('basic_data/data', 'BasicDataController@data');
 
 
-    Route::resource('motion_vectors', 'MotionVectorsController');
-    Route::post('motion_vectors/data', 'MotionVectorsController@data');
-
-    Route::resource('payment_methods', 'PaymentMethodsController');
-    Route::post('payment_methods/data', 'PaymentMethodsController@data');
     
 
     Route::resource('users', 'UsersController');

@@ -140,6 +140,18 @@ class BasicController extends ApiController {
     }
 
 
+    public function getBasicData(Request $request)
+    {
+        try {
+            
+            return _api_json(BasicData::transformCollection($data));
+        } catch (\Exception $e) {
+            return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
+        }
+        
+    }
+
+
     private function buildTree($elements, $parentId = 0) {
         $branch = array();
         foreach ($elements as $element) {

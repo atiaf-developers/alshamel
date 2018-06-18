@@ -80,8 +80,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('categories', 'CategoriesController');
     Route::post('categories/data', 'CategoriesController@data');
 
-    Route::resource('property_types', 'BathesController');
-    Route::post('property_types/data', 'BathesController@data');
+    Route::resource('property_types', 'PropertyTypesController');
+    Route::post('property_types/data', 'PropertyTypesController@data');
 
     Route::resource('rooms', 'RoomsController');
     Route::post('rooms/data', 'RoomsController@data');

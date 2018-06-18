@@ -80,6 +80,7 @@ if (!function_exists('_lang')) {
 
 }
 
+
 if (!function_exists('_json')) {
 
     function _json($type = 'success', $data = NULL, $http_code = 200) {

@@ -19,6 +19,7 @@ var Packages = function() {
             },
             "columns": [
                 { "data": "title", "name": "packages_translations.title" },
+                { "data": "price", "name": "packages.title" },
                 { "data": "active", "name": "packages.active", searchable: false },
                 { "data": "this_order", "name": "packages.this_order" },
                 { "data": "options", orderable: false, searchable: false }
@@ -39,6 +40,9 @@ var Packages = function() {
         $('#addEditPackagesForm').validate({
             rules: {
                 num_of_ads: {
+                    required: true,
+                },
+                price: {
                     required: true,
                 },
                 active: {

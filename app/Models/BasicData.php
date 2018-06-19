@@ -14,13 +14,16 @@ class BasicData extends MyModel {
         4=>'engine_capacities',
         5=>'fuel_types',
         6=>'motion_vectors',
-        7=>'payment_methods'
+        7=>'propulsion_systems',
+        8=>'mileage_kms',
+        9=>'mileage'
     ];
-    public static function getAll() {
+    public static function getAll($type) {
         return static::join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id')
                         ->orderBy('basic_data.this_order', 'ASC')
                         ->where('trans.locale', static::getLangCode())
                         ->where('basic_data.active', true)
+                        ->where('basic_data.type',$type)
                         ->select('basic_data.id','trans.title')
                         ->get();
     }

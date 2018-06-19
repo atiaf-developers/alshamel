@@ -122,30 +122,7 @@ class Ad extends MyModel {
         return Ad::transformCollection($Ads);
     }
 
-    public static function validation_rules($type) {
-        $features = array();
-        $rules = array();
-        switch ($type) {
-            case 1:
-                $validation_rules = static::$real_states_features;
-                break;
-            case 2:
-                $validation_rules = static::$lands_features;
-                break;
-            case 3:
-                $validation_rules = static::$cars_features;
-                break;
-            default:
-                $validation_rules = array();
-                break;
-        }
-        $features = array_merge($validation_rules, static::$defualt_features);
-        foreach ($features as $value) {
-            $rules[$value] = 'required';
-        }
-        return $rules;
-    }
-
+    
     public static function transform(Ad $item, $filters = array()) {
         $transformer = new \stdClass();
         $transformer->id = $item->id;
@@ -185,8 +162,20 @@ class Ad extends MyModel {
         return $transformer;
     }
 
-    public function Features() {
-        return $this->hasMany(Feature::class, 'ad_id');
+    public function rates() {
+        return $this->hasMany(Rating::class, 'entity_id');
+    }
+
+    public function realStateAd() {
+        return $this->hasOne(RealStateAd::class, 'ad_id');
+    }
+
+    public function landAd() {
+        return $this->hasOne(LandAd::class, 'ad_id');
+    }
+
+    public function vehicleAd() {
+        return $this->hasOne(VechileAd::class, 'ad_id');
     }
 
     public function Categories() {
@@ -200,6 +189,30 @@ class Ad extends MyModel {
 
     public function Location() {
         return $this->hasOne(Location::class, 'id', 'city_id');
+    }
+
+
+    protected static function boot() {
+        parent::boot();
+
+        static::deleting(function($ad) {
+            foreach ($ad->rates as $rate) {
+                $rate->delete();
+            }
+            if ($ad->realStateAd) {
+                $ad->realStateAd->delete();
+            }else if($ad->landAd){
+                $ad->landAd->delete();
+            }else if($ad->vehicleAd){
+                $ad->vehicleAd->delete();
+            }
+        });
+
+        static::deleted(function($ad) {
+            foreach (json_decode($ad->images) as $image) {
+                Ad::deleteUploaded('ads', $image);
+            }
+        });
     }
 
 }

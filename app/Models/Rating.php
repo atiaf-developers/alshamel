@@ -20,6 +20,26 @@ class Rating extends MyModel {
         return $transformer;
     	
     }
+
+    public function raters()
+    {
+        return $this->hasMany(RatingUser::class,'rating_id');
+    }
+
+
+    protected static function boot() {
+        parent::boot();
+
+        static::deleting(function($rate) {
+            foreach ($rate->raters as $rater) {
+                $rater->delete();
+            }
+        });
+
+        static::deleted(function($ad) {
+            
+        });
+    }
   
 
 

@@ -12,6 +12,9 @@ use App\Models\SettingTranslation;
 use App\Models\Category;
 use App\Models\Location;
 use App\Models\ContactMessage;
+use App\Models\BasicData;
+use App\Models\Package;
+use App\Models\UserPackage;
 use App\Models\Rating;
 use App\Models\Ad;
 use App\Helpers\Fcm;
@@ -27,11 +30,17 @@ class BasicController extends ApiController {
         'type' => 'required',
     );
 
-    private $raters = array(
+    private $raters_rules = array(
         'ad_id' => 'required',
     );
 
+    private $basic_data_rules = array(
+        'type' => 'required',
+    );
 
+     private $package_rules = array(
+        'package_id' => 'required',
+    );
 
     public function getToken(Request $request) {
         $token = $request->header('authorization');
@@ -115,7 +124,7 @@ class BasicController extends ApiController {
     {
         try {
 
-            $validator = Validator::make($request->all(), $this->raters);
+            $validator = Validator::make($request->all(), $this->raters_rules);
             if ($validator->fails()) {
                 $errors = $validator->errors()->toArray();
                 return _api_json('', ['errors' => $errors], 400);
@@ -137,6 +146,84 @@ class BasicController extends ApiController {
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
+    }
+
+
+    public function getPackages(Request $request)
+    {
+        try {
+            $packages = Package::getAll();
+            return _api_json(Package::transformCollection($packages));   
+        } catch (\Exception $e) {
+            return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
+        }
+    }
+
+    public function sendPackageRequest(Request $request)
+    {
+        try {
+           
+           $validator = Validator::make($request->all(), $this->package_rules);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                return _api_json('', ['errors' => $errors], 400);
+            }
+
+            $package = Package::find($request->input('package_id'));
+            if (!$package) {
+                $message = _lang('app.not_found');
+                return _api_json('', ['message' => $message], 404);
+            }
+            $user = $this->auth_user();
+
+           $check =  UserPackage::where('user_id',$user->id)
+                                ->where(function ($query) {
+                                  $query->where('available_of_ads', '!=', 0)
+                                        ->where('status', 1);
+                                })
+                                ->orWhere('status',0)
+                                ->first();
+
+            if ($check) {
+                if ($check->status == 0) {
+                    $message = _lang('app.you_have_already_sent_a_request');
+                }else if($check->status == 1){
+                   $message = _lang('app.you_are_already_subscribed_to_the_package');
+                }
+                return _api_json('', ['message' => $message], 400);
+            }
+                               
+          $user_package = new UserPackage;
+          $user_package->user_id = $user->id;
+          $user_package->package_id = $package->id;
+          $user_package->num_of_ads = $package->num_of_ads;
+          $user_package->available_of_ads = $package->num_of_ads;
+          $user_package->status = 0;
+
+          $user_package->save();
+          return _api_json('', ['message' => _lang('app.sent_successfully')]);
+            
+        } catch (\Exception $e) {
+            return _api_json('', ['message' => _lang('app.error_is_occured')], 400);
+        }
+        
+    }
+
+
+    public function getBasicData(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), $this->basic_data_rules);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->toArray();
+                return _api_json([], ['errors' => $errors], 400);
+            }
+            $data = BasicData::getAll($request->input('type'));
+            return _api_json(BasicData::transformCollection($data));
+        } catch (\Exception $e) {
+            return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
+        }
+        
     }
 
 

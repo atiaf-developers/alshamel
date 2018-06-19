@@ -13,6 +13,7 @@ class PackagesController extends BackendController
 {
     private $rules = array(
         'num_of_ads' => 'required',
+        'price' => 'required',
         'this_order' => 'required',
         'active' => 'required',
     );
@@ -45,6 +46,7 @@ class PackagesController extends BackendController
         try {
             $package = new Package;
             $package->num_of_ads = $request->input('num_of_ads');
+            $package->price = $request->input('price');
             $package->active = $request->input('active');
             $package->this_order = $request->input('this_order');
             $package->save();
@@ -95,6 +97,7 @@ class PackagesController extends BackendController
         DB::beginTransaction();
         try {
             $package->num_of_ads = $request->input('num_of_ads');
+            $package->price = $request->input('price');
             $package->active = $request->input('active');
             $package->this_order = $request->input('this_order');
             $package->save();
@@ -140,7 +143,7 @@ class PackagesController extends BackendController
         $package = Package::Join('packages_translations', 'packages.id', '=', 'packages_translations.package_id')
         ->where('packages_translations.locale', $this->lang_code)
         ->select([
-            'packages.id','packages.this_order', "packages_translations.title","packages.active"
+            'packages.id','packages.this_order', "packages_translations.title","packages.active","packages.price"
         ]);
         return \Datatables::eloquent($package)
                         ->addColumn('options', function ($item) {

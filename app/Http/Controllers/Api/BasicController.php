@@ -188,7 +188,7 @@ class BasicController extends ApiController {
                 if ($check->status == 0) {
                     $message = _lang('app.you_have_already_sent_a_request');
                 }else if($check->status == 1){
-                   $message = _lang('app.');
+                   $message = _lang('app.you_are_already_subscribed_to_the_package');
                 }
                 return _api_json('', ['message' => $message], 400);
             }
@@ -201,7 +201,7 @@ class BasicController extends ApiController {
           $user_package->status = 0;
 
           $user_package->save();
-            
+          return _api_json('', ['message' => _lang('app.sent_successfully')]);
             
         } catch (\Exception $e) {
             return _api_json('', ['message' => _lang('app.error_is_occured')], 400);

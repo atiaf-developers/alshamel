@@ -42,6 +42,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('handle_favourites','UserController@handleFavourites');
         Route::post('report', 'UserController@reportAd');
         Route::post('send_contact_message', 'BasicController@sendContactMessage');
+        Route::post('send_package_request', 'BasicController@sendPackageRequest');
         Route::resource('ads', 'AdsController');
         
     });

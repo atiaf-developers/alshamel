@@ -228,11 +228,9 @@ class AdsController extends ApiController
                 }
                 $ad->images = json_encode($images);
             }
-
             $ad->save();
 
             if(in_array($request->input('form_type'),[1,2,3])){
-
                 if($request->input('form_type')==1){
                     $this->handleRealStateAdDetails($request,$ad->id);
                 }elseif($request->input('form_type')==2){
@@ -240,6 +238,20 @@ class AdsController extends ApiController
                 }elseif($request->input('form_type')==3){
                     $this->handleVechileAdDetails($request,$ad->id);
                 }
+            }
+            
+            // decreament available ads
+            if($user->num_free_ads == 0){
+                $avaliable_ads = UserPackage::where('user_id',$user->id)->where('available_of_ads','!=',0)->where('status',1)->first();
+                if(!$avaliable_ads){
+                    $message = ['message' => _lang('app.You_do_not_have_package_to_add_your_ad')];
+                    return _api_json('', $message, 400);
+                }
+                $avaliable_ads->available_of_ads -= 1;
+                $avaliable_ads->save();
+            }else{
+                $user->num_free_ads -= 1;
+                $user->save();
             }
     }
 

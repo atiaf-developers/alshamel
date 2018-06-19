@@ -60,6 +60,13 @@
                     <label for="num_of_ads">{{_lang('app.num_of_ads') }}</label>
                     <span class="help-block"></span>
                 </div>
+
+                <div class="form-group form-md-line-input col-md-4">
+                    <input type="number" class="form-control" id="price" name="price" value="{{ $package->price }}">
+                    <label for="price">{{_lang('app.price') }}</label>
+                    <span class="help-block"></span>
+                </div>
+
                 <div class="form-group form-md-line-input col-md-4">
                     <input type="number" class="form-control" id="this_order" name="this_order" value="{{ $package->this_order }}">
                     <label for="this_order">{{_lang('app.this_order') }}</label>

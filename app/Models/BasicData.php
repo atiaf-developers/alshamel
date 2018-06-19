@@ -14,7 +14,9 @@ class BasicData extends MyModel {
         4=>'engine_capacities',
         5=>'fuel_types',
         6=>'motion_vectors',
-        7=>'propulsion_systems'
+        7=>'propulsion_systems',
+        8=>'mileage_kms',
+        9=>'mileage'
     ];
     public static function getAll($type) {
         return static::join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id')

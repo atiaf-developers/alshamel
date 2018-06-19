@@ -24,7 +24,7 @@
 
             <div class="form-body">
                 <input type="hidden" name="id" id="id" value="0">
-                <input type="hidden" name="type" id="type" value="{{ $type }}">
+          
                 @foreach ($languages as $key => $value)
 
                 <div class="form-group form-md-line-input col-md-6">
@@ -87,7 +87,8 @@ var new_lang = {
 
 };
 var new_config = {
-   
+    type:"{{$type}}"
+
 };
 
 </script>

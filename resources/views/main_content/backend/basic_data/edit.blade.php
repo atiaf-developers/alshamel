@@ -89,10 +89,9 @@ var new_lang = {
 
 };
 var new_config = {
-   
-};
+    type:"{{$type}}"
 
-var type={{ $info->type }}
+};
 
 </script>
 @endsection

@@ -47,8 +47,8 @@ var new_lang = {
 
 };
 var new_config = {
+    type:"{{$type}}"
 
 };
-var type={{ $type }}
 </script>
 @endsection

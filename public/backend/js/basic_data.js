@@ -1,8 +1,8 @@
 var BasicData_grid;
 
-var BasicData = function() {
+var BasicData = function () {
 
-    var init = function() {
+    var init = function () {
         $.extend(lang, new_lang);
         $.extend(config, new_config);
         handleRecords();
@@ -10,31 +10,31 @@ var BasicData = function() {
     };
 
 
-    var handleRecords = function() {
+    var handleRecords = function () {
         BasicData_grid = $('.dataTable').dataTable({
             //"processing": true,
             "serverSide": true,
             "ajax": {
-                "url": config.admin_url + "/basic_data/data?type=" + type,
+                "url": config.admin_url + "/basic_data/data?type=" + config.type,
                 "type": "POST",
-                data: { _token: $('input[name="_token"]').val() },
+                data: {_token: $('input[name="_token"]').val()},
             },
             "columns": [
-                { "data": "title", "name": "basic_data_translations.title" },
-                { "data": "active", "name": "basic_data.active", orderable: false, searchable: false },
-                { "data": "this_order", "name": "basic_data.this_order" },
-                { "data": "options", orderable: false, searchable: false }
+                {"data": "title", "name": "basic_data_translations.title"},
+                {"data": "active", "name": "basic_data.active", orderable: false, searchable: false},
+                {"data": "this_order", "name": "basic_data.this_order"},
+                {"data": "options", orderable: false, searchable: false}
             ],
             "order": [
                 [2, "asc"]
             ],
-            "oLanguage": { "sUrl": config.url + '/datatable-lang-' + config.lang_code + '.json' }
+            "oLanguage": {"sUrl": config.url + '/datatable-lang-' + config.lang_code + '.json'}
 
         });
     }
 
 
-    var handleSubmit = function() {
+    var handleSubmit = function () {
         $('#addEditBasicDataForm').validate({
             rules: {
                 this_order: {
@@ -46,16 +46,16 @@ var BasicData = function() {
 
             },
             //messages: lang.messages,
-            highlight: function(element) { // hightlight error inputs
+            highlight: function (element) { // hightlight error inputs
                 $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
 
             },
-            unhighlight: function(element) {
+            unhighlight: function (element) {
                 $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
                 $(element).closest('.form-group').find('.help-block').html('').css('opacity', 0);
 
             },
-            errorPlacement: function(error, element) {
+            errorPlacement: function (error, element) {
                 $(element).closest('.form-group').find('.help-block').html($(error).html()).css('opacity', 1);
             }
         });
@@ -69,23 +69,23 @@ var BasicData = function() {
             });
         }
 
-        $('#addEditBasicDataForm .submit-form').click(function() {
+        $('#addEditBasicDataForm .submit-form').click(function () {
 
             if ($('#addEditBasicDataForm').validate().form()) {
                 $('#addEditBasicDataForm .submit-form').prop('disabled', true);
                 $('#addEditBasicDataForm .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
-                setTimeout(function() {
+                setTimeout(function () {
                     $('#addEditBasicDataForm').submit();
                 }, 1000);
             }
             return false;
         });
-        $('#addEditBasicDataForm input').keypress(function(e) {
+        $('#addEditBasicDataForm input').keypress(function (e) {
             if (e.which == 13) {
                 if ($('#addEditBasicDataForm').validate().form()) {
                     $('#addEditBasicDataForm .submit-form').prop('disabled', true);
                     $('#addEditBasicDataForm .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
-                    setTimeout(function() {
+                    setTimeout(function () {
                         $('#addEditBasicDataForm').submit();
                     }, 1000);
                 }
@@ -95,7 +95,7 @@ var BasicData = function() {
 
 
 
-        $('#addEditBasicDataForm').submit(function() {
+        $('#addEditBasicDataForm').submit(function () {
             var id = $('#id').val();
             var action = config.admin_url + '/basic_data';
             var formData = new FormData($(this)[0]);
@@ -103,6 +103,7 @@ var BasicData = function() {
                 formData.append('_method', 'PATCH');
                 action = config.admin_url + '/basic_data/' + id;
             }
+            formData.append('type', config.type);
             $.ajax({
                 url: action,
                 data: formData,
@@ -110,7 +111,7 @@ var BasicData = function() {
                 cache: false,
                 contentType: false,
                 processData: false,
-                success: function(data) {
+                success: function (data) {
                     $('#addEditBasicDataForm .submit-form').prop('disabled', false);
                     $('#addEditBasicDataForm .submit-form').html(lang.save);
 
@@ -132,13 +133,13 @@ var BasicData = function() {
                                 }
 
                                 $('[name="' + i + '"]')
-                                    .closest('.form-group').addClass('has-error');
+                                        .closest('.form-group').addClass('has-error');
                                 $('[name="' + i + '"]').closest('.form-group').find(".help-block").html(message).css('opacity', 1);
                             }
                         }
                     }
                 },
-                error: function(xhr, textStatus, errorThrown) {
+                error: function (xhr, textStatus, errorThrown) {
                     $('#addEditBasicDataForm .submit-form').prop('disabled', false);
                     $('#addEditBasicDataForm .submit-form').html(lang.save);
                     My.ajax_error_message(xhr);
@@ -158,24 +159,24 @@ var BasicData = function() {
     }
 
     return {
-        init: function() {
+        init: function () {
             init();
         },
 
-        delete: function(t) {
+        delete: function (t) {
 
             var id = $(t).attr("data-id");
             My.deleteForm({
                 element: t,
                 url: config.admin_url + '/basic_data/' + id,
-                data: { _method: 'DELETE', _token: $('input[name="_token"]').val() },
-                success: function(data) {
+                data: {_method: 'DELETE', _token: $('input[name="_token"]').val()},
+                success: function (data) {
                     BasicData_grid.api().ajax.reload();
                 }
             });
 
         },
-        add: function() {
+        add: function () {
             BasicData.empty();
             if (parent_id > 0) {
                 $('.for-country').hide();
@@ -189,7 +190,7 @@ var BasicData = function() {
             $('#addEditBasicDataForm').modal('show');
         },
 
-        error_message: function(message) {
+        error_message: function (message) {
             $.alert({
                 title: lang.error,
                 content: message,
@@ -199,12 +200,12 @@ var BasicData = function() {
                     tryAgain: {
                         text: lang.try_again,
                         btnClass: 'btn-red',
-                        action: function() {}
+                        action: function () {}
                     }
                 }
             });
         },
-        empty: function() {
+        empty: function () {
             $('#id').val(0);
             $('#category_icon').val('');
             $('#active').find('option').eq(0).prop('selected', true);
@@ -218,6 +219,6 @@ var BasicData = function() {
     };
 
 }();
-jQuery(document).ready(function() {
+jQuery(document).ready(function () {
     BasicData.init();
 });

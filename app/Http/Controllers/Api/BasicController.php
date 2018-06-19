@@ -12,6 +12,7 @@ use App\Models\SettingTranslation;
 use App\Models\Category;
 use App\Models\Location;
 use App\Models\ContactMessage;
+use App\Models\BasicData;
 use App\Models\Rating;
 use App\Models\Ad;
 use App\Helpers\Fcm;

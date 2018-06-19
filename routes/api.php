@@ -26,6 +26,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('setting', 'BasicController@getSettings');
     Route::get('categories', 'BasicController@getCategories');
     Route::post('ad_raters', 'BasicController@getAdRaters');
+    Route::get('basic_data', 'BasicController@getBasicData');
     
     
 

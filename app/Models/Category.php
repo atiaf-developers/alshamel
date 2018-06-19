@@ -17,7 +17,7 @@ class Category extends MyModel {
                         ->orderBy('categories.this_order', 'ASC')
                         ->where('trans.locale', static::getLangCode())
                         ->where('categories.active', true)
-                        ->select('categories.id','categories.parent_id','trans.title','categories.image')
+                        ->select('categories.id','categories.parent_id','trans.title','categories.image','categories.form_type')
                         ->get();
     }
 
@@ -29,6 +29,7 @@ class Category extends MyModel {
         $transformer = new \stdClass();
         $transformer->id = $item->id;
         $transformer->title = $item->title;
+        $transformer->form_type = $item->form_type;
         if ($item->image) {
             $transformer->image = url('public/uploads/categories').'/'.$item->image;
         }

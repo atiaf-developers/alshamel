@@ -73,16 +73,22 @@ class AdsController extends ApiController
         $lat = $request->input('lat');
         $lng = $request->input('lng');
 
-        $columns = ['ads.id','ads.rate','ads.special','ads.price','ads.created_at',DB::raw($this->iniDiffLocations('ads', $lat, $lng)),'categories.form_type'];
+        $columns = ['ads.id','ads.rate','ads.special','ads.created_at',DB::raw($this->iniDiffLocations('ads', $lat, $lng)),'categories.form_type','users.name'];
 
         $ads = Ad::join('categories','ads.category_id','=','categories.id')
+                   ->join('users','users.id','=','ads.user_id')
                    ->where('ads.active',true)
-                   ->where('ads.city_id',$request->input('city_id'))
-                   ->where('ads.category_id',$request->input('category_id'));
+                   ->where('ads.city_id',$request->input('city_id'));
 
-        if ($request->input('filter')) {
-            $options = json_decode($request->input('filter'));
-            //show [1 => special ,2 => added today ,3  => only address ,4 => contain images ,5 => near to me]
+            if ($request->input('category_id')) {
+                $ads->where('ads.category_id',$request->input('category_id'));
+            }
+             
+            $options = new \stdClass();
+            if ($request->input('filter')) {
+                $options = json_decode($request->input('filter'));
+            }
+        //show [1 => special ,2 => added today ,3  => only address ,4 => contain images ,5 => near to me]
             if (isset($options->show)) {
                if (in_array(1,$options->show)) {
                 $ads->where('ads.special',1);
@@ -110,10 +116,10 @@ class AdsController extends ApiController
                    }
                    if (isset($options->rooms_number)) {
 
-                    $ads->whereBetween('real_states_ads.rooms_number',[$options->rooms_number[0],$options->rooms_number[1]]);
+                       $ads->whereBetween('real_states_ads.rooms_number',[$options->rooms_number[0],$options->rooms_number[1]]);
                    }
                     if (isset($options->baths_number)) {
-                    $ads->whereBetween('real_states_ads.baths_number',[$options->baths_number[0],$options->baths_number[1]]);
+                       $ads->whereBetween('real_states_ads.baths_number',[$options->baths_number[0],$options->baths_number[1]]);
                    }
                    if (isset($options->is_furnished)) {
                        $ads->where('real_states_ads.is_furnished',$options->is_furnished);
@@ -125,7 +131,7 @@ class AdsController extends ApiController
                        $ads->whereBetween('real_states_ads.area',[$options->area[0],$options->area[1]]);
                    }
                    if (isset($options->price)) {
-                       $ads->whereBetween('real_states_ads.price',[$options->price[0],$options->price[1]]);
+                       $ads->whereBetween('ads.price',[$options->price[0],$options->price[1]]);
                    }
                    
                 }// lands
@@ -135,7 +141,7 @@ class AdsController extends ApiController
                        $ads->whereBetween('lands_ads.area',[$options->area[0],$options->area[1]]);
                     }
                     if (isset($options->price)) {
-                       $ads->whereBetween('lands_ads.price',[$options->price[0],$options->price[1]]);
+                       $ads->whereBetween('ads.price',[$options->price[0],$options->price[1]]);
                     }
                 }// cars
                 else if ($request->input('form_type') == 3){
@@ -145,7 +151,7 @@ class AdsController extends ApiController
                        $ads->where('vehicles_ads.status',$options->status);
                     }
                     if (isset($options->price)) {
-                       $ads->whereBetween('vehicles_ads.price',[$options->price[0],$options->price[1]]);
+                       $ads->whereBetween('ads.price',[$options->price[0],$options->price[1]]);
                     }
                     if (isset($options->manufacturing_year)) {
                        $ads->whereBetween('vehicles_ads.manufacturing_year',[$options->manufacturing_year[0],$options->manufacturing_year[1]]);
@@ -163,19 +169,18 @@ class AdsController extends ApiController
                        $ads->whereIn('vehicles_ads.fuel_type_id',$options->fuel_type);
                     }
                 }
-
-                if ($options->category) {
-                     $ads->whereIn('ads.category_id',$options->category);
+                if (isset($options->category)) {
+                    $ads->whereIn('ads.category_id',$options->category);
                 }
 
                 
             }
             
-        }
+        
         $ads->select($columns);
         $ads = $ads->get();
 
-        return _api_json();
+        return _api_json($ads->toArray());
     }
 
 
@@ -310,6 +315,7 @@ class AdsController extends ApiController
             $ad->lng = $request->input('lng');
             $ad->email = $request->input('email');
             $ad->mobile = $request->input('mobile');
+            $ad->price = $request->input('price');
 
             if(isset($request->images) && !empty($request->images)){
                 if ($ad->images) {
@@ -362,7 +368,6 @@ class AdsController extends ApiController
             $real_state_ad = new RealStateAd;
             $real_state_ad->ad_id = $ad_id;
         }
-        $real_state_ad->price = $request->input('price');
         $real_state_ad->area = $request->input('area');
         $real_state_ad->is_furnished = $request->input('is_furnished');
         $real_state_ad->has_parking = $request->input('has_parking');
@@ -382,7 +387,6 @@ class AdsController extends ApiController
             $land_ad = new LandAd;
             $land_ad->ad_id = $ad_id;
         }
-        $land_ad->price = $request->input('price');
         $land_ad->area = $request->input('area');
         
         $land_ad->save();
@@ -396,7 +400,6 @@ class AdsController extends ApiController
             $vehicle_ad = new VechileAd;
             $vehicle_ad->ad_id = $ad_id;
         }
-        $vehicle_ad->price = $request->input('price');
         $vehicle_ad->status = $request->input('status');
         $vehicle_ad->manufacturing_year = $request->input('manufacturing_year');
         $vehicle_ad->motion_vector_id = $request->input('motion_vector');

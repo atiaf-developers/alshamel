@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class BasicData extends MyModel {
 
     protected $table = "basic_data";
+
+
     public static $types=[
         1=>'property_types',
         2=>'engine_capacities',
@@ -76,9 +78,14 @@ class BasicData extends MyModel {
 
         $category_childrens = Category::getAll($request->input('category_id'));
         if ( $category_childrens->count() > 0) {
+            $first_parent_id = explode(",",$category_childrens[0]->parents_ids);
+            $first_parent = Category::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
+                                    ->where('trans.locale', static::getLangCode())
+                                    ->select('trans.label')
+                                    ->first();
             $data['sub_categories'] = [
-                'name' => '',
-                'label' => '',
+                'name' => 'category',
+                'label' => $first_parent->label,
                 'values' => self::transformCollection($category_childrens)
             ];
         }

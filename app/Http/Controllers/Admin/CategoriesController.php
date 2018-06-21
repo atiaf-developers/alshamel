@@ -234,6 +234,9 @@ class CategoriesController extends BackendController {
                     $category->image = Category::upload($request->file('image'), 'categories', true);
                 }
             }
+            if ($request->input('level') == 1) {
+                $category->num_of_levels = $request->input('num_of_levels');
+            }
             $category->save();
 
             CategoryTranslation::where('category_id', $category->id)->delete();

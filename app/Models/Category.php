@@ -20,7 +20,7 @@ class Category extends MyModel {
                         if ($parent_id) {
                             $data->where('categories.parent_id',$parent_id);
                         }
-                        $data->select('categories.id','categories.parent_id','trans.title','categories.image','categories.form_type');
+                        $data->select('categories.id','categories.parent_id','trans.title','categories.image','categories.form_type','categories.parents_ids');
         $data =         $data->get();
 
        return $data;

@@ -12,10 +12,11 @@ use App\Models\LandAd;
 use App\Models\VechileAd;
 use Validator;
 use DB;
+use Carbon\Carbon;
 class AdsController extends ApiController
 {
      
-    private $s_rules=array(
+    private $ads_rules=array(
         'city_id' => 'required',
         'lat' => 'required',
         'lng' => 'required',
@@ -23,8 +24,7 @@ class AdsController extends ApiController
 
     private $rules = [
         'form_type' => 'required|in:1,2,3,4',
-        'category_one_id' => 'required',
-        'category_two_id' => 'required',
+        'category_id' => 'required',
         'country_id' => 'required',
         'city_id' => 'required',
         'title' => 'required',
@@ -32,16 +32,15 @@ class AdsController extends ApiController
         'lat' => 'required',
         'lng' => 'required',
         'email' => 'required',
-        'mobile' => 'required',
-        'images' => 'required'
+        'mobile' => 'required'
     ];
 
     private $real_states_rules = [
         'price' => 'required',
         'area' => 'required',
         'property_type' => 'required',
-        'rooms_count' => 'required',
-        'baths_count' => 'required',
+        'rooms_number' => 'required',
+        'baths_number' => 'required',
         'is_furnished' => 'required',
         'has_parking' => 'required'
     ];
@@ -55,7 +54,6 @@ class AdsController extends ApiController
     private $vehicle_rules = [
         'price' => 'required',
         'status' => 'required',
-        'category_three_id' => 'required',
         'manufacturing_year' => 'required',
         'motion_vector' => 'required',
         'engine_capacity' => 'required',
@@ -67,12 +65,117 @@ class AdsController extends ApiController
 
     public function index(Request $request){
        
-        $validator = Validator::make($request->all(), $this->rules);
+        $validator = Validator::make($request->all(), $this->ads_rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
             return _api_json([], ['errors' => $errors], 400);
         }
-        return _api_json(Ad::get_all($request));
+        $lat = $request->input('lat');
+        $lng = $request->input('lng');
+
+        $columns = ['ads.id','ads.rate','ads.special','ads.price','ads.created_at',DB::raw($this->iniDiffLocations('ads', $lat, $lng)),'categories.form_type'];
+
+        $ads = Ad::join('categories','ads.category_id','=','categories.id')
+                   ->where('ads.active',true)
+                   ->where('ads.city_id',$request->input('city_id'))
+                   ->where('ads.category_id',$request->input('category_id'));
+
+        if ($request->input('filter')) {
+            $options = json_decode($request->input('filter'));
+            //show [1 => special ,2 => added today ,3  => only address ,4 => contain images ,5 => near to me]
+            if (isset($options->show)) {
+               if (in_array(1,$options->show)) {
+                $ads->where('ads.special',1);
+               }else if (in_array(2,$options->show)) {
+                $ads->where('ads.created_at',Carbon::today());
+               }
+               else if (in_array(3,$options->show)) {
+                  $ads->whereNull('ads.images');
+               }
+               else if (in_array(4,$options->show)) {
+                  $ads->whereNotNull('ads.images');
+               }
+               else if (in_array(5,$options->show)) {
+                  $ads->orderBy('distance');
+               }
+            }
+
+            if ($request->input('form_type')) {
+                // real states
+                if ($request->input('form_type') == 1) {
+
+                   $ads->join('real_states_ads','real_states_ads.ad_id','=','ads.id');
+                   if (isset($options->property_type)) {
+                       $ads->whereIn('real_states_ads.property_type_id',$options->property_type);
+                   }
+                   if (isset($options->rooms_number)) {
+
+                    $ads->whereBetween('real_states_ads.rooms_number',[$options->rooms_number[0],$options->rooms_number[1]]);
+                   }
+                    if (isset($options->baths_number)) {
+                    $ads->whereBetween('real_states_ads.baths_number',[$options->baths_number[0],$options->baths_number[1]]);
+                   }
+                   if (isset($options->is_furnished)) {
+                       $ads->where('real_states_ads.is_furnished',$options->is_furnished);
+                   }
+                   if (isset($options->has_parking)) {
+                       $ads->where('real_states_ads.has_parking',$options->has_parking);
+                   }
+                   if (isset($options->area)) {
+                       $ads->whereBetween('real_states_ads.area',[$options->area[0],$options->area[1]]);
+                   }
+                   if (isset($options->price)) {
+                       $ads->whereBetween('real_states_ads.price',[$options->price[0],$options->price[1]]);
+                   }
+                   
+                }// lands
+                else if ($request->input('form_type') == 2){
+                    $ads->join('lands_ads','lands_ads.ad_id','=','ads.id');
+                    if (isset($options->area)) {
+                       $ads->whereBetween('lands_ads.area',[$options->area[0],$options->area[1]]);
+                    }
+                    if (isset($options->price)) {
+                       $ads->whereBetween('lands_ads.price',[$options->price[0],$options->price[1]]);
+                    }
+                }// cars
+                else if ($request->input('form_type') == 3){
+
+                    $ads->join('vehicles_ads','vehicles_ads.ad_id','=','ads.id');
+                    if (isset($options->status)) {
+                       $ads->where('vehicles_ads.status',$options->status);
+                    }
+                    if (isset($options->price)) {
+                       $ads->whereBetween('vehicles_ads.price',[$options->price[0],$options->price[1]]);
+                    }
+                    if (isset($options->manufacturing_year)) {
+                       $ads->whereBetween('vehicles_ads.manufacturing_year',[$options->manufacturing_year[0],$options->manufacturing_year[1]]);
+                    }
+                    if (isset($options->motion_vector)) {
+                       $ads->whereIn('vehicles_ads.motion_vector_id',$options->motion_vector);
+                    }
+                    if (isset($options->engine_capacity)) {
+                       $ads->whereIn('vehicles_ads.engine_capacity_id',$options->engine_capacity);
+                    }
+                    if (isset($options->propulsion_system)) {
+                       $ads->whereIn('vehicles_ads.propulsion_system_id',$options->propulsion_system);
+                    }
+                    if (isset($options->fuel_type)) {
+                       $ads->whereIn('vehicles_ads.fuel_type_id',$options->fuel_type);
+                    }
+                }
+
+                if ($options->category) {
+                     $ads->whereIn('ads.category_id',$options->category);
+                }
+
+                
+            }
+            
+        }
+        $ads->select($columns);
+        $ads = $ads->get();
+
+        return _api_json();
     }
 
 
@@ -195,11 +298,7 @@ class AdsController extends ApiController
             $user = $this->auth_user();
             if (!$ad) {
                 $ad= new Ad;
-                $ad->category_one_id = $request->input('category_one_id');
-                $ad->category_two_id = $request->input('category_two_id');
-                if($request->input('category_three_id')){
-                    $ad->category_three_id=$request->input('category_three_id');  
-                }
+                $ad->category_id = $request->input('category_id');
                 $ad->user_id = $user->id;
             }
 
@@ -268,8 +367,8 @@ class AdsController extends ApiController
         $real_state_ad->is_furnished = $request->input('is_furnished');
         $real_state_ad->has_parking = $request->input('has_parking');
         $real_state_ad->property_type_id = $request->input('property_type');
-        $real_state_ad->rooms_id = $request->input('rooms_count');
-        $real_state_ad->bathes_id = $request->input('baths_count');
+        $real_state_ad->rooms_number = $request->input('rooms_number');
+        $real_state_ad->baths_number = $request->input('baths_number');
         
         $real_state_ad->save();
 

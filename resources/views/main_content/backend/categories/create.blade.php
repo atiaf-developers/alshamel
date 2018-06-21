@@ -73,6 +73,33 @@
                     <label for="status">{{_lang('app.status') }}</label>
                     <span class="help-block"></span>
                 </div> 
+                
+                @if ($level == 1)
+
+                    <div class="form-group form-md-line-input col-md-3">
+                        <select class="form-control" id="num_of_levels" name="num_of_levels">
+                            <option  value="2">{{ _lang('app.two') }}</option>
+                            <option  value="3">{{ _lang('app.three') }}</option>
+                        </select>
+                        <label for="num_of_levels">{{_lang('app.num_of_levels') }}</label>
+                        <span class="help-block"></span>
+                    </div> 
+
+                    <div id="label-container" style="display:none">
+                        @foreach ($languages as $key => $value)
+
+                            <div class="form-group form-md-line-input col-md-6">
+                                <input type="text" class="form-control" id="label[{{ $key }}]" name="label[{{ $key }}]" value="">
+                                <label for="label">{{ _lang('app.'.$value) }}</label>
+                                <span class="help-block"></span>
+                            </div>
+
+                        @endforeach
+                    </div>
+                   
+                @endif
+                
+
                 @if($level==2||$level==3)
                 <div class="form-group form-md-line-input col-md-3">
                     <select class="form-control" id="form_type" name="form_type" required>
@@ -98,6 +125,8 @@
                     <span class="help-block"></span>             
                 </div>
                 @endif
+           
+
 
 
             </div>

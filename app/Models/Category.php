@@ -12,13 +12,18 @@ class Category extends MyModel {
         'm' => array('width' => 400, 'height' => 400),
     );
 
-    public static function getAll() {
-        return static::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
+    public static function getAll($parent_id = null) {
+        $data =  static::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
                         ->orderBy('categories.this_order', 'ASC')
                         ->where('trans.locale', static::getLangCode())
-                        ->where('categories.active', true)
-                        ->select('categories.id','categories.parent_id','trans.title','categories.image','categories.form_type')
-                        ->get();
+                        ->where('categories.active', true);
+                        if ($parent_id) {
+                            $data->where('categories.parent_id',$parent_id);
+                        }
+                        $data->select('categories.id','categories.parent_id','trans.title','categories.image','categories.form_type');
+        $data =         $data->get();
+
+       return $data;
     }
 
     public function translations() {

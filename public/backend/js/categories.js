@@ -13,7 +13,22 @@ var Categories = function() {
         handleRecords();
         handleSubmit();
         My.readImageMulti('image');
+        handleNumOflevels();
     };
+
+    var handleNumOflevels = function(){
+            $('#num_of_levels').on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            var valueSelected = this.value;
+
+            if (valueSelected == 2) {
+              $('#label-container').hide();
+            }
+            else if(valueSelected == 3){
+              $('#label-container').show();
+            }
+        });
+    }
 
     var handleRecords = function() {
 
@@ -52,8 +67,9 @@ var Categories = function() {
                 this_order: {
                     required: true,
                 },
-               
-
+                num_of_levels:{
+                    required: true,
+                },
             },
             //messages: lang.messages,
             highlight: function(element) { // hightlight error inputs
@@ -72,10 +88,20 @@ var Categories = function() {
         var langs = JSON.parse(config.languages);
         for (var x = 0; x < langs.length; x++) {
             var title = "input[name='title[" + langs[x] + "]']";
-
             $(title).rules('add', {
                 required: true
             });
+        }
+
+        var $label_div = $('#label-container');
+        if ( $label_div.length){
+
+            for (var x = 0; x < langs.length; x++) {
+                 var label = "input[name='label[" + langs[x] + "]']";
+                $(label).rules('add', {
+                    required: true
+                });
+            }
         }
 
 

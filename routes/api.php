@@ -28,7 +28,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::post('ad_raters', 'BasicController@getAdRaters');
     Route::get('basic_data', 'BasicController@getBasicData');
     Route::get('get_packages', 'BasicController@getPackages');
-    
+    Route::get('ads','AdsController@index');
     
     
 
@@ -43,7 +43,9 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('report', 'UserController@reportAd');
         Route::post('send_contact_message', 'BasicController@sendContactMessage');
         Route::post('send_package_request', 'BasicController@sendPackageRequest');
-        Route::resource('ads', 'AdsController');
+        Route::post('ads','AdsController@store');
+        Route::put('ads/{id}','AdsController@update');
+        Route::delete('ads/{id}','AdsController@destroy');
         
     });
 });

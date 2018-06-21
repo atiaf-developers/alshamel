@@ -35,7 +35,8 @@ class BasicController extends ApiController {
     );
 
     private $basic_data_rules = array(
-        'type' => 'required',
+        'form_type' => 'required|in:1,3',
+        'category_id' => 'required'
     );
 
      private $package_rules = array(
@@ -218,8 +219,8 @@ class BasicController extends ApiController {
                 $errors = $validator->errors()->toArray();
                 return _api_json([], ['errors' => $errors], 400);
             }
-            $data = BasicData::getAll($request->input('type'));
-            return _api_json(BasicData::transformCollection($data));
+            $data = BasicData::getAll($request);
+            return _api_json($data);
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }

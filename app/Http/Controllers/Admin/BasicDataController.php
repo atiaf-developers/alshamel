@@ -66,7 +66,7 @@ class BasicDataController extends BackendController
             $this->middleware('CheckPermission:'.$this->data['type_title'].',add', ['only' => ['store']]);
 
             $this->rules = array_merge($this->rules,  $this->lang_rules(['title' => 'required']));
-            $this->rules = array_merge($this->rules,['this_order' => 'required|unique:basic_data,this_order,NULL,id,type,'.$request->type.'']);
+            $this->rules = array_merge($this->rules,['this_order' => "required|unique:basic_data,this_order,NULL,id,type,{$request->type}"]);
             $validator = Validator::make($request->all(), $this->rules);
             // dd($validator->fails());
             if ($validator->fails()) {
@@ -161,16 +161,16 @@ class BasicDataController extends BackendController
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-        $base_data = BasicData::find($id);
-        if (!$base_data) {
+        $basic_data = BasicData::find($id);
+        if (!$basic_data) {
             return _json('error', _lang('app.error_is_occured'), 404);
         }
-        if(array_key_exists($base_data->type,BasicData::$types)){
-            $this->data['type_title']=BasicData::$types[$base_data->type];
+        if(array_key_exists($basic_data->type,BasicData::$types)){
+            $this->data['type_title']=BasicData::$types[$basic_data->type];
             $this->middleware('CheckPermission:'.$this->data['type_title'].',edit', ['only' => ['update']]);
 
-            $this->rules['this_order'] = 'required|unique:basic_data,this_order,' . $id;
-            // $this->rules = array_merge($this->rules, $this->lang_rules(['title' =>'required|unique:base_data_translations,title,' . $id . ',bath_id']));
+            $this->rules['this_order'] = "required|unique:basic_data,this_order,{$id},type,{$basic_data->type}";
+            // $this->rules = array_merge($this->rules, $this->lang_rules(['title' =>'required|unique:basic_data_translations,title,' . $id . ',bath_id']));
     
             $validator = Validator::make($request->all(), $this->rules);
     
@@ -182,25 +182,25 @@ class BasicDataController extends BackendController
             DB::beginTransaction();
             try {
     
-                $base_data->active = $request->input('active');
-                $base_data->this_order = $request->input('this_order');
+                $basic_data->active = $request->input('active');
+                $basic_data->this_order = $request->input('this_order');
     
-                $base_data->save();
+                $basic_data->save();
     
-                $base_data_translations = array();
+                $basic_data_translations = array();
     
-                BasicDataTranslation::where('basic_data_id', $base_data->id)->delete();
+                BasicDataTranslation::where('basic_data_id', $basic_data->id)->delete();
     
-                $base_data_title = $request->input('title');
+                $basic_data_title = $request->input('title');
     
                 foreach ($this->languages as $key => $value) {
-                    $base_data_translations[] = array(
+                    $basic_data_translations[] = array(
                         'locale' => $key,
-                        'title' => $base_data_title[$key],
-                        'basic_data_id' => $base_data->id
+                        'title' => $basic_data_title[$key],
+                        'basic_data_id' => $basic_data->id
                     );
                 }
-                BasicDataTranslation::insert($base_data_translations);
+                BasicDataTranslation::insert($basic_data_translations);
     
                 DB::commit();
                 return _json('success', _lang('app.updated_successfully'));

@@ -111,7 +111,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('contact_messages', 'ContactMessagesController');
     Route::post('contact_messages/data', 'ContactMessagesController@data');
 
-
+    Route::resource('ad_reports', 'AdReportsController');
+    Route::post('ad_reports/data', 'AdReportsController@data');
 
     Route::get('login', 'LoginController@showLoginForm')->name('admin.login');
     Route::post('login', 'LoginController@login')->name('admin.login.submit');

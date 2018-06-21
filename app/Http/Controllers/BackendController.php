@@ -41,21 +41,26 @@ class BackendController extends Controller {
         } else {
             $this->lang_code = 'en';
         }
-       
+
         $this->data['lang_code'] = $this->lang_code;
         if ($this->lang_code == "ar") {
-            $this->data['currency_sign'] = 'ريال'; 
-        }
-        else{
+            $this->data['currency_sign'] = 'ريال';
+        } else {
             $this->data['currency_sign'] = 'SAR';
         }
-       
+
         app()->setLocale($this->lang_code);
     }
 
     public function sideBarHtml($pages) {
         $markup = "";
         $page_link_name = $this->data['page_link_name'];
+
+        $parsedUrl = parse_url(\Request::fullUrl());
+        //dd($parsedUrl);
+        if (isset($parsedUrl['query'])) {
+            $page_link_name .= '?' . $parsedUrl['query'];
+        }
         $page_arr = Pages::where('controller', $page_link_name)->get();
         $page_parents = (count($page_arr)) ? explode(',', $page_arr[0]->parents_ids) : array();
 //        dd($page_parents);
@@ -109,10 +114,6 @@ class BackendController extends Controller {
 
         return $markup;
     }
-
- 
-
-    
 
     public function err404() {
         return view('main_content/backend/err404');

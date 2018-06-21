@@ -11,4 +11,16 @@ class UserPackage extends Model
         's' => array('width' => 120, 'height' => 120),
         'm' => array('width' => 400, 'height' => 400),
     );
+
+    private $status=[
+        0=>'waiting',
+        1=>'accept',
+        2=>'reject'
+    ];
+    public function user() {
+        return $this->hasOne(User::class, 'user_id');
+    }
+    public function package() {
+        return $this->hasOne(Package::class, 'package_id');
+    }
 }

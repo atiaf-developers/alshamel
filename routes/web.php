@@ -114,6 +114,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('ad_reports', 'AdReportsController');
     Route::post('ad_reports/data', 'AdReportsController@data');
 
+    Route::resource('user_packages', 'UserPackagesController');
+    Route::post('user_packages/data', 'UserPackagesController@data');
+
     Route::get('login', 'LoginController@showLoginForm')->name('admin.login');
     Route::post('login', 'LoginController@login')->name('admin.login.submit');
     Route::get('logout', 'LoginController@logout')->name('admin.logout');

@@ -123,45 +123,83 @@ class Ad extends MyModel {
     }
 
     
-    public static function transform(Ad $item, $filters = array()) {
+    // public static function transform(Ad $item, $filters = array()) {
+    //     $transformer = new \stdClass();
+    //     $transformer->id = $item->id;
+    //     $transformer->title = $item->title;
+    //     $transformer->rate = $item->rate;
+    //     $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/', json_decode($item->images));
+    //     $transformer->images = $prefixed_array;
+    //     Ad::$level = 1;
+    //     $catagory_level = $item->Categories->no_of_levels;
+    //     if ($catagory_level == 2) {
+    //         Ad::$level = 2;
+    //         $form_type = $item->Categories->form_type;
+    //     } else {
+    //         Ad::$level = 3;
+    //         $form_type = $item->Categories->form_type;
+    //     }
+    //     if ($form_type != 4) {
+    //         $featuers = $item->Features;
+    //         foreach ($featuers as $value) {
+    //             if ($form_type == 1)
+    //                 $array = Ad::$real_states_features;
+    //             elseif ($form_type == 2)
+    //                 $array = Ad::$lands_features;
+    //             else
+    //                 $array = Ad::$cars_features;
+    //             $title = $value->name;
+    //             if (in_array($title, $array)) {
+    //                 $value = $value->value;
+    //                 $transformer->$title = $value;
+    //             }
+    //         }
+    //         $transformer->currancy = $item->Location->currancy->translations->title;
+    //     }
+
+    //     $transformer->is_favourite = $item->is_favourite ? 1 : 0;
+    //     $transformer->is_special = $item->special == 0 ? 0 : 1;
+    //     return $transformer;
+    // }
+    public static function  transformAdmin(Ad $item){
+        dd('asdasd');
         $transformer = new \stdClass();
         $transformer->id = $item->id;
         $transformer->title = $item->title;
         $transformer->rate = $item->rate;
+        $transformer->lat = $item->lat;
+        $transformer->lng = $item->lng;
+        $transformer->details = $item->details;
+        $transformer->active = $item->active;
+        $transformer->email = $item->email;
+        $transformer->mobile = $item->mobile;
+        $transformer->user_id = $item->user_id;
+        $transformer->user_name = $item->user->username;
         $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/', json_decode($item->images));
-        $transformer->images = $prefixed_array;
-        Ad::$level = 1;
-        $catagory_level = $item->Categories->no_of_levels;
-        if ($catagory_level == 2) {
-            Ad::$level = 2;
-            $form_type = $item->Categories->form_type;
-        } else {
-            Ad::$level = 3;
-            $form_type = $item->Categories->form_type;
-        }
-        if ($form_type != 4) {
-            $featuers = $item->Features;
-            foreach ($featuers as $value) {
-                if ($form_type == 1)
-                    $array = Ad::$real_states_features;
-                elseif ($form_type == 2)
-                    $array = Ad::$lands_features;
-                else
-                    $array = Ad::$cars_features;
-                $title = $value->name;
-                if (in_array($title, $array)) {
-                    $value = $value->value;
-                    $transformer->$title = $value;
-                }
+        $transformer->catagory_id = $item->Categories->id;
+        $transformer->catagory_title = $item->Categories->translations->title;
+        $parents=$item->Categories->parents_ids;
+        if (strpos($parents, ',')) {
+            $parents_array=explode(",",$parents);
+            for($i=0;$i<=count($parents_array);$i++){
+                $catagory_array[]=self::catagory_by_id($parents_array[$i]);
             }
-            $transformer->currancy = $item->Location->currancy->translations->title;
+        }else{
+            $catagory_array[]=self::catagory_by_id($parents);
         }
-
-        $transformer->is_favourite = $item->is_favourite ? 1 : 0;
-        $transformer->is_special = $item->special == 0 ? 0 : 1;
-        return $transformer;
+       $form_type = $item->Categories->form_type;
+       if($form_type==1){
+        $transformer->Feature=$item->realStateAd;
+       }elseif($form_type==2){
+        $transformer->Feature=$item->landAd;
+       }elseif($form_type==3){
+        $transformer->Feature=$item->vehicleAd;
+       }else{
+        $transformer->Feature=[]; 
+       }
+       dd($transformer);
+       return $transformer;
     }
-
     public function rates() {
         return $this->hasMany(Rating::class, 'entity_id');
     }
@@ -177,14 +215,12 @@ class Ad extends MyModel {
     public function vehicleAd() {
         return $this->hasOne(VechileAd::class, 'ad_id');
     }
+    public function user() {
+        return $this->hasOne(User::class, 'user_id');
+    }
 
     public function Categories() {
-        if (Ad::$level == 1)
-            return $this->hasOne(Category::class, 'id', 'category_one_id');
-        elseif (Ad::$level == 2)
-            return $this->hasOne(Category::class, 'id', 'category_two_id');
-        else
-            return $this->hasOne(Category::class, 'id', 'category_three_id');
+        return $this->hasOne(Category::class, 'id', 'category_id');
     }
 
     public function Location() {
@@ -213,6 +249,14 @@ class Ad extends MyModel {
                 Ad::deleteUploaded('ads', $image);
             }
         });
+    }
+
+    protected static function catagory_by_id($id){
+        return Category::join('catagory_lang','catagory_lang.cat_id','catagory.id')
+        ->where('catagory.id',$id)
+        ->where('catagory_lang.lang',static::getLangCode())
+        ->select(['catagory_lang.name','catagory.id'])
+        ->find();
     }
 
 }

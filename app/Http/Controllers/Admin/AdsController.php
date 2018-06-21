@@ -46,8 +46,7 @@ class AdsController extends BackendController
         if (!$find) {
             return $this->err404();
         }
-        $this->data['package'] = $find;
-        $this->data['Features']=$find->Features;
+        $this->data['data'] = Ad::transformAdmin($find);
        dd($this->data);
         return $this->_view('ads/edit', 'backend');
     }
@@ -82,7 +81,7 @@ class AdsController extends BackendController
             }
         }
         $Ad = Ad::Join('categories_translations',function ($join){
-                $join->on('categories_translations.id', '=', 'ads.category_two_id')
+                $join->on('categories_translations.category_id', '=', 'ads.category_id')
                 ->where('categories_translations.locale', $this->lang_code);
         });
         if($req->category_id || $req->user_id){
@@ -97,7 +96,6 @@ class AdsController extends BackendController
             "ads.active",
             "categories_translations.title as cat_title"
         ]);
-        
         return \Datatables::eloquent($Ad)
                 ->addColumn('options', function ($item) {
 

@@ -24,6 +24,10 @@ class Package extends MyModel
     public function translations() {
         return $this->hasMany(PackageTranslation::class, 'package_id');
     }
+    public function translationsAdmin() {
+        return $this->hasOne(PackageTranslation::class, 'package_id')
+        ->where('packages_translations.locale', static::getLangCode());
+    }
 
 
     public function transform($item)

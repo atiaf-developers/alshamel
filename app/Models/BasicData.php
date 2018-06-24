@@ -84,7 +84,7 @@ class BasicData extends MyModel {
                                     ->select('trans.label')
                                     ->first();
             $data['sub_categories'] = [
-                'name' => 'category',
+                'name' => 'category_id',
                 'label' => $first_parent->label,
                 'values' => self::transformCollection($category_childrens)
             ];

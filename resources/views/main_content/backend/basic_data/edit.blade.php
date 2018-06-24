@@ -89,7 +89,7 @@ var new_lang = {
 
 };
 var new_config = {
-    type:"{{$type}}"
+    
 
 };
 

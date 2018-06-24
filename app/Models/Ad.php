@@ -59,109 +59,115 @@ class Ad extends MyModel {
         'mobile',
     ];
 
-    public static function get_all($req) {
-        $user = static::auth_user();
-        $Ads = Ad::leftJoin('favourites', function ($join) use($user) {
-                    $join->on('favourites.ad_id', 'ads.id')
-                            ->where('favourites.user_id', $user->id);
-                });
-
-        $Ads = $Ads->where('active', 1);
-        if ($req->cat_id) {
-            $category = Category::find($req->cat_id);
-            if ($category->no_of_levels == 2) {
-                $Ads = $Ads->where('category_two_id', $req->cat_id);
-            } else {
-                $Ads = $Ads->where('category_three_id', $req->cat_id);
-            }
-        }
-        $Ads = $Ads->where('ads.city_id', $req->city_id);
-        if ($req->is_filter == 1) {
-            $data_filter = $req->filter;
-            $joins = '';
-            $f = 1;
-            $ad2 = new Ad;
-            foreach ((Array) json_decode($data_filter) as $key => $value) {
-                $ad2 = $ad2->join('features as f' . $f . '', function ($join) use($f, $key, $value) {
-                    if (is_array($value)) {
-                        $join->on('f' . $f . '.ad_id', 'ads.id')
-                                ->where('f' . $f . '.name', $key)
-                                ->whereBetween('f' . $f . '.value', [$value[0], $value[1]]);
-                    } else {
-                        $join->on('f' . $f . '.ad_id', 'ads.id')
-                                ->where('f' . $f . '.name', $key)
-                                ->where('f' . $f . '.value', $value);
-                    }
-                });
-                $f++;
-            }
-            $ad2 = $ad2->select(['ads.id'])->groupBy('ads.id')->get()->toArray();
-            if ($ad2)
-                $Ads = $Ads->whereIn('ads.id', [$ad2]);
-            else
-                $Ads = $Ads->whereIn('ads.id', array());
-
-            if ($req->filter_show) {
-                $filter_show_array = json_decode($req->filter_show);
-                if (is_array($filter_show_array)) {
-                    if (in_array(1, $filter_show_array)) {
-                        $day = date('Y-m-d');
-                        $Ads = $Ads->whereDate('ads.created_at', $day);
-                    } elseif (in_array(2, $filter_show_array)) {
-                        $Ads = $Ads->whereNull('ads.images');
-                    } elseif (in_array(3, $filter_show_array)) {
-                        $Ads = $Ads->whereNotNull('ads.images');
-                    } elseif (in_array(4, $filter_show_array)) {
-                        $Ads = $Ads->orderBy('distance', 'asc');
-                    }
-                }
-            }
-        }
-        $Ads = $Ads->select(['ads.*', 'favourites.id as is_favourite', DB::raw(static::iniDiffLocations('ads', $req->lat, $req->lng))])->get();
-        // dd($Ads);
-        return Ad::transformCollection($Ads);
+    public static function get_All() {
+        
     }
 
-    
-    // public static function transform(Ad $item, $filters = array()) {
-    //     $transformer = new \stdClass();
-    //     $transformer->id = $item->id;
-    //     $transformer->title = $item->title;
-    //     $transformer->rate = $item->rate;
-    //     $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/', json_decode($item->images));
-    //     $transformer->images = $prefixed_array;
-    //     Ad::$level = 1;
-    //     $catagory_level = $item->Categories->no_of_levels;
-    //     if ($catagory_level == 2) {
-    //         Ad::$level = 2;
-    //         $form_type = $item->Categories->form_type;
-    //     } else {
-    //         Ad::$level = 3;
-    //         $form_type = $item->Categories->form_type;
-    //     }
-    //     if ($form_type != 4) {
-    //         $featuers = $item->Features;
-    //         foreach ($featuers as $value) {
-    //             if ($form_type == 1)
-    //                 $array = Ad::$real_states_features;
-    //             elseif ($form_type == 2)
-    //                 $array = Ad::$lands_features;
-    //             else
-    //                 $array = Ad::$cars_features;
-    //             $title = $value->name;
-    //             if (in_array($title, $array)) {
-    //                 $value = $value->value;
-    //                 $transformer->$title = $value;
-    //             }
-    //         }
-    //         $transformer->currancy = $item->Location->currancy->translations->title;
-    //     }
+    public static function transformPaginationApi($item,$extra_params = array())
+    {
+        $lang = static::getLangCode();
 
-    //     $transformer->is_favourite = $item->is_favourite ? 1 : 0;
-    //     $transformer->is_special = $item->special == 0 ? 0 : 1;
-    //     return $transformer;
-    // }
-    public static function  transformAdmin(Ad $item){
+        $transformer = new \stdClass();
+        $transformer->id = $item->id;
+        $transformer->title = $item->title;
+        $transformer->rate = $item->rate;
+        $transformer->lat = $item->lat;
+        $transformer->lng = $item->lng;
+        $transformer->special = $item->special;
+        $transformer->created_at = date('Y-m-d H:i',strtotime($item->created_at));
+        $transformer->price = $item->price;
+        $transformer->form_type = $item->form_type;
+        $transformer->distance = round($item->distance,1);
+        $ad_images =  json_decode($item->images);
+        foreach ($ad_images as $key => $value) {
+            $ad_images[$key] =  static::rmv_prefix($value);
+        }
+        $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
+        $transformer->images = $prefixed_array;
+
+        if ((isset($extra_params['user']) && $extra_params['user'] != null)) {
+            $transformer->is_favourite = $item->is_favourite ? 1 : 0 ;
+        }else{
+            $transformer->is_favourite = 0;
+        }
+        return $transformer;
+    }
+
+
+    public static function transformDetailsApi($item,$extra_params = array())
+    {
+
+        $lang = static::getLangCode();
+
+        $transformer = new \stdClass();
+        $transformer->id = $item->id;
+        $transformer->city = $item->city;
+        $transformer->title = $item->title;
+        $transformer->details = $item->details;
+        $transformer->rate = $item->rate;
+        $transformer->lat = $item->lat;
+        $transformer->lng = $item->lng;
+        $transformer->address = getAddress($item->lat,$item->lng,$lang);
+        $transformer->special = $item->special;
+        $transformer->created_at = date('Y-m-d H:i',strtotime($item->created_at));
+        $transformer->price = $item->price;
+        $transformer->form_type = $item->form_type;
+        $transformer->distance = round($item->distance,1);
+        $ad_images =  json_decode($item->images);
+        foreach ($ad_images as $key => $value) {
+            $ad_images[$key] =  static::rmv_prefix($value);
+        }
+        $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
+        $transformer->images = $prefixed_array;
+
+        if ((isset($extra_params['user']) && $extra_params['user'] != null)) {
+            $transformer->is_favourite = $item->is_favourite ? 1 : 0 ;
+        }else{
+            $transformer->is_favourite = 0;
+        }
+        if ($item->form_type == 1) {
+            $transformer->area = $item->area;
+            $transformer->rooms_number = $item->rooms_number;
+            $transformer->baths_number = $item->baths_number;
+            $transformer->is_furnished = $item->is_furnished;
+            $transformer->has_parking = $item->has_parking;
+            $transformer->property_type_id = $item->property_type_id;
+            $transformer->property_type = $item->property_type;
+
+        }else if ($item->form_type == 2){
+            $transformer->area = $item->area;
+        }
+        else if ($item->form_type == 3){
+
+            $transformer->motion_vector_id = $item->motion_vector_id;
+            $transformer->motion_vector = $item->motion_vector;
+            $transformer->engine_capacity_id = $item->engine_capacity_id;
+            $transformer->engine_capacity = $item->engine_capacity;
+            $transformer->propulsion_system_id = $item->propulsion_system_id;
+            $transformer->propulsion_system = $item->propulsion_system;
+            $transformer->fuel_type_id = $item->fuel_type_id;
+            $transformer->fuel_type = $item->fuel_type;
+            $transformer->mileage_id = $item->mileage_id;
+            $transformer->mileage = $item->mileage;
+            $transformer->mileage_unit = $item->mileage_unit;
+            $transformer->status = $item->status == 0 ? _lang('app.new') : _lang('app.used');
+            $transformer->manufacturing_year = $item->manufacturing_year;
+        }
+        
+        $transformer->name = $item->name;
+        $transformer->mobile = $item->mobile;
+        $transformer->email = $item->email;
+        
+        
+        return $transformer;
+    }
+
+
+
+
+
+    
+    public static function transformAdmin(Ad $item){
         dd('asdasd');
         $transformer = new \stdClass();
         $transformer->id = $item->id;

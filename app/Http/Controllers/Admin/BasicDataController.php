@@ -168,17 +168,17 @@ class BasicDataController extends BackendController
         if(array_key_exists($basic_data->type,BasicData::$types)){
             $this->data['type_title']=BasicData::$types[$basic_data->type];
             $this->middleware('CheckPermission:'.$this->data['type_title'].',edit', ['only' => ['update']]);
+            $this->rules['this_order'] = "required|unique:basic_data,this_order,{$id},id,type,{$basic_data->type}";
+            $this->rules = array_merge($this->rules, $this->lang_rules(['title' => 
+                "required|unique:basic_data_translations,title,{$id},basic_data_id"]));
 
-            $this->rules['this_order'] = "required|unique:basic_data,this_order,{$id},type,{$basic_data->type}";
-            // $this->rules = array_merge($this->rules, $this->lang_rules(['title' =>'required|unique:basic_data_translations,title,' . $id . ',bath_id']));
-    
             $validator = Validator::make($request->all(), $this->rules);
-    
+            
             if ($validator->fails()) {
                 $errors = $validator->errors()->toArray();
                 return _json('error', $errors);
             }
-    
+            
             DB::beginTransaction();
             try {
     

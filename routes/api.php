@@ -29,6 +29,7 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('basic_data', 'BasicController@getBasicData');
     Route::get('get_packages', 'BasicController@getPackages');
     Route::get('ads','AdsController@index');
+    Route::get('ads/{id}','AdsController@show');
     
     
 

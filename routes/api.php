@@ -30,6 +30,8 @@ Route::group(['namespace' => 'Api'], function () {
     Route::get('get_packages', 'BasicController@getPackages');
     Route::get('ads','AdsController@index');
     Route::get('ads/{id}','AdsController@show');
+    Route::post('/password/reset', 'PasswordController@reset');
+    Route::post('/password/verify', 'PasswordController@verify');
     
     
 

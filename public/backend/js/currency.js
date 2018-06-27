@@ -68,8 +68,12 @@ var Currency = function() {
         var langs = JSON.parse(config.languages);
         for (var x = 0; x < langs.length; x++) {
             var title = "input[name='title[" + langs[x] + "]']";
+            var sign = "input[name='sign[" + langs[x] + "]']";
 
             $(title).rules('add', {
+                required: true
+            });
+            $(sign).rules('add', {
                 required: true
             });
         }

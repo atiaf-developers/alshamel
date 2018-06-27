@@ -36,7 +36,8 @@ Route::group(['namespace' => 'Api'], function () {
     
 
     Route::group(['middleware' => 'jwt.auth'], function () {
-
+        
+        Route::get('num_of_available_ads','BasicController@getNumOfAvailableAds');
         Route::post('user/update', 'UserController@update');
         Route::get('logout', 'UserController@logout');
         Route::get('get_user', 'UserController@getUser');

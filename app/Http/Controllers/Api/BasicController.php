@@ -100,6 +100,26 @@ class BasicController extends ApiController {
         }
     }
 
+    public function getNumOfAvailableAds()
+    {
+        try {
+            $user = $this->auth_user();
+            if($user->num_free_ads == 0){
+                $avaliable_ads = UserPackage::where('user_id',$user->id)->where('available_of_ads','!=',0)->where('status',1)->first();
+                if (!$avaliable_ads) {
+                    return _api_json('', ['num_of_ads' =>0, 'free' => false]);
+                }
+                return _api_json('', ['num_of_ads' => $avaliable_ads->available_of_ads, 'free' => false]);
+            }else{
+                return _api_json('', ['num_of_ads' => $user->num_free_ads, 'free' => true]);
+            }
+
+            
+        } catch (\Exception $e) {
+            return _api_json('', ['message' => _lang('app.error_is_occured')], 400);
+        }
+    }
+
     public function getLocations()
     {
         try {

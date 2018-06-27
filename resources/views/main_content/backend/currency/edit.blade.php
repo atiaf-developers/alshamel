@@ -33,7 +33,7 @@
                 @foreach ($languages as $key => $value)
                
                 <div class="form-group form-md-line-input col-md-6">
-                    <input type="text" class="form-control" id="title[{{ $key }}]" name="title[{{ $key }}]" value="{{  $translations["$key"]->title }}">
+                    <input type="text" class="form-control" id="title[{{ $key }}]" name="title[{{ $key }}]" value="{{ $translations["$key"]->title }}">
                     <label for="title">{{_lang('app.title') }} {{ _lang('app. '.$key.'') }}</label>
                     <span class="help-block"></span>
                 </div>
@@ -46,6 +46,34 @@
 
 
     </div>
+
+     <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{{_lang('app.currency_sign') }}</h3>
+        </div>
+        <div class="panel-body">
+
+
+            <div class="form-body">
+
+                @foreach ($languages as $key => $value)
+
+                <div class="form-group form-md-line-input col-md-6">
+                    <input type="text" class="form-control" id="sign[{{ $key }}]" name="sign[{{ $key }}]" value="{{ $translations["$key"]->sign }}">
+                    <label for="sign">{{_lang('app.sign') }} {{ _lang('app. '.$key.'') }}</label>
+                    <span class="help-block"></span>
+                </div>
+
+                @endforeach
+
+
+            </div>
+        </div>
+
+
+    </div>
+
+
 
     <div class="panel panel-default">
        <div class="panel-heading">

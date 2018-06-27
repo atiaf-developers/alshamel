@@ -32,6 +32,7 @@ class CurrencyController extends BackendController
     public function store(Request $request){
         $columns_arr = array(
             'title' => 'required|unique:currency_translations,title',
+            'sign' => 'required|unique:currency_translations,sign',
         );
         $lang_rules = $this->lang_rules($columns_arr);
         $this->rules = array_merge($this->rules, $lang_rules);
@@ -49,10 +50,13 @@ class CurrencyController extends BackendController
 
             $currency_translations = array();
             $title = $request->input('title');
-            foreach ($title as $key => $value) {
+            $sign = $request->input('sign');
+
+            foreach ($this->languages as $key => $value) {
                 $currency_translations[] = array(
                     'locale' => $key,
-                    'title' => $value,
+                    'title' => $title[$key],
+                    'sign' => $sign[$key],
                     'currency_id' => $currency->id
                 );
             }
@@ -80,6 +84,7 @@ class CurrencyController extends BackendController
         }
         $columns_arr = array(
             'title' => 'required|unique:currency_translations,title,'.$id .',currency_id',
+            'sign'  => 'required|unique:currency_translations,sign,'.$id .',currency_id',
         );
 
         $lang_rules = $this->lang_rules($columns_arr);
@@ -97,16 +102,19 @@ class CurrencyController extends BackendController
             $currency->save();
             CurrencyTranslation::where('currency_id', $currency->id)->delete();
 
-            $currencyTranslation = array();
+            $currency_translations = array();
             $title = $request->input('title');
-            foreach ($title as $key => $value) {
-                $currencyTranslation[] = array(
+            $sign = $request->input('sign');
+
+            foreach ($this->languages as $key => $value) {
+                $currency_translations[] = array(
                     'locale' => $key,
-                    'title' => $value,
+                    'title' => $title[$key],
+                    'sign' => $sign[$key],
                     'currency_id' => $currency->id
                 );
-                CurrencyTranslation::insert($currencyTranslation);
             }
+            CurrencyTranslation::insert($currency_translations);
             DB::commit();
             return _json('success', _lang('app.updated_successfully'));
         } catch (\Exception $ex) {

@@ -44,11 +44,12 @@ class AdsController extends ApiController
         'lat' => 'required',
         'lng' => 'required',
         'email' => 'required',
-        'mobile' => 'required'
+        'mobile' => 'required',
+        'price' => 'required',
     ];
 
     private $real_states_rules = [
-        'price' => 'required',
+        
         'area' => 'required',
         'property_type' => 'required',
         'rooms_number' => 'required',
@@ -58,13 +59,11 @@ class AdsController extends ApiController
     ];
 
     private $land_rules = [
-        'price' => 'required',
         'area' => 'required'
     ];
 
 
     private $vehicle_rules = [
-        'price' => 'required',
         'status' => 'required',
         'manufacturing_year' => 'required',
         'motion_vector' => 'required',
@@ -87,7 +86,17 @@ class AdsController extends ApiController
             $errors = $validator->errors()->toArray();
             return _api_json([], ['errors' => $errors], 400);
         }
-        $ads = $this->getAds($request);
+        if($request->input('page_type') == 1){
+            $special_ads = $this->getAds($request,null,1);
+            $oridnary_ads = $this->getAds($request,null,2);
+            $ads['special'] = $special_ads;
+            $ads['ads'] = $oridnary_ads;
+        }else if ($request->input('page_type') == 2){
+            $ads = $this->getAds($request,null,3);
+        }else{
+            $ads = $this->getAds($request);
+        }
+      
         return _api_json($ads);
     }
 
@@ -146,6 +155,7 @@ class AdsController extends ApiController
                 DB::commit();
                 return _api_json('',['message'=>_lang('app.added_successfully')]);
             }catch(\Exception $ex){
+
                 DB::rollback();
                 return _api_json('', ['message'=> _lang('app.error_is_occured')], 400);
             }
@@ -338,7 +348,7 @@ class AdsController extends ApiController
     }
 
 
-    private function getAds($request,$id = null)
+    private function getAds($request,$id = null,$type = null)
     {
         $user = $this->auth_user();
 
@@ -365,6 +375,7 @@ class AdsController extends ApiController
                             $join->on('favourites.ad_id','=','ads.id')
                                ->where('favourites.user_id',$user->id);
                         });
+                        $columns[] = "favourites.id as is_favourite";
                     }
                 }
 
@@ -373,9 +384,10 @@ class AdsController extends ApiController
                           $join->on('favourites.ad_id','=','ads.id')
                                ->where('favourites.user_id',$user->id);
                         });
+                     $columns[] = "favourites.id as is_favourite";
                    
                 }
-                $columns[] = "favourites.id as is_favourite";
+               
             }
 
             
@@ -401,23 +413,27 @@ class AdsController extends ApiController
                 $ads->whereIn('ads.category_id',$options->category);
             }
 
-            //show [1 => special ,2 => added today ,3  => only address ,4 => contain images ,5 => near to me]
+            //show [1 => added today ,2  => only address ,3 => contain images ,4 => near to me]
             if (isset($options->show)) {
-               if (in_array(1,$options->show)) {
-                $ads->where('ads.special',1);
-               } if (in_array(2,$options->show)) {
+              if (in_array(1,$options->show)) {
                 $ads->where('ads.created_at','>=',Carbon::today());
                }
-                if (in_array(3,$options->show)) {
+                if (in_array(2,$options->show)) {
                   $ads->whereNull('ads.images');
                }
-                if (in_array(4,$options->show)) {
+                if (in_array(3,$options->show)) {
                   $ads->whereNotNull('ads.images');
                }
-                if (in_array(5,$options->show)) {
+                if (in_array(4,$options->show)) {
                   $ads->orderBy('distance');
-               }
+                }
             }
+
+            if ($type == 3) {
+                $ads->where('ads.special',1);
+            }
+
+           
 
             if ($request->input('form_type')) {
                 // real states
@@ -528,6 +544,7 @@ class AdsController extends ApiController
                 } 
             }
             $ads->select($columns);
+
             if ($id) {
                 $ads = $ads->first();
                 if (!$ads) {
@@ -535,11 +552,20 @@ class AdsController extends ApiController
                 }
                 return Ad::transformDetailsApi($ads,['user' => $user]);
             } else {
-                $ads = $ads->paginate($this->limit);
-                return Ad::transformCollection($ads,'PaginationApi',['user' => $user]);
-            }
-            
-             
+              
+               if ($type == 1) {
+                   $ads->where('ads.special',1);
+                   $ads = $ads->paginate(2);
+                }else if($type == 2) {
+                   $ads->where('ads.special',0);
+                   $ads = $ads->paginate(10);
+                }else{
+                    $ads = $ads->paginate(10);
+                }
+                
+                 
+               return  Ad::transformCollection($ads,'PaginationApi',['user' => $user]);
+        }
        //return  $ads = $ads->get();
     }
 

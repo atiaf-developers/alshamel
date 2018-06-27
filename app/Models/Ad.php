@@ -79,11 +79,15 @@ class Ad extends MyModel {
         $transformer->form_type = $item->form_type;
         $transformer->distance = round($item->distance,1);
         $ad_images =  json_decode($item->images);
-        foreach ($ad_images as $key => $value) {
+        $transformer->images = array();
+        if (count($ad_images) > 0) {
+             foreach ($ad_images as $key => $value) {
             $ad_images[$key] =  static::rmv_prefix($value);
+            }
+            $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
+            $transformer->images = $prefixed_array;
         }
-        $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
-        $transformer->images = $prefixed_array;
+       
 
         if ((isset($extra_params['user']) && $extra_params['user'] != null)) {
             $transformer->is_favourite = $item->is_favourite ? 1 : 0 ;

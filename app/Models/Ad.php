@@ -58,13 +58,216 @@ class Ad extends MyModel {
         'email',
         'mobile',
     ];
+    private static $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
 
     public static function get_All() {
         
     }
 
-    public static function transformPaginationApi($item,$extra_params = array())
-    {
+    public static function getAdsApi($request, $user, $id = null, $type = null) {
+        $lang_code = static::getLangCode();
+
+        $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
+
+        $ads = Ad::join('categories', 'ads.category_id', '=', 'categories.id')
+                ->join('locations', 'ads.city_id', '=', 'locations.id')
+                ->join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
+                ->join('users', 'users.id', '=', 'ads.user_id')
+                ->where('ads.active', true)
+                ->where('locations_translations.locale', $lang_code);
+        if ($id) {
+            $ads->where('ads.id', $id);
+        }
+        if ($user) {
+
+            if ($request->input('options')) {
+
+                if ($request->input('options') == 1) {
+                    $ads->where('ads.user_id', $user->id);
+                } else if ($request->input('options') == 2) {
+                    $ads->join('favourites', function($join) use($user) {
+                        $join->on('favourites.ad_id', '=', 'ads.id')
+                                ->where('favourites.user_id', $user->id);
+                    });
+                    static::$columns[] = "favourites.id as is_favourite";
+                }
+            } else {
+                $ads->leftJoin('favourites', function($join) use($user) {
+                    $join->on('favourites.ad_id', '=', 'ads.id')
+                            ->where('favourites.user_id', $user->id);
+                });
+                static::$columns[] = "favourites.id as is_favourite";
+            }
+        }
+
+
+        if ($request->input('city_id')) {
+            $ads->where('ads.city_id', $request->input('city_id'));
+        }
+
+        if ($request->input('lat') && $request->input('lng')) {
+            $lat = $request->input('lat');
+            $lng = $request->input('lng');
+            static::$columns[] = DB::raw(static::iniDiffLocations("ads", $lat, $lng));
+        }
+
+        $options = new \stdClass();
+
+        if ($request->input('filter')) {
+            $options = json_decode($request->input('filter'));
+        }
+
+        if ($request->input('category_id') && !isset($options->category)) {
+            $ads->where('ads.category_id', $request->input('category_id'));
+        } else if (isset($options->category)) {
+            $ads->whereIn('ads.category_id', $options->category);
+        }
+
+        //show [1 => added today ,2  => only address ,3 => contain images ,4 => near to me]
+        if (isset($options->show)) {
+            if (in_array(1, $options->show)) {
+                $ads->where('ads.created_at', '>=', Carbon::today());
+            }
+            if (in_array(2, $options->show)) {
+                $ads->whereNull('ads.images');
+            }
+            if (in_array(3, $options->show)) {
+                $ads->whereNotNull('ads.images');
+            }
+            if (in_array(4, $options->show)) {
+                $ads->orderBy('distance');
+            }
+        }
+
+        if ($type == 3) {
+            $ads->where('ads.special', 1);
+        }
+        $ads = static::handleFromTypeWhere($ads, $request);
+        //here
+        $ads->select($columns);
+
+        if ($id) {
+
+            $ads = $ads->first();
+            if (!$ads) {
+                return false;
+            }
+            return Ad::transformDetailsApi($ads, ['user' => $user]);
+        } else {
+
+            if ($type == 1) {
+                $ads->where('ads.special', 1);
+                $ads = $ads->paginate(2);
+            } else if ($type == 2) {
+                $ads->where('ads.special', 0);
+                $ads = $ads->paginate(10);
+            } else {
+                $ads = $ads->paginate(10);
+            }
+
+
+            return Ad::transformCollection($ads, 'PaginationApi', ['user' => $user]);
+        }
+        //return  $ads = $ads->get();
+    }
+
+    private static function handleFromTypeWhere($ads, $request) {
+        $lang_code = static::getLangCode();
+        // real states
+        if ($request->input('form_type') == 1) {
+
+            $ads->join('real_states_ads', 'real_states_ads.ad_id', '=', 'ads.id');
+            $ads->join('basic_data', 'real_states_ads.property_type_id', '=', 'basic_data.id');
+            $ads->join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id');
+            $ads->where('trans.locale', $lang_code);
+
+
+            static::$columns = array_merge(static::$columns, [
+                "trans.title as property_type", "real_states_ads.has_parking", "real_states_ads.area", "real_states_ads.property_type_id", "real_states_ads.rooms_number",
+                "real_states_ads.baths_number", "real_states_ads.is_furnished"]);
+
+            if (isset($options->property_type)) {
+                $ads->whereIn('real_states_ads.property_type_id', $options->property_type);
+            }
+            if (isset($options->rooms_number)) {
+
+                $ads->whereBetween('real_states_ads.rooms_number', [$options->rooms_number[0], $options->rooms_number[1]]);
+            }
+            if (isset($options->baths_number)) {
+                $ads->whereBetween('real_states_ads.baths_number', [$options->baths_number[0], $options->baths_number[1]]);
+            }
+            if (isset($options->is_furnished)) {
+                $ads->where('real_states_ads.is_furnished', $options->is_furnished);
+            }
+            if (isset($options->has_parking)) {
+                $ads->where('real_states_ads.has_parking', $options->has_parking);
+            }
+            if (isset($options->area)) {
+                $ads->whereBetween('real_states_ads.area', [$options->area[0], $options->area[1]]);
+            }
+        }// lands
+        else if ($request->input('form_type') == 2) {
+            $ads->join('lands_ads', 'lands_ads.ad_id', '=', 'ads.id');
+            if (isset($options->area)) {
+                $ads->whereBetween('lands_ads.area', [$options->area[0], $options->area[1]]);
+            }
+            static::$columns = array_merge(static::$columns, ["lands_ads.area"]);
+        }// cars
+        else if ($request->input('form_type') == 3) {
+
+            $ads->join('vehicles_ads', 'vehicles_ads.ad_id', '=', 'ads.id');
+
+            $ads->join('basic_data as b1', 'vehicles_ads.motion_vector_id', '=', 'b1.id');
+            $ads->join('basic_data as b2', 'vehicles_ads.engine_capacity_id', '=', 'b2.id');
+            $ads->join('basic_data as b3', 'vehicles_ads.propulsion_system_id', '=', 'b3.id');
+            $ads->join('basic_data as b4', 'vehicles_ads.fuel_type_id', '=', 'b4.id');
+            $ads->join('basic_data as b5', 'vehicles_ads.mileage_id', '=', 'b5.id');
+
+
+            $ads->join('basic_data_translations as motion_vector_trans', 'b1.id', '=', 'motion_vector_trans.basic_data_id');
+            $ads->join('basic_data_translations as engine_capacity_trans', 'b2.id', '=', 'engine_capacity_trans.basic_data_id');
+            $ads->join('basic_data_translations as propulsion_system_trans', 'b3.id', '=', 'propulsion_system_trans.basic_data_id');
+            $ads->join('basic_data_translations as fuel_type_trans', 'b4.id', '=', 'fuel_type_trans.basic_data_id');
+            $ads->join('basic_data_translations as mileage_trans', 'b5.id', '=', 'mileage_trans.basic_data_id');
+
+            $ads->where('motion_vector_trans.locale', $lang_code);
+            $ads->where('engine_capacity_trans.locale', $lang_code);
+            $ads->where('propulsion_system_trans.locale', $lang_code);
+            $ads->where('fuel_type_trans.locale', $lang_code);
+            $ads->where('mileage_trans.locale', $lang_code);
+
+            static::$columns = array_merge(static::$columns, ["b1.id as motion_vector_id", "motion_vector_trans.title as motion_vector", "b2.id as engine_capacity_id", "engine_capacity_trans.title as engine_capacity",
+                "b3.id as propulsion_system_id", "propulsion_system_trans.title as propulsion_system", "b4.id as fuel_type_id", "fuel_type_trans.title as fuel_type",
+                "b5.id as mileage_id", "mileage_trans.title as mileage", "vehicles_ads.mileage_unit", "vehicles_ads.status", "vehicles_ads.manufacturing_year"]);
+
+            if (isset($options->status)) {
+                $ads->where('vehicles_ads.status', $options->status);
+            }
+            if (isset($options->manufacturing_year)) {
+                $ads->whereBetween('vehicles_ads.manufacturing_year', [$options->manufacturing_year[0], $options->manufacturing_year[1]]);
+            }
+            if (isset($options->motion_vector)) {
+                $ads->whereIn('vehicles_ads.motion_vector_id', $options->motion_vector);
+            }
+            if (isset($options->engine_capacity)) {
+                $ads->whereIn('vehicles_ads.engine_capacity_id', $options->engine_capacity);
+            }
+            if (isset($options->propulsion_system)) {
+                $ads->whereIn('vehicles_ads.propulsion_system_id', $options->propulsion_system);
+            }
+            if (isset($options->fuel_type)) {
+                $ads->whereIn('vehicles_ads.fuel_type_id', $options->fuel_type);
+            }
+        }
+        if (isset($options->price)) {
+            $ads->whereBetween('ads.price', [$options->price[0], $options->price[1]]);
+        }
+
+
+        return $ads;
+    }
+
+    public static function transformPaginationApi($item, $extra_params = array()) {
         $lang = static::getLangCode();
 
         $transformer = new \stdClass();
@@ -73,33 +276,31 @@ class Ad extends MyModel {
         $transformer->rate = $item->rate;
         $transformer->lat = $item->lat;
         $transformer->lng = $item->lng;
-        $transformer->special = $item->special;
-        $transformer->created_at = date('Y-m-d H:i',strtotime($item->created_at));
+        $transformer->special = $item->special == 1 ? true : false;
+        $transformer->created_at = date('Y-m-d H:i', strtotime($item->created_at));
         $transformer->price = $item->price;
         $transformer->form_type = $item->form_type;
-        $transformer->distance = round($item->distance,1);
-        $ad_images =  json_decode($item->images);
+        $transformer->distance = round($item->distance, 1);
+        $ad_images = json_decode($item->images);
         $transformer->images = array();
         if (count($ad_images) > 0) {
-             foreach ($ad_images as $key => $value) {
-            $ad_images[$key] =  static::rmv_prefix($value);
+            foreach ($ad_images as $key => $value) {
+                $ad_images[$key] = static::rmv_prefix($value);
             }
             $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
             $transformer->images = $prefixed_array;
         }
-       
+
 
         if ((isset($extra_params['user']) && $extra_params['user'] != null)) {
-            $transformer->is_favourite = $item->is_favourite ? 1 : 0 ;
-        }else{
+            $transformer->is_favourite = $item->is_favourite ? 1 : 0;
+        } else {
             $transformer->is_favourite = 0;
         }
         return $transformer;
     }
 
-
-    public static function transformDetailsApi($item,$extra_params = array())
-    {
+    public static function transformDetailsApi($item, $extra_params = array()) {
 
         $lang = static::getLangCode();
 
@@ -111,22 +312,22 @@ class Ad extends MyModel {
         $transformer->rate = $item->rate;
         $transformer->lat = $item->lat;
         $transformer->lng = $item->lng;
-        $transformer->address = getAddress($item->lat,$item->lng,$lang);
-        $transformer->special = $item->special;
-        $transformer->created_at = date('Y-m-d H:i',strtotime($item->created_at));
+        $transformer->address = getAddress($item->lat, $item->lng, $lang);
+        $transformer->special = $item->special == 1 ? true : false;
+        $transformer->created_at = date('Y-m-d H:i', strtotime($item->created_at));
         $transformer->price = $item->price;
         $transformer->form_type = $item->form_type;
-        $transformer->distance = round($item->distance,1);
-        $ad_images =  json_decode($item->images);
+        $transformer->distance = round($item->distance, 1);
+        $ad_images = json_decode($item->images);
         foreach ($ad_images as $key => $value) {
-            $ad_images[$key] =  static::rmv_prefix($value);
+            $ad_images[$key] = static::rmv_prefix($value);
         }
         $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
         $transformer->images = $prefixed_array;
 
         if ((isset($extra_params['user']) && $extra_params['user'] != null)) {
-            $transformer->is_favourite = $item->is_favourite ? 1 : 0 ;
-        }else{
+            $transformer->is_favourite = $item->is_favourite ? 1 : 0;
+        } else {
             $transformer->is_favourite = 0;
         }
         if ($item->form_type == 1) {
@@ -137,11 +338,9 @@ class Ad extends MyModel {
             $transformer->has_parking = $item->has_parking;
             $transformer->property_type_id = $item->property_type_id;
             $transformer->property_type = $item->property_type;
-
-        }else if ($item->form_type == 2){
+        } else if ($item->form_type == 2) {
             $transformer->area = $item->area;
-        }
-        else if ($item->form_type == 3){
+        } else if ($item->form_type == 3) {
 
             $transformer->motion_vector_id = $item->motion_vector_id;
             $transformer->motion_vector = $item->motion_vector;
@@ -157,21 +356,16 @@ class Ad extends MyModel {
             $transformer->status = $item->status == 0 ? _lang('app.new') : _lang('app.used');
             $transformer->manufacturing_year = $item->manufacturing_year;
         }
-        
+
         $transformer->name = $item->name;
         $transformer->mobile = $item->mobile;
         $transformer->email = $item->email;
-        
-        
+
+
         return $transformer;
     }
 
-
-
-
-
-    
-    public static function transformAdmin(Ad $item){
+    public static function transformAdmin(Ad $item) {
         dd('asdasd');
         $transformer = new \stdClass();
         $transformer->id = $item->id;
@@ -188,28 +382,29 @@ class Ad extends MyModel {
         $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/', json_decode($item->images));
         $transformer->catagory_id = $item->Categories->id;
         $transformer->catagory_title = $item->Categories->translations->title;
-        $parents=$item->Categories->parents_ids;
+        $parents = $item->Categories->parents_ids;
         if (strpos($parents, ',')) {
-            $parents_array=explode(",",$parents);
-            for($i=0;$i<=count($parents_array);$i++){
-                $catagory_array[]=self::catagory_by_id($parents_array[$i]);
+            $parents_array = explode(",", $parents);
+            for ($i = 0; $i <= count($parents_array); $i++) {
+                $catagory_array[] = self::catagory_by_id($parents_array[$i]);
             }
-        }else{
-            $catagory_array[]=self::catagory_by_id($parents);
+        } else {
+            $catagory_array[] = self::catagory_by_id($parents);
         }
-       $form_type = $item->Categories->form_type;
-       if($form_type==1){
-        $transformer->Feature=$item->realStateAd;
-       }elseif($form_type==2){
-        $transformer->Feature=$item->landAd;
-       }elseif($form_type==3){
-        $transformer->Feature=$item->vehicleAd;
-       }else{
-        $transformer->Feature=[]; 
-       }
-       dd($transformer);
-       return $transformer;
+        $form_type = $item->Categories->form_type;
+        if ($form_type == 1) {
+            $transformer->Feature = $item->realStateAd;
+        } elseif ($form_type == 2) {
+            $transformer->Feature = $item->landAd;
+        } elseif ($form_type == 3) {
+            $transformer->Feature = $item->vehicleAd;
+        } else {
+            $transformer->Feature = [];
+        }
+        dd($transformer);
+        return $transformer;
     }
+
     public function rates() {
         return $this->hasMany(Rating::class, 'entity_id');
     }
@@ -225,6 +420,7 @@ class Ad extends MyModel {
     public function vehicleAd() {
         return $this->hasOne(VechileAd::class, 'ad_id');
     }
+
     public function user() {
         return $this->hasOne(User::class, 'user_id');
     }
@@ -237,7 +433,6 @@ class Ad extends MyModel {
         return $this->hasOne(Location::class, 'id', 'city_id');
     }
 
-
     protected static function boot() {
         parent::boot();
 
@@ -247,9 +442,9 @@ class Ad extends MyModel {
             }
             if ($ad->realStateAd) {
                 $ad->realStateAd->delete();
-            }else if($ad->landAd){
+            } else if ($ad->landAd) {
                 $ad->landAd->delete();
-            }else if($ad->vehicleAd){
+            } else if ($ad->vehicleAd) {
                 $ad->vehicleAd->delete();
             }
         });
@@ -261,12 +456,12 @@ class Ad extends MyModel {
         });
     }
 
-    protected static function catagory_by_id($id){
-        return Category::join('catagory_lang','catagory_lang.cat_id','catagory.id')
-        ->where('catagory.id',$id)
-        ->where('catagory_lang.lang',static::getLangCode())
-        ->select(['catagory_lang.name','catagory.id'])
-        ->find();
+    protected static function catagory_by_id($id) {
+        return Category::join('catagory_lang', 'catagory_lang.cat_id', 'catagory.id')
+                        ->where('catagory.id', $id)
+                        ->where('catagory_lang.lang', static::getLangCode())
+                        ->select(['catagory_lang.name', 'catagory.id'])
+                        ->find();
     }
 
 }

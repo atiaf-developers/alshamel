@@ -29,17 +29,14 @@ class BasicController extends ApiController {
         'message' => 'required',
         'type' => 'required',
     );
-
     private $raters_rules = array(
         'ad_id' => 'required',
     );
-
     private $basic_data_rules = array(
         'form_type' => 'required|in:1,3',
         'category_id' => 'required'
     );
-
-     private $package_rules = array(
+    private $package_rules = array(
         'package_id' => 'required',
     );
 
@@ -70,8 +67,8 @@ class BasicController extends ApiController {
         try {
             $settings = Setting::select('name', 'value')->get()->keyBy('name');
             $settings['social_media'] = json_decode($settings['social_media']->value);
-            $settings['phone'] =  explode(",",$settings['phone']->value);
-            $settings['email'] =  explode(",",$settings['email']->value);
+            $settings['phone'] = explode(",", $settings['phone']->value);
+            $settings['email'] = explode(",", $settings['email']->value);
             $settings['info'] = SettingTranslation::where('locale', $this->lang_code)->first();
             unset($settings['num_free_ads']);
             return _api_json($settings);
@@ -100,30 +97,27 @@ class BasicController extends ApiController {
         }
     }
 
-    public function getNumOfAvailableAds()
-    {
+    public function getNumOfAvailableAds() {
         try {
             $user = $this->auth_user();
-            if($user->num_free_ads == 0){
-                $avaliable_ads = UserPackage::where('user_id',$user->id)->where('available_of_ads','!=',0)->where('status',1)->first();
+            if ($user->num_free_ads == 0) {
+                $avaliable_ads = UserPackage::where('user_id', $user->id)->where('available_of_ads', '!=', 0)->where('status', 1)->first();
                 if (!$avaliable_ads) {
-                    return _api_json('', ['num_of_ads' =>0, 'free' => false]);
+                    return _api_json('', ['num_of_ads' => 0, 'free' => false]);
                 }
                 return _api_json('', ['num_of_ads' => $avaliable_ads->available_of_ads, 'free' => false]);
-            }else{
+            } else {
                 return _api_json('', ['num_of_ads' => $user->num_free_ads, 'free' => true]);
             }
-
-            
         } catch (\Exception $e) {
             return _api_json('', ['message' => _lang('app.error_is_occured')], 400);
         }
     }
 
-    public function getLocations()
-    {
+    public function getLocations(Request $request) {
         try {
-            $locations = Location::getAll();
+            $location = $request->input('location') ? $request->input('location') : 0;
+            $locations = Location::getAll($location);
             return _api_json(Location::transformCollection($locations));
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
@@ -132,17 +126,17 @@ class BasicController extends ApiController {
 
     public function getCategories(Request $request) {
         try {
-            $categories_tree = array();
-            $categories = Category::getAll();
-            $categories_tree = $this->buildTree($categories);
-            return _api_json($categories_tree);
+            $category = $request->input('category') ? $request->input('category') : 0;
+            $categories = Category::getAll($category);
+
+            return _api_json(Category::transformCollection($categories));
         } catch (\Exception $e) {
+            dd($e);
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
     }
 
-    public function getAdRaters(Request $request)
-    {
+    public function getAdRaters(Request $request) {
         try {
 
             $validator = Validator::make($request->all(), $this->raters_rules);
@@ -157,34 +151,30 @@ class BasicController extends ApiController {
             }
             $raters = array();
 
-            $raters = Rating::join('rating_users','rating.id','=','rating_users.rating_id')
-                              ->join('users','users.id','=','rating_users.user_id')
-                              ->where('rating.entity_id',$ad->id)
-                              ->select('users.name','users.image','rating.score','rating_users.comment','rating.created_at')
-                              ->paginate($this->limit);
+            $raters = Rating::join('rating_users', 'rating.id', '=', 'rating_users.rating_id')
+                    ->join('users', 'users.id', '=', 'rating_users.user_id')
+                    ->where('rating.entity_id', $ad->id)
+                    ->select('users.name', 'users.image', 'rating.score', 'rating_users.comment', 'rating.created_at')
+                    ->paginate($this->limit);
             return _api_json(Rating::transformCollection($raters));
-            
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
     }
 
-
-    public function getPackages(Request $request)
-    {
+    public function getPackages(Request $request) {
         try {
             $packages = Package::getAll();
-            return _api_json(Package::transformCollection($packages));   
+            return _api_json(Package::transformCollection($packages));
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
     }
 
-    public function sendPackageRequest(Request $request)
-    {
+    public function sendPackageRequest(Request $request) {
         try {
-           
-           $validator = Validator::make($request->all(), $this->package_rules);
+
+            $validator = Validator::make($request->all(), $this->package_rules);
             if ($validator->fails()) {
                 $errors = $validator->errors()->toArray();
                 return _api_json('', ['errors' => $errors], 400);
@@ -197,42 +187,42 @@ class BasicController extends ApiController {
             }
             $user = $this->auth_user();
 
-           $check =  UserPackage::where('user_id',$user->id)
-                                ->where(function ($query) {
-                                  $query->where('available_of_ads', '!=', 0)
-                                        ->where('status', 1);
-                                })
-                                ->orWhere('status',0)
-                                ->first();
-
+            $check = UserPackage::where('user_id', $user->id)
+                    ->where(function ($query) use($user) {
+                        $query->where('available_of_ads', '!=', 0);
+                        $query->where('user_id', $user->id);
+                        $query->where('status', 1);
+                    })
+                    ->orWhere(function ($query) use($user) {
+                        $query->where('user_id', $user->id);
+                        $query->where('status', 0);
+                    })
+                    ->first();
+            //dd($check);
             if ($check) {
                 if ($check->status == 0) {
                     $message = _lang('app.you_have_already_sent_a_request');
-                }else if($check->status == 1){
-                   $message = _lang('app.you_are_already_subscribed_to_the_package');
+                } else if ($check->status == 1) {
+                    $message = _lang('app.you_are_already_subscribed_to_the_package');
                 }
                 return _api_json('', ['message' => $message], 400);
             }
-                               
-          $user_package = new UserPackage;
-          $user_package->user_id = $user->id;
-          $user_package->package_id = $package->id;
-          $user_package->num_of_ads = $package->num_of_ads;
-          $user_package->available_of_ads = $package->num_of_ads;
-          $user_package->status = 0;
 
-          $user_package->save();
-          return _api_json('', ['message' => _lang('app.sent_successfully')]);
-            
+            $user_package = new UserPackage;
+            $user_package->user_id = $user->id;
+            $user_package->package_id = $package->id;
+            $user_package->num_of_ads = $package->num_of_ads;
+            $user_package->available_of_ads = $package->num_of_ads;
+            $user_package->status = 0;
+
+            $user_package->save();
+            return _api_json('', ['message' => _lang('app.sent_successfully')]);
         } catch (\Exception $e) {
             return _api_json('', ['message' => _lang('app.error_is_occured')], 400);
         }
-        
     }
 
-
-    public function getBasicData(Request $request)
-    {
+    public function getBasicData(Request $request) {
         try {
             $validator = Validator::make($request->all(), $this->basic_data_rules);
             if ($validator->fails()) {
@@ -244,24 +234,20 @@ class BasicController extends ApiController {
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
-        
     }
-
 
     private function buildTree($elements, $parentId = 0) {
         $branch = array();
         foreach ($elements as $element) {
             if ($element->parent_id == $parentId) {
                 $children = $this->buildTree($elements, $element->id);
-                if ($children) { 
-                   $element['childrens'] = $children;
+                if ($children) {
+                    $element['childrens'] = $children;
                 }
                 $branch[] = Category::transform($element);
             }
         }
         return $branch;
     }
-
-
 
 }

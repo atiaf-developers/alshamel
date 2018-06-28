@@ -12,18 +12,20 @@ class Category extends MyModel {
         'm' => array('width' => 400, 'height' => 400),
     );
 
-    public static function getAll($parent_id = null) {
-        $data =  static::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
-                        ->orderBy('categories.this_order', 'ASC')
-                        ->where('trans.locale', static::getLangCode())
-                        ->where('categories.active', true);
-                        if ($parent_id) {
-                            $data->where('categories.parent_id',$parent_id);
-                        }
-                        $data->select('categories.id','categories.parent_id','trans.title','categories.image','categories.form_type','categories.parents_ids');
-        $data =         $data->get();
+    protected function childrens() {
+        return $this->hasMany(Category::class, 'parent_id', 'id');
+    }
 
-       return $data;
+    public static function getAll($parent_id = 0) {
+        $data = static::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
+                ->orderBy('categories.this_order', 'ASC')
+                ->where('trans.locale', static::getLangCode())
+                ->where('categories.active', true);
+        $data->where('categories.parent_id', $parent_id);
+        $data->select('categories.id', 'categories.parent_id', 'trans.title', 'categories.image', 'categories.form_type', 'categories.parents_ids');
+        $data = $data->get();
+
+        return $data;
     }
 
     public function translations() {
@@ -36,15 +38,13 @@ class Category extends MyModel {
         $transformer->title = $item->title;
         $transformer->form_type = $item->form_type;
         if ($item->image) {
-            $transformer->image = url('public/uploads/categories').'/'.$item->image;
+            $transformer->image = url('public/uploads/categories') . '/' . $item->image;
         }
-        if ($item->childrens) {
-            $transformer->childrens = $item->childrens;
-        }
+
+
+        $transformer->has_sub = $item->childrens->count() > 0 ? true : false;
         return $transformer;
     }
-
-
 
     public static function transformFrontHome($item) {
 

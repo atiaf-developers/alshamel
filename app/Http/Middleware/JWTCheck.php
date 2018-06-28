@@ -25,7 +25,7 @@ class JWTCheck {
                 if ($expire > strtotime('now')) {
                     $find = User::where('id',$user_id)->where('active',true)->first();
                     if ($find==null) {
-                        return _api_json('', ['message' => 'user not found'],401);
+                        return _api_json('', ['message' => 'user not found'],403);
                     }
                 } else {
                     return _api_json('',['message' => 'token expire'],401);

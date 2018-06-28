@@ -55,6 +55,7 @@ class RegisterController extends ApiController {
             DB::beginTransaction();
             try {
                 $user = $this->createUser($request);
+                //dd($user);
                 DB::commit();
 
                 $token = new \stdClass();

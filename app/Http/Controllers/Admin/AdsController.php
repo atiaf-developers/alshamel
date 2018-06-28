@@ -23,9 +23,9 @@ class AdsController extends BackendController
     }
     public function active($id){
         try {
-            $find = Ad::find($id);
-            $find->active = !$find->active;
-            $find->save();
+            $ad = Ad::find($id);
+            $ad->active = !$ad->active;
+            $ad->save();
             return _json('success', _lang('app.success'));
         } catch (\Exception $e) {
             return _json('error', _lang('app.error_is_occured'));
@@ -33,24 +33,29 @@ class AdsController extends BackendController
     }
     public function special($id){
         try {
-            $find = Ad::find($id);
-            $find->special = !$find->special;
-            $find->save();
+            $ad = Ad::find($id);
+            $ad->special = !$ad->special;
+            $ad->save();
             return _json('success', _lang('app.success'));
         } catch (\Exception $e) {
             return _json('error', _lang('app.error_is_occured'));
         }
     }
-    public function edit($id){
-        $find = Ad::find($id);
-        if (!$find) {
+
+    public function show(Request $request,$id){
+        $ad = Ad::Join('categories','ads.category_id','=','categories.id')
+                ->where('ads.id',$id)
+                ->first();
+        if (!$ad) {
             return $this->err404();
         }
-        $this->data['data'] = Ad::transformAdmin($find);
-       dd($this->data);
-        return $this->_view('ads/edit', 'backend');
+        $request['form_type'] = $ad->form_type;
+       
+        $this->data['ad'] = Ad::getAdsApi($request,null, $id);
+        return $this->_view('ads/view', 'backend');
     }
-    public function destroy($id){
+
+    /*public function destroy($id){
         $Ad = Ad::find($id);
         if (!$Ad) {
             return _json('error', _lang('app.error_is_occured'), 404);
@@ -69,34 +74,22 @@ class AdsController extends BackendController
                 return _json('error', _lang('app.error_is_occured'), 400);
             }
         }
-    }
-    public function data(Request $req){
-        if($req->category_id){
-            $request=$req->category_id;
-            $where='ads.category_id';
-        }else{
-            if($req->user_id){
-                $request=$req->category_id;
-                $where='ads.user_id';
-            }
-        }
-        $Ad = Ad::Join('categories_translations',function ($join){
+    }*/
+    public function data(Request $request){
+
+        $ads = Ad::Join('categories_translations',function ($join){
                 $join->on('categories_translations.category_id', '=', 'ads.category_id')
                 ->where('categories_translations.locale', $this->lang_code);
         });
-        if($req->category_id || $req->user_id){
-            $Ad = $Ad->where($where,$request);
+        if($request->category_id){
+            $ads->where('ads.category_id',$request->category_id);
+        }else if($request->user_id){
+            $ads->where('ads.user_id',$request->user_id);
         }
-        $Ad = $Ad->select([
-            'ads.id',
-            'ads.title',
-            "ads.email",
-            "ads.mobile",
-            "ads.special",
-            "ads.active",
-            "categories_translations.title as cat_title"
+        $ads = $ads->select(['ads.id','ads.title',"ads.email","ads.mobile","ads.special","ads.active","categories_translations.title as categoty"
         ]);
-        return \Datatables::eloquent($Ad)
+        
+        return \Datatables::eloquent($ads)
                 ->addColumn('options', function ($item) {
 
                 $back = "";
@@ -108,7 +101,7 @@ class AdsController extends BackendController
                     $back .= '<ul class = "dropdown-menu" role = "menu">';
                     if (\Permissions::check('ads', 'edit')) {
                         $back .= '<li>';
-                        $back .= '<a href="' . route('ads.edit', $item->id) . '">';
+                        $back .= '<a href="' . route('ads.show', $item->id) . '">';
                         $back .= '<i class = "icon-docs"></i>' . _lang('app.view');
                         $back .= '</a>';
                         $back .= '</li>';

@@ -61,7 +61,7 @@ class Ad extends MyModel {
     private static $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
 
     public static function get_All() {
-        
+
     }
 
     public static function getAdsApi($request, $user, $id = null, $type = null) {
@@ -70,11 +70,11 @@ class Ad extends MyModel {
         $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
 
         $ads = Ad::join('categories', 'ads.category_id', '=', 'categories.id')
-                ->join('locations', 'ads.city_id', '=', 'locations.id')
-                ->join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
-                ->join('users', 'users.id', '=', 'ads.user_id')
-                ->where('ads.active', true)
-                ->where('locations_translations.locale', $lang_code);
+        ->join('locations', 'ads.city_id', '=', 'locations.id')
+        ->join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
+        ->join('users', 'users.id', '=', 'ads.user_id')
+        ->where('ads.active', true)
+        ->where('locations_translations.locale', $lang_code);
         if ($id) {
             $ads->where('ads.id', $id);
         }
@@ -87,14 +87,14 @@ class Ad extends MyModel {
                 } else if ($request->input('options') == 2) {
                     $ads->join('favourites', function($join) use($user) {
                         $join->on('favourites.ad_id', '=', 'ads.id')
-                                ->where('favourites.user_id', $user->id);
+                        ->where('favourites.user_id', $user->id);
                     });
                     static::$columns[] = "favourites.id as is_favourite";
                 }
             } else {
                 $ads->leftJoin('favourites', function($join) use($user) {
                     $join->on('favourites.ad_id', '=', 'ads.id')
-                            ->where('favourites.user_id', $user->id);
+                    ->where('favourites.user_id', $user->id);
                 });
                 static::$columns[] = "favourites.id as is_favourite";
             }
@@ -144,7 +144,7 @@ class Ad extends MyModel {
         }
         $ads = static::handleFromTypeWhere($ads, $request);
         //here
-        $ads->select($columns);
+        $ads->select(static::$columns);
 
         if ($id) {
 
@@ -318,12 +318,18 @@ class Ad extends MyModel {
         $transformer->price = $item->price;
         $transformer->form_type = $item->form_type;
         $transformer->distance = round($item->distance, 1);
+        $prefixed_array = array();
         $ad_images = json_decode($item->images);
-        foreach ($ad_images as $key => $value) {
-            $ad_images[$key] = static::rmv_prefix($value);
+        if (count($ad_images) > 0) {
+            foreach ($ad_images as $key => $value) {
+                $ad_images[$key] = static::rmv_prefix($value);
+            }
+            $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
+            $transformer->images = $prefixed_array;
+        }else{
+             $transformer->images = $prefixed_array;
         }
-        $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
-        $transformer->images = $prefixed_array;
+        
 
         if ((isset($extra_params['user']) && $extra_params['user'] != null)) {
             $transformer->is_favourite = $item->is_favourite ? 1 : 0;
@@ -365,8 +371,8 @@ class Ad extends MyModel {
         return $transformer;
     }
 
-    public static function transformAdmin(Ad $item) {
-        dd('asdasd');
+    public static function transformAdmin($item) {
+
         $transformer = new \stdClass();
         $transformer->id = $item->id;
         $transformer->title = $item->title;
@@ -458,10 +464,10 @@ class Ad extends MyModel {
 
     protected static function catagory_by_id($id) {
         return Category::join('catagory_lang', 'catagory_lang.cat_id', 'catagory.id')
-                        ->where('catagory.id', $id)
-                        ->where('catagory_lang.lang', static::getLangCode())
-                        ->select(['catagory_lang.name', 'catagory.id'])
-                        ->find();
+        ->where('catagory.id', $id)
+        ->where('catagory_lang.lang', static::getLangCode())
+        ->select(['catagory_lang.name', 'catagory.id'])
+        ->find();
     }
 
 }

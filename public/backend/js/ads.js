@@ -48,12 +48,12 @@ var Ads = function() {
                 url: config.admin_url + '/ads/active/' + id,
                 success: function(data) {
                     $(t).prop('disabled', false);
-                    if ($(t).hasClass("btn-info")) {
-                        $(t).addClass('btn-danger').removeClass('btn-info');
+                    if ($(t).hasClass("btn-primary")) {
+                        $(t).addClass('btn-danger').removeClass('btn-primary');
                         $(t).html(lang.not_active);
 
                     } else {
-                        $(t).addClass('btn-info').removeClass('btn-danger');
+                        $(t).addClass('btn-primary').removeClass('btn-danger');
                         $(t).html(lang.active);
                     }
                 },
@@ -72,12 +72,12 @@ var Ads = function() {
                 url: config.admin_url + '/ads/special/' + id,
                 success: function(data) {
                     $(t).prop('disabled', false);
-                    if ($(t).hasClass("btn-info")) {
-                        $(t).addClass('btn-danger').removeClass('btn-info');
+                    if ($(t).hasClass("btn-primary")) {
+                        $(t).addClass('btn-danger').removeClass('btn-primary');
                         $(t).html(lang.not_special);
 
                     } else {
-                        $(t).addClass('btn-info').removeClass('btn-danger');
+                        $(t).addClass('btn-primary').removeClass('btn-danger');
                         $(t).html(lang.special);
                     }
                 },

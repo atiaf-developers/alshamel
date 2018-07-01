@@ -72,9 +72,11 @@ class Ad extends MyModel {
         $ads = Ad::join('categories', 'ads.category_id', '=', 'categories.id')
         ->join('locations', 'ads.city_id', '=', 'locations.id')
         ->join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
-        ->join('users', 'users.id', '=', 'ads.user_id')
-        ->where('ads.active', true)
-        ->where('locations_translations.locale', $lang_code);
+        ->join('users', 'users.id', '=', 'ads.user_id');
+        if ($request->status != "all") {
+           $ads->where('ads.active', true);
+        }
+        $ads->where('locations_translations.locale', $lang_code);
         if ($id) {
             $ads->where('ads.id', $id);
         }
@@ -143,6 +145,7 @@ class Ad extends MyModel {
             $ads->where('ads.special', 1);
         }
         $ads = static::handleFromTypeWhere($ads, $request);
+
         //here
         $ads->select(static::$columns);
 

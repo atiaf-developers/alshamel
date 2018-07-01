@@ -50,7 +50,8 @@ class UserController extends ApiController {
         }
         if ($request->input('mobile')) {
             $rules['step'] = "required";
-            $rules['mobile'] =  "required|unique:users,mobile,$user->id";
+            $rules['dial_code'] =  "required";
+            $rules['mobile'] =  "required|unique:users,mobile,$user->id,id,dial_code,{$request->input('dial_code')}";
         }
 
         if ($request->input('password')) {
@@ -84,6 +85,7 @@ class UserController extends ApiController {
                     return _api_json(new \stdClass(), ['code' => $verification_code]);
                 }else if ($request->step == 2){
                     $user->mobile = $request->input('mobile');
+                    $user->dial_code = $request->input('dial_code');
                 }else{
                     $message = _lang('app.error_is_occured');
                     return _api_json(new \stdClass(), ['message' => $message], 400);

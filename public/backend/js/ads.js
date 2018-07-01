@@ -3,8 +3,11 @@ var Ads_grid;
 var Ads = function() {
 
     var init = function() {
-        $.extend(lang, new_lang);
+        //$.extend(lang, new_lang);
         handleRecords();
+        if ($('#map').length > 0) {
+            Map.initMap(false, false, false);
+        }
     };
 
 

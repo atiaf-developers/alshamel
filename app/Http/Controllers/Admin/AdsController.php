@@ -50,31 +50,12 @@ class AdsController extends BackendController
             return $this->err404();
         }
         $request['form_type'] = $ad->form_type;
-       
+        $request['status'] = 'all';
         $this->data['ad'] = Ad::getAdsApi($request,null, $id);
+
         return $this->_view('ads/view', 'backend');
     }
 
-    /*public function destroy($id){
-        $Ad = Ad::find($id);
-        if (!$Ad) {
-            return _json('error', _lang('app.error_is_occured'), 404);
-        }
-        DB::beginTransaction();
-        try {
-            Feature::where('ad_id',$id)->delete();
-            $Ad->delete();
-            DB::commit();
-            return _json('success', _lang('app.deleted_successfully'));
-        } catch (\Exception $ex) {
-            DB::rollback();
-            if ($ex->getCode() == 23000) {
-                return _json('error', _lang('app.this_record_can_not_be_deleted_for_linking_to_other_records'), 400);
-            } else {
-                return _json('error', _lang('app.error_is_occured'), 400);
-            }
-        }
-    }*/
     public function data(Request $request){
 
         $ads = Ad::Join('categories_translations',function ($join){

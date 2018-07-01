@@ -16,14 +16,14 @@ class RegisterController extends ApiController {
 
     private $step_one_rules = array(
         'step' => 'required',
-        'mobile' => 'required|unique:users',
+        'dial_code' => 'required'
     );
     private $rules = array(
         'step' => 'required',
         'name' => 'required',
         'username' => 'required|unique:users',
         'email' => 'email|unique:users',
-        'mobile' => 'required|unique:users',
+        'dial_code' => 'required',
         'password' => 'required',
         'device_id' => 'required',
         'device_token' => 'required',
@@ -42,7 +42,7 @@ class RegisterController extends ApiController {
         } else {
             return _api_json(new \stdClass(), ['message' => _lang('app.error_is_occured')], 400);
         }
-
+        $rules['mobile'] = "required|unique:users,mobile,NULL,id,dial_code,{$request->input('dial_code')}";
         $validator = Validator::make($request->all(), $rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();
@@ -86,6 +86,7 @@ class RegisterController extends ApiController {
         $user->email = $request->input('email');
         $user->password = bcrypt($request->input('password'));
         $user->mobile = $request->input('mobile');
+        $user->dial_code = $request->input('dial_code');
         $user->image = "default.png";
         $user->num_free_ads = $num_free_ads;
         $user->active = 1;

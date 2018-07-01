@@ -36,6 +36,7 @@ class User extends Authenticatable {
         $transformer->username = $item->username;
         $transformer->email = $item->email;
         $transformer->mobile = $item->mobile;
+        $transformer->dial_code = $item->dial_code;
         $transformer->image = url('public/uploads/users').'/'.$item->image;
         return $transformer;
     }

@@ -1,190 +1,285 @@
 @extends('layouts.backend')
 
-@section('pageTitle',_lang('app.edit_news'))
-
+@section('pageTitle',  $ad->title)
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
-<li><a href="{{route('news.index')}}">{{_lang('app.ads')}}</a> <i class="fa fa-circle"></i></li>
-<li><span> {{_lang('app.edit_ads')}}</span></li>
-@endsection
+<li><a href="{{route('ads.index')}}">{{_lang('app.ads')}}</a> <i class="fa fa-circle"></i></li>
+<li><span> {{ $ad->title }}</span></li>
 
+@endsection
 @section('js')
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWYbhmg32SNq225SO1jRHA2Bj6ukgAQtA&libraries=places&language={{App::getLocale()}}"></script>
+<script src="{{url('public/backend/js')}}/map.js" type="text/javascript"></script>
 <script src="{{url('public/backend/js')}}/ads.js" type="text/javascript"></script>
 @endsection
 @section('content')
-<form role="form"  id="addEditAdsForm" enctype="multipart/form-data">
-    {{ csrf_field() }}
 
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.title') }}</h3>
-        </div>
-        <div class="panel-body">
+<input type="hidden" name="lat" id="lat" value="{{ $ad->lat}}">
+<input type="hidden" name="lng" id="lng" value="{{ $ad->lng }}">
 
 
-            <div class="form-body">
-                <input type="hidden" name="id" id="id" value="{{ $news->id }}">
 
-                @foreach ($languages as $key => $value)
+<div class="row">
+    <div class="col-md-6">
+        <div class="col-md-12">
 
-                <div class="form-group form-md-line-input col-md-6">
-
-                    <input type="text" class="form-control" id="title[{{ $key }}]" name="title[{{ $key }}]" value="{{ $translations[$key]->title }}">
-
-                    <label for="title">{{_lang('app.title') }} {{ _lang('app. '.$key.'') }}</label>
-                    <span class="help-block"></span>
-
-                </div>
-
-                @endforeach
-
-
-            </div>
-        </div>
-
-
-    </div>
-
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.description') }}</h3>
-        </div>
-        <div class="panel-body">
-
-
-            <div class="form-body">
-
-
-                @foreach ($languages as $key => $value)
-
-                <div class="form-group form-md-line-input col-md-6">
-
-                    <textarea class="form-control" id="description[{{ $key }}]" name="description[{{ $key }}]" value="" cols="30" rows="10">{{ $translations[$key]->description }}</textarea>
-
-                    <label for="title">{{_lang('app.description') }} {{ _lang('app. '.$key.'') }}</label>
-                    <span class="help-block"></span>
-
-                </div>
-
-                @endforeach
-
-
-            </div>
-        </div>
-
-
-    </div>
-
-
-    <div class="panel panel-default">
-
-        <div class="panel-body">
-
-
-            <div class="form-body">
-
-                <div class="form-group form-md-line-input col-md-3">
-                    <input type="number" class="form-control" id="this_order" name="this_order" value="{{ $news->this_order }}">
-                    <label for="this_order">{{_lang('app.this_order') }}</label>
-                    <span class="help-block"></span>
-                </div>
-
-                <div class="form-group form-md-line-input col-md-2">
-                    <select class="form-control edited" id="active" name="active">
-                        <option {{ $news->active == 1 ? 'selected' : '' }} value="1">{{ _lang('app.active') }}</option>
-                        <option {{ $news->active == 0 ? 'selected' : '' }} value="0">{{ _lang('app.not_active') }}</option>
-                    </select>
-                     <label for="status">{{_lang('app.status') }}</label>
-                    <span class="help-block"></span>
-                </div> 
-
-                 
-
-            </div>
-        </div>
-
-    </div>
-
-     <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">{{_lang('app.images') }}</h3>
-        </div>
-        <div class="panel-body">
-
-
-            <div class="form-body">
-
-                <div class="form-group col-md-2">
-                    <label class="control-label">1</label>
-
-                    <div class="image_one_box">
-                        <img src="{{url('public/uploads/news').'/'.$news->images[0]}}" width="100" height="80" class="image_one" />
+            <!-- BEGIN SAMPLE TABLE PORTLET-->
+            <div class="portlet box red">
+                <div class="portlet-title">
+                    <div class="caption">
+                        <i class="fa fa-cogs"></i>{{ $ad->title }}
                     </div>
-                    <input type="file" name="images[0]" id="image_one" style="display:none;">     
-                    <span class="help-block"></span>             
-                </div>
-                <div class="form-group col-md-2">
-                    <label class="control-label">2</label>
+                        <!--                        <div class="tools">
+                                                    <a href="javascript:;" class="collapse" ad-original-title="" title="">
+                                                    </a>                
+                                                    <a href="javascript:;" class="remove" ad-original-title="" title="">
+                                                    </a>
+                                                </div>-->
+                                            </div>
+                                            <div class="portlet-body">
+                                                <div class="table-scrollable">
+                                                    <table class="table table-hover">
 
-                    <div class="image_two_box">
-                        <img src="{{ isset($news->images[1]) ? url('public/uploads/news').'/'.$news->images[1] : url('no-image.png')}}" width="100" height="80" class="image_two" />
-                    </div>
-                    <input type="file" name="images[1]" id="image_two" style="display:none;">     
-                    <span class="help-block"></span>             
-                </div>
-                <div class="form-group col-md-2">
-                    <label class="control-label">3</label>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>{{ _lang('app.title')}}</td>
+                                                                <td>{{$ad->title}}</td>
 
-                    <div class="image_three_box">
-                        <img src="{{ isset($news->images[2]) ? url('public/uploads/news').'/'.$news->images[2] : url('no-image.png')}}" width="100" height="80" class="image_three" />
-                    </div>
-                    <input type="file" name="images[2]" id="image_three" style="display:none;">     
-                    <span class="help-block"></span>             
-                </div>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{ _lang('app.details')}}</td>
+                                                                <td>{{$ad->details}}</td>
 
-                <div class="form-group col-md-2">
-                    <label class="control-label">4</label>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{ _lang('app.city')}}</td>
+                                                                <td>{{$ad->city}}</td>
 
-                    <div class="image_four_box">
-                        <img src="{{ isset($news->images[3]) ? url('public/uploads/news').'/'.$news->images[3] : url('no-image.png')}}" width="100" height="80" class="image_four" />
-                    </div>
-                    <input type="file" name="images[3]" id="image_four" style="display:none;">     
-                    <span class="help-block"></span>             
-                </div>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{ _lang('app.rate')}}</td>
+                                                                <td>{{$ad->rate}}</td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{ _lang('app.address')}}</td>
+                                                                <td>{{$ad->address}}</td>
 
-                <div class="form-group col-md-2">
-                    <label class="control-label">5</label>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{ _lang('app.created_at')}}</td>
+                                                                <td>{{$ad->created_at}}</td>
 
-                    <div class="image_five_box">
-                        <img src="{{ isset($news->images[4]) ? url('public/uploads/news').'/'.$news->images[4] : url('no-image.png')}}" width="100" height="80" class="image_five" />
-                    </div>
-                    <input type="file" name="images[4]" id="image_five" style="display:none;">     
-                    <span class="help-block"></span>             
-                </div>
+                                                            </tr>
 
+                                                             <tr>
+                                                                <td>{{ _lang('app.price')}}</td>
+                                                                <td>{{$ad->price}}</td>
 
+                                                            </tr>
 
-            </div>
-        </div>
-
-        <div class="panel-footer text-center">
-            <button type="button" class="btn btn-info submit-form"
-            >{{_lang('app.save') }}</button>
-        </div>
-
-
-    </div>
+                                                            <tr>
+                                                                <td>{{ _lang('app.special')}}</td>
+                                                                @if($ad->special == 1)
+                                                                <td>{{ _lang('app.special')}}</td>
+                                                                @else
+                                                                <td>{{ _lang('app.not_special')}}</td>
+                                                                @endif
 
 
-</form>
-<script>
-var new_lang = {
+                                                            </tr>
 
-};
-var new_config = {
-    action :'edit'
-   
-};
+                                                    </tbody>
+                                                </table>
+                                            </div>
 
-</script>
-@endsection
+                                            @if(count($ad->images) > 0 )
+                    
+                                            <h3>{{_lang('app.gallery')}}</h3>
+                                            <ul class="list-inline blog-images">
+                                                @foreach($ad->images as $one)
+                                                <li>
+                                                    <a class="fancybox-button" product-rel="fancybox-button" title="390 x 220 - keenthemes.com" href="{{$one}}">
+                                                        <img style="width: 100px;height: 100px;" alt="" src="{{$one}}">
+                                                    </a>
+                                                </li>
+                                                @endforeach
+                                            </ul>
+
+                                            @endif
+
+                                        </div>
+                                    </div>
+                                    <!-- END SAMPLE TABLE PORTLET-->
+
+
+                                </div>
+                                <div class="col-md-12">
+
+
+                                    <!-- BEGIN SAMPLE TABLE PORTLET-->
+                                    <div class="portlet box red">
+                                        <div class="portlet-title">
+                                            <div class="caption">
+                                                <i class="fa fa-cogs"></i>{{ _lang('app.user_info')}}
+                                            </div>
+                                        </div>
+                                        <div class="portlet-body">
+                                           <div class="table-scrollable">
+                                                    <table class="table table-hover">
+
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>{{ _lang('app.name')}}</td>
+                                                                <td>{{$ad->name}}</td>
+
+                                                            </tr>
+                                                            <tr>
+                                                                <td>{{ _lang('app.mobile')}}</td>
+                                                                <td>{{$ad->mobile}}</td>
+
+                                                            </tr>
+
+                                                            <tr>
+                                                                <td>{{ _lang('app.email')}}</td>
+                                                                <td>{{$ad->email}}</td>
+
+                                                            </tr>
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <!-- BEGIN SAMPLE TABLE PORTLET-->
+                                <div class="portlet box red">
+                                    <div class="portlet-title">
+                                        <div class="caption">
+                                            <i class="fa fa-cogs"></i> {{ _lang('app.location')}}
+                                        </div>
+
+                                    </div>
+                                    <div class="portlet-body">
+
+                                        <div class="maplarger">
+
+                                            <div id="map" style="height: 300px; width:100%;"></div>
+                                            <div id="infowindow-content">
+                                                <span id="place-name"  class="title"></span><br>
+                                                Place ID <span id="place-id"></span><br>
+                                                <span id="place-address"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                          @if (in_array($ad->form_type , [1,2,3]))
+                            <div class="col-md-6">
+                                    <!-- BEGIN SAMPLE TABLE PORTLET-->
+                                    <div class="portlet box red">
+                                        <div class="portlet-title">
+                                            <div class="caption">
+                                                <i class="fa fa-cogs"></i>{{ _lang('app.ad_features')}}
+                                            </div>
+                                        </div>
+                                        <div class="portlet-body">
+                                           <div class="table-scrollable">
+                                                    <table class="table table-hover">
+                                                        <tbody>
+                                                            @if ($ad->form_type == 1)
+                                                                <tr>
+                                                                    <td>{{ _lang('app.area')}}</td>
+                                                                    <td>{{$ad->area}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.rooms_number')}}</td>
+                                                                    <td>{{$ad->rooms_number}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.baths_number')}}</td>
+                                                                    <td>{{$ad->baths_number}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.is_furnished')}}</td>
+                                                                    <td>{{$ad->is_furnished}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.has_parking')}}</td>
+                                                                    <td>{{$ad->area}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.property_type')}}</td>
+                                                                    <td>{{$ad->property_type}}</td>
+                                                                </tr>
+
+                                                            @elseif($ad->form_type == 2)
+                                                                <tr>
+                                                                    <td>{{ _lang('app.area')}}</td>
+                                                                    <td>{{$ad->area}}</td>
+                                                                </tr>
+                                                            @elseif($ad->form_type == 3)
+                                                                <tr>
+                                                                    <td>{{ _lang('app.motion_vector')}}</td>
+                                                                    <td>{{$ad->motion_vector}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.engine_capacity')}}</td>
+                                                                    <td>{{$ad->engine_capacity}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.propulsion_system')}}</td>
+                                                                    <td>{{$ad->propulsion_system}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.fuel_type')}}</td>
+                                                                    <td>{{$ad->fuel_type}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.mileage')}}</td>
+                                                                    <td>{{$ad->mileage}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.mileage_unit')}}</td>
+                                                                    <td>{{$ad->mileage_unit}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.status')}}</td>
+                                                                    <td>{{$ad->status}}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <td>{{ _lang('app.manufacturing_year')}}</td>
+                                                                    <td>{{$ad->manufacturing_year}}</td>
+                                                                </tr>
+                                                                
+                                                            @endif
+
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                          @endif
+                           
+
+
+
+
+
+
+
+
+
+
+                        </div>
+
+
+                        <script>
+                            var new_lang = {};
+                        </script>
+                        @endsection

@@ -17,7 +17,7 @@ use Carbon\Carbon;
 class AdsController extends ApiController {
 
     private $ads_rules = array(
-        'city_id' => 'required',
+        'country_id' => 'required',
         'lat' => 'required',
         'lng' => 'required',
     );

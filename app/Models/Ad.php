@@ -58,7 +58,7 @@ class Ad extends MyModel {
         'email',
         'mobile',
     ];
-    private static $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
+    private static $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
 
     public static function get_All() {
 
@@ -67,9 +67,10 @@ class Ad extends MyModel {
     public static function getAdsApi($request, $user, $id = null, $type = null) {
         $lang_code = static::getLangCode();
 
-        $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
+        $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category' ,'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
 
         $ads = Ad::join('categories', 'ads.category_id', '=', 'categories.id')
+        ->join('categories_translations', 'categories.id', '=', 'categories_translations.category_id')
         ->join('locations', 'ads.city_id', '=', 'locations.id')
         ->join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
         ->join('users', 'users.id', '=', 'ads.user_id');
@@ -77,9 +78,11 @@ class Ad extends MyModel {
            $ads->where('ads.active', true);
         }
         $ads->where('locations_translations.locale', $lang_code);
+        $ads->where('categories_translations.locale', $lang_code);
         if ($id) {
             $ads->where('ads.id', $id);
         }
+
         if ($user) {
 
             if ($request->input('options')) {
@@ -102,7 +105,9 @@ class Ad extends MyModel {
             }
         }
 
-
+        if ($request->input('country_id')) {
+             $ads->where('ads.country_id', $request->input('country_id'));
+        }
         if ($request->input('city_id')) {
             $ads->where('ads.city_id', $request->input('city_id'));
         }
@@ -340,30 +345,84 @@ class Ad extends MyModel {
             $transformer->is_favourite = 0;
         }
         if ($item->form_type == 1) {
-            $transformer->area = $item->area;
-            $transformer->rooms_number = $item->rooms_number;
-            $transformer->baths_number = $item->baths_number;
-            $transformer->is_furnished = $item->is_furnished;
-            $transformer->has_parking = $item->has_parking;
-            $transformer->property_type_id = $item->property_type_id;
-            $transformer->property_type = $item->property_type;
+            $furnished = $item->is_furnished == 1 ? _lang('app.yes') : _lang('app.no');
+            $parking = $item->has_parking == 1 ? _lang('app.exist') : _lang('app.none');
+            $data = array(
+                [
+                    'name' => _lang('app.area'),
+                    'value' => $item->area
+                ],
+                [
+                    'name' => _lang('app.rooms_number'),
+                    'value' => $item->rooms_number
+                ],
+                [
+                    'name' => _lang('app.baths_number'),
+                    'value' => $item->baths_number
+                ],
+                [
+                    'name' => _lang('app.furnished'),
+                    'value' => $furnished
+                ],
+                [
+                    'name' => _lang('app.parking_place'),
+                    'value' => $parking
+                ],
+                [
+                    'name' => _lang('app.property_type'),
+                    'value' => $item->property_type
+                ],
+            );
+          $transformer->features = $data;
+          
         } else if ($item->form_type == 2) {
             $transformer->area = $item->area;
+            $data = array(
+                [
+                    'name' => _lang('app.area'),
+                    'value' => $item->area
+                ]
+            );
+          $transformer->features = $data;
         } else if ($item->form_type == 3) {
-
-            $transformer->motion_vector_id = $item->motion_vector_id;
-            $transformer->motion_vector = $item->motion_vector;
-            $transformer->engine_capacity_id = $item->engine_capacity_id;
-            $transformer->engine_capacity = $item->engine_capacity;
-            $transformer->propulsion_system_id = $item->propulsion_system_id;
-            $transformer->propulsion_system = $item->propulsion_system;
-            $transformer->fuel_type_id = $item->fuel_type_id;
-            $transformer->fuel_type = $item->fuel_type;
-            $transformer->mileage_id = $item->mileage_id;
-            $transformer->mileage = $item->mileage;
-            $transformer->mileage_unit = $item->mileage_unit;
-            $transformer->status = $item->status == 0 ? _lang('app.new') : _lang('app.used');
-            $transformer->manufacturing_year = $item->manufacturing_year;
+            $mileage_unit = $item->mileage_unit == 1 ? _lang('app.km') : _lang('app.ml');
+            $mileage = $item->mileage.' '.$mileage_unit;
+            $status = $item->status == 0 ? _lang('app.new') : _lang('app.used');
+            $data = array(
+                [
+                    'name' => _lang('app.car_condition'),
+                    'value' => $status
+                ],
+                [
+                    'name' => _lang('app.model'),
+                    'value' => $item->category
+                ],
+                 [
+                    'name' => _lang('app.manufacturing_year'),
+                    'value' => $item->manufacturing_year
+                ],
+                [
+                    'name' => _lang('app.motion_vector'),
+                    'value' => $item->motion_vector
+                ],
+                [
+                    'name' => _lang('app.engine_capacity'),
+                    'value' => $item->engine_capacity
+                ],
+                [
+                    'name' => _lang('app.propulsion_system'),
+                    'value' => $item->propulsion_system
+                ],
+                [
+                    'name' => _lang('app.mileage'),
+                    'value' => $mileage
+                ],
+                [
+                    'name' => _lang('app.fuel_type'),
+                    'value' => $item->fuel_type
+                ],
+            );
+          $transformer->features = $data;
         }
 
         $transformer->name = $item->name;

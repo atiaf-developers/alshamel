@@ -100,6 +100,7 @@ class CurrencyController extends BackendController
             $currency->active = $request->input('active');
             $currency->this_order = $request->input('this_order');
             $currency->save();
+            
             CurrencyTranslation::where('currency_id', $currency->id)->delete();
 
             $currency_translations = array();

@@ -1,94 +1,124 @@
-<header id="logo">
-    <div class="top-header">
-        <div class="container">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="social">
-                            <a href="{{ $settings['social_media']->facebook }}"><span class="fa fa-facebook"></span></a>
-                            <a href="{{ $settings['social_media']->twitter }}"><span class="fa fa-twitter"></span></a>
-                            <a href="{{ $settings['social_media']->google }}"><span class="fa fa-google-plus"></span></a>
-                            <a href="{{ $settings['social_media']->youtube }}"><span class="fa fa-youtube"></span></a>
-                            <a href="{{ $settings['social_media']->instagram }}"><span class="fa fa-instagram"></span></a>
+<div class="header-bot">
+            <div class="container">
+                <div class="col-md-6 logo_agile">
+                    <a href="{{ _url('/') }}"><img src="{{url('public/front/images')}}/logo.png" alt="" /></a>
+                </div>
+                <div class="col-md-6 phone-w3l">
+                        <ul>
+                            <li><a href="{{url($next_lang_code.'/'.substr(Request()->path(), 3))}}"><span class="fa fa-language" aria-hidden="true"></span>{{$next_lang_text}}</a></li>
+                            @if (Auth::check())
+                            @else
+                            <li><a href="{{_url('login?return='.base64_encode(request()->getPathInfo() . (request()->getQueryString() ? ('?' . request()->getQueryString()) : ''))) }}"><span class="fa fa-sign-in" aria-hidden="true"></span>تسجيل دخول</a></li>
+                         @endif
+                            
+                        </ul>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+    </div>
+    <div class="ban-top">
+            <div class="container">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="row">
+                            <div class="top_nav_left">
+                                <nav class="navbar navbar-default">
+                                  <div class="container-fluid">
+                                        <div class="navbar-header">
+                                          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                                                <span class="sr-only">Toggle navigation</span>
+                                                <span class="icon-bar"></span>
+                                                <span class="icon-bar"></span>
+                                                <span class="icon-bar"></span>
+                                          </button>
+                                        </div>
+                                        <div class="collapse navbar-collapse menu--shylock" id="bs-example-navbar-collapse-1">
+                                          <ul class="nav navbar-nav">
+                                                <li class="active menu__item--current"><a class="menu__link" href="index.php" id="home">الرئيسية <span class="sr-only">(current)</span></a></li>
+                                                <li><a class="menu__link" href="realestate.php">{{ $categories[0]->title }}</a></li>
+                                                <li><a class="menu__link" href="cars.php">{{ $categories[1]->title }}</a></li>
+                                                <li class="dropdown">
+                                                    <a href="#" class="dropdown-toggle menu__link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">التصنيفات<span class="caret"></span></a>
+                                                        <ul class="dropdown-menu multi-column columns-3">
+                                                            <div class="agile_inner_drop_nav_info">
+                                                                <div class="multi-gd-img">
+                                                                    <ul class="multi-column-dropdown">
+
+                                                                        @foreach ($categories as $key => $category)
+                                                                            @continue($key == 0 || $key == 1)
+                                                                            <li class="col-sm-4"><a href="">{{ $category->title }}</a></li>
+                                                                        @endforeach
+                                                                        
+                                                                    </ul>
+                                                                </div>
+                                                                <div class="clearfix"></div>
+                                                            </div>
+                                                        </ul>
+                                                </li>
+                                                <li><a class="menu__link" href="about.php">عن الشامل</a></li>
+                                                <li><a class="menu__link" href="contact.php">اتصل بنا</a></li>
+                                          </ul>
+                                        </div>
+                                  </div>
+                                </nav>
+                            </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="col-md-4">
+                            <div class="search-agileinfo">
+                                <h3 class="country" data-toggle="modal" data-target="#myModal3">اختر الدولة<i class="fa fa-globe"></i></h3>
+                                
+                                
+                                 <div class="modal fade" id="myModal3">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                      <div class="modal-content">
 
-                    <div class="col-md-6">
-                        @if (Auth::check())
+                                        <!-- Modal Header -->
+                                        <div class="modal-header">
+                                          <h4 class="modal-title">اختر الدولة والمدينة</h4>
+                                        </div>
 
-                        <a href="{{_url('customer/dashboard')}}" class="btn btn-read"><i class="fa fa-user"></i>{{ _lang('app.profile') }}</a>
+                                        <!-- Modal body -->
+                                        <div class="modal-body">
+                                            <form role="form">
+                                                <div class="form-group">
+                                                    <select class="frm-field required sect form-control">
+                                                            <option>حدد الدولة</option> 
+                                                            <option>المملكة العربية السعودية</option>   
+                                                            <option>جمهورية مصر العربية</option>    
+                                                            <option>الامارات</option>
+                                                            <option>عمان</option>   
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <select class="frm-field required sect form-control">
+                                                            <option>حدد المدينة</option>    
+                                                            <option>جدة</option>    
+                                                            <option>الرياض</option> 
+                                                            <option>مكة</option>
+                                                            <option>المدينة</option>    
+                                                    </select>
+                                                </div>
+                                              </form>
+                                        </div>
 
-                        <a href="{{_url('customer/user/notifications')}}" class="btn btn-read"><i class="fa fa-bell"></i>{{ _lang('app.notifications') }}</a>
+                                        <!-- Modal footer -->
+                                        <div class="modal-footer">
+                                          <button type="button" class="btn btn-secondary" data-dismiss="modal">تم</button>
+                                        </div>
 
-                       
-
-                        @else
-                        <a class="btn btn-read" href="{{_url('login?return='.base64_encode(request()->getPathInfo() . (request()->getQueryString() ? ('?' . request()->getQueryString()) : ''))) }}"><i class="fa fa-user"></i>{{_lang('app.login')}}</a>
-                        @endif
-
-                        <a href="{{url($next_lang_code.'/'.substr(Request()->path(), 3))}}" class="btn btn-read"><i class="fa fa-flag-o"></i>{{$next_lang_text}}</a>
+                                      </div>
+                                    </div>
+                                  </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                        
+                <div class="clearfix"></div>
             </div>
-        </div>
     </div>
-    <div class="bottom-header">
-        <div class="container">
-            <div class="col-md-12">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="logo-mobadra">
-                            <a href="{{_url('')}}">
-                                <img class="logo" src="{{url('public/front/img')}}/logo2.png" alt="">
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="logo-keswa">
-                            <a href="{{_url('')}}">
-                                <img class="logo-2" src="{{url('public/front/img')}}/logo.png" alt="">
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-<section id="navbar">
-    <div class="container">
-        <div class="navbar-header">
-            <!-- responsive nav button -->
-            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <!-- /responsive nav button -->
-
-        </div>
-        <nav class="collapse navbar-collapse navbar-right" role="navigation">
-            <ul id="nav" class="nav navbar-nav menu">
-                <li><a href="{{ url('/') }}">{{ _lang('app.home') }}</a></li>
-                <li><a href="{{ route('about_us') }}">{{ _lang('app.about_us') }}</a></li>
-                <li><a href="{{ route('news_events') }}">{{ _lang('app.news_and_events') }}</a></li>
-                <li><a href="{{ route('corporation_activities') }}">{{ _lang('app.corporation_activities') }}</a></li>
-                <li><a href="{{ route('gallary') }}">{{ _lang('app.photos') }}</a></li>
-                <li><a href="{{ route('video_gallary') }}">{{ _lang('app.videos') }}</a></li>
-                <li><a href="{{ _url('') }}#contact-form">{{ _lang('app.contact_us') }}</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b class="caret"></b>{{ _lang('app.others') }} </a> 
-
-                    <ul class="dropdown-menu">
-                        @foreach ($others as $item)
-                        <li><a href="{{ route('others',$item->slug) }}">{{ $item->title }}</a></li>
-                        @endforeach
-                    </ul>
-                </li>
 
 
-            </ul>
-        </nav>
-    </div>
-</section>
+    

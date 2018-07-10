@@ -17,6 +17,7 @@ use App\Models\Package;
 use App\Models\UserPackage;
 use App\Models\Rating;
 use App\Models\Ad;
+use App\Models\Favourite;
 use App\Helpers\Fcm;
 use Carbon\Carbon;
 use DB;
@@ -33,7 +34,7 @@ class BasicController extends ApiController {
         'ad_id' => 'required',
     );
     private $basic_data_rules = array(
-        'form_type' => 'required|in:1,3',
+        'form_type' => 'required|in:1,2,3,4',
         'category_id' => 'required'
     );
     private $package_rules = array(
@@ -233,6 +234,18 @@ class BasicController extends ApiController {
             return _api_json($data);
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
+        }
+    }
+
+
+    public function deleteFavourites()
+    {
+        try {
+            $user = $this->auth_user();
+            Favourite::where('user_id', $user->id)->delete();
+            return _api_json('',['message' => _lang('app.deleted_successfully')]);
+        } catch (\Exception $e) {
+            return _api_json('', ['message' => _lang('app.error_is_occured')], 400);
         }
     }
 

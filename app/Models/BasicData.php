@@ -20,11 +20,14 @@ class BasicData extends MyModel {
     ];
     private static $form_type_basic_data = [
         1 => [1],
-        3 => [2,3,4,5,6,7]
+        3 => [2,3,4,5,6,7],
+        2 => [],
+        4 => []
     ];
 
 
     private static function getData($request){
+        $data = array();
         if ($request->input('form_type') == 1) {
             $data = array(
             'property_types' => [
@@ -33,14 +36,19 @@ class BasicData extends MyModel {
                 'values' => array()
             ],
             'rooms_range' => [
+                'name' => 'rooms_number',
+                'lable' => _lang('app.rooms_number'),
                 'from' => 1,
                 'to'   => 5
             ],
             'baths_range' => [
+                'name' => 'baths_number',
+                'lable' => _lang('app.baths_number'),
                 'from' => 1,
                 'to'   => 5
             ]);
         }else if($request->input('form_type') == 3){
+            $current_year = (int)date('Y');
             $data = array(
             'engine_capacities' => [
                 'name' => 'engine_capacity',
@@ -72,6 +80,12 @@ class BasicData extends MyModel {
                 'lable' => _lang('app.mileage'),
                 'values' => array()
             ],
+            'manufacturing_year' => [
+                'name' => 'manufacturing_year',
+                'lable' => _lang('app.manufacturing_year'),
+                'from' => 1950,
+                'to' => $current_year
+            ],
          );
 
         }
@@ -82,6 +96,7 @@ class BasicData extends MyModel {
             $first_parent = Category::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
                                     ->where('trans.locale', static::getLangCode())
                                     ->select('trans.label')
+                                    ->where('categories.id',$first_parent_id[0])
                                     ->first();
             $data['sub_categories'] = [
                 'name' => 'category_id',

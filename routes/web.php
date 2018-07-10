@@ -74,6 +74,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('packages', 'PackagesController');
     Route::post('packages/data', 'PackagesController@data');
 
+    Route::resource('slider', 'SliderController');
+    Route::post('slider/data', 'SliderController@data');
+
     Route::resource('currency', 'CurrencyController');
     Route::post('currency/data', 'CurrencyController@data');
 

@@ -128,7 +128,7 @@ class AdsController extends ApiController {
             }
 
             $user = $this->auth_user();
-
+            $avaliable_ads = null;
             if ($user->num_free_ads == 0) {
                 $avaliable_ads = UserPackage::where('user_id', $user->id)->where('available_of_ads', '!=', 0)->where('status', 1)->first();
                 if (!$avaliable_ads) {

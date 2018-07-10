@@ -9,7 +9,7 @@ class Category extends MyModel {
     protected $table = "categories";
     public static $sizes = array(
         's' => array('width' => 120, 'height' => 120),
-        'm' => array('width' => 400, 'height' => 400),
+        'm' => array('width' => 700, 'height' => 700),
     );
 
     protected function childrens() {
@@ -30,6 +30,19 @@ class Category extends MyModel {
 
     public function translations() {
         return $this->hasMany(CategoryTranslation::class, 'category_id');
+    }
+
+    public static function transformAdmin($item) {
+        $transformer = new \stdClass();
+        $transformer->slug = $item->slug;
+        $transformer->title = $item->title;
+        $transformer->image = "";
+        if ($item->image) {
+            $category_image = static::rmv_prefix($item->image);   
+            $transformer->image =  url('public/uploads/categories') . '/m_'.$category_image;
+        }    
+        $transformer->has_sub = $item->childrens->count() > 0 ? true : false;
+        return $transformer;
     }
 
     public static function transform($item) {

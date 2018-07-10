@@ -50,6 +50,7 @@ Route::group(['namespace' => 'Api'], function () {
         Route::post('ads','AdsController@store');
         Route::put('ads/{id}','AdsController@update');
         Route::delete('ads/{id}','AdsController@destroy');
+        Route::delete('delete_favourites','BasicController@deleteFavourites');
         
     });
 });

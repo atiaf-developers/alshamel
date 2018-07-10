@@ -9,6 +9,8 @@ class Ad extends MyModel {
 
     protected $table = "ads";
     private static $level;
+
+  
     public static $sizes = array(
         's' => array('width' => 120, 'height' => 120),
         'm' => array('width' => 400, 'height' => 400),
@@ -58,7 +60,7 @@ class Ad extends MyModel {
         'email',
         'mobile',
     ];
-    private static $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category', 'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
+    private static $columns = ['ads.id', 'ads.lat', 'ads.lng','ads.category_id', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category', 'users.name','locations.id as city_id' , 'locations.parent_id as country_id','locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id'];
 
     public static function get_All() {
 
@@ -67,7 +69,7 @@ class Ad extends MyModel {
     public static function getAdsApi($request, $user, $id = null, $type = null) {
         $lang_code = static::getLangCode();
 
-        $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category' ,'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images'];
+        $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category' ,'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id'];
 
         $ads = Ad::join('categories', 'ads.category_id', '=', 'categories.id')
         ->join('categories_translations', 'categories.id', '=', 'categories_translations.category_id')
@@ -81,6 +83,10 @@ class Ad extends MyModel {
         $ads->where('categories_translations.locale', $lang_code);
         if ($id) {
             $ads->where('ads.id', $id);
+        }
+
+        if ($request->input('search')) {
+            $ads->whereRaw(handleKeywordWhere(['ads.title','ads.details'], $request->input('search')));
         }
 
         if ($user) {
@@ -101,6 +107,7 @@ class Ad extends MyModel {
                     $join->on('favourites.ad_id', '=', 'ads.id')
                     ->where('favourites.user_id', $user->id);
                 });
+                //$ads->where('ads.user_id','!=' ,$user->id);
                 static::$columns[] = "favourites.id as is_favourite";
             }
         }
@@ -160,7 +167,12 @@ class Ad extends MyModel {
             if (!$ads) {
                 return false;
             }
-            return Ad::transformDetailsApi($ads, ['user' => $user]);
+            if ($request->input('action') == 'edit') {
+                return Ad::transformEditApi($ads, ['user' => $user]);
+            }else{
+                return Ad::transformDetailsApi($ads, ['user' => $user]);
+            }
+            
         } else {
 
             if ($type == 1) {
@@ -266,6 +278,12 @@ class Ad extends MyModel {
             if (isset($options->fuel_type)) {
                 $ads->whereIn('vehicles_ads.fuel_type_id', $options->fuel_type);
             }
+            if (isset($options->mileage_unit)) {
+                $ads->where('vehicles_ads.mileage_unit', $options->mileage_unit);
+            }
+            if (isset($options->mileage)) {
+                $ads->whereIn('vehicles_ads.mileage_id', $options->mileage);
+            }
         }
         if (isset($options->price)) {
             $ads->whereBetween('ads.price', [$options->price[0], $options->price[1]]);
@@ -308,6 +326,65 @@ class Ad extends MyModel {
         return $transformer;
     }
 
+    public static function transformEditApi($item,$extra_params = array())
+    {
+
+        $lang = static::getLangCode();
+
+        $transformer = new \stdClass();
+        $transformer->id = $item->id;
+        $transformer->city_id = (int)$item->city_id;
+        $transformer->country_id = (int)$item->country_id;
+        $transformer->title = $item->title;
+        $transformer->details = $item->details;
+        $transformer->lat = $item->lat;
+        $transformer->lng = $item->lng;
+        $transformer->address = getAddress($item->lat,$item->lng,$lang);
+        $transformer->special = $item->special;
+        $transformer->created_at = date('Y-m-d H:i',strtotime($item->created_at));
+        $transformer->price = $item->price;
+        $transformer->form_type = $item->form_type;
+       $prefixed_array = array();
+        $ad_images = json_decode($item->images);
+        if (count($ad_images) > 0) {
+            foreach ($ad_images as $key => $value) {
+                $ad_images[$key] = static::rmv_prefix($value);
+            }
+            $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
+            $transformer->images = $prefixed_array;
+        }else{
+             $transformer->images = $prefixed_array;
+        }
+        if ($item->form_type == 1) {
+            $transformer->area = $item->area;
+            $transformer->rooms_number = (int)$item->rooms_number;
+            $transformer->baths_number = (int)$item->baths_number;
+            $transformer->is_furnished = (int)$item->is_furnished;
+            $transformer->has_parking = (int)$item->has_parking;
+            $transformer->property_type = (int)$item->property_type_id;
+
+        }else if ($item->form_type == 2){
+            $transformer->area = $item->area;
+        }
+        else if ($item->form_type == 3){
+            $transformer->motion_vector = (int)$item->motion_vector_id;
+            $transformer->engine_capacity = (int)$item->engine_capacity_id;
+            $transformer->propulsion_system = (int)$item->propulsion_system_id;
+            $transformer->fuel_type = (int)$item->fuel_type_id;
+            $transformer->mileage = (int)$item->mileage_id;
+            $transformer->mileage_unit = (int)$item->mileage_unit;
+            $transformer->status = (int)$item->status;
+            $transformer->manufacturing_year = (int)$item->manufacturing_year;
+        }
+        
+        $transformer->name = $item->name;
+        $transformer->mobile = $item->mobile;
+        $transformer->email = $item->email;
+        
+        
+        return $transformer;
+    }
+
     public static function transformDetailsApi($item, $extra_params = array()) {
 
         $lang = static::getLangCode();
@@ -315,6 +392,8 @@ class Ad extends MyModel {
         $transformer = new \stdClass();
         $transformer->id = $item->id;
         $transformer->city = $item->city;
+        $transformer->city_id = (int)$item->city_id;
+        $transformer->country_id = (int)$item->country_id;
         $transformer->title = $item->title;
         $transformer->details = $item->details;
         $transformer->rate = $item->rate;
@@ -341,8 +420,10 @@ class Ad extends MyModel {
 
         if ((isset($extra_params['user']) && $extra_params['user'] != null)) {
             $transformer->is_favourite = $item->is_favourite ? 1 : 0;
+            $transformer->is_my_ad = $item->user_id == $extra_params['user']->id ? true : false;
         } else {
             $transformer->is_favourite = 0;
+            $transformer->is_my_ad = false;
         }
         if ($item->form_type == 1) {
             $furnished = $item->is_furnished == 1 ? _lang('app.yes') : _lang('app.no');
@@ -376,7 +457,6 @@ class Ad extends MyModel {
           $transformer->features = $data;
           
         } else if ($item->form_type == 2) {
-            $transformer->area = $item->area;
             $data = array(
                 [
                     'name' => _lang('app.area'),
@@ -397,7 +477,7 @@ class Ad extends MyModel {
                     'name' => _lang('app.model'),
                     'value' => $item->category
                 ],
-                 [
+                [
                     'name' => _lang('app.manufacturing_year'),
                     'value' => $item->manufacturing_year
                 ],
@@ -416,6 +496,10 @@ class Ad extends MyModel {
                 [
                     'name' => _lang('app.mileage'),
                     'value' => $mileage
+                ],
+                [
+                    'name' => _lang('app.mileage_unit'),
+                    'value' => $item->mileage_unit
                 ],
                 [
                     'name' => _lang('app.fuel_type'),
@@ -453,7 +537,7 @@ class Ad extends MyModel {
         $parents = $item->Categories->parents_ids;
         if (strpos($parents, ',')) {
             $parents_array = explode(",", $parents);
-            for ($i = 0; $i <= count($parents_array); $i++) {
+            for ($i = 0; $i <= count($parents_array); $i) {
                 $catagory_array[] = self::catagory_by_id($parents_array[$i]);
             }
         } else {
@@ -475,6 +559,10 @@ class Ad extends MyModel {
 
     public function rates() {
         return $this->hasMany(Rating::class, 'entity_id');
+    }
+
+    public function reports() {
+        return $this->hasMany(AdReport::class, 'ad_id');
     }
 
     public function realStateAd() {
@@ -508,6 +596,9 @@ class Ad extends MyModel {
             foreach ($ad->rates as $rate) {
                 $rate->delete();
             }
+            foreach ($ad->reports as $report) {
+                $report->delete();
+            }
             if ($ad->realStateAd) {
                 $ad->realStateAd->delete();
             } else if ($ad->landAd) {
@@ -518,9 +609,13 @@ class Ad extends MyModel {
         });
 
         static::deleted(function($ad) {
-            foreach (json_decode($ad->images) as $image) {
-                Ad::deleteUploaded('ads', $image);
+            $images = json_decode($ad->images);
+            if (count($images) > 0) {
+                foreach ($images as $image) {
+                    Ad::deleteUploaded('ads', $image);
+                }
             }
+            
         });
     }
 

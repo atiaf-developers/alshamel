@@ -8,7 +8,6 @@ use Auth;
 use App\Models\Setting;
 use App\Models\SettingTranslation;
 use App\Models\Category;
-use App\Models\Game;
 
 class FrontController extends Controller {
 
@@ -66,18 +65,25 @@ class FrontController extends Controller {
         $this->data['settings'] = Setting::get()->keyBy('name');
         $this->_settings = $this->data['settings'];
         $this->data['settings']['social_media'] = json_decode($this->data['settings']['social_media']->value);
-        $this->data['settings']['store'] = json_decode($this->data['settings']['store']->value);
+        //$this->data['settings']['store'] = json_decode($this->data['settings']['store']->value);
         $this->data['settings_translations'] = SettingTranslation::where('locale', $this->lang_code)->first();
-        //dd($this->data['settings']);
+
     }
 
     private function getCategories() {
-        $this->data['others'] = Category::Join('categories_translations','categories.id','=','categories_translations.category_id')->where('categories_translations.locale',$this->lang_code)->where('categories.active',true)->where('categories.parent_id',0)->orderBy('categories.this_order')->select('categories.slug','categories_translations.title')->get(); 
+        $categories = Category::Join('categories_translations','categories.id','=','categories_translations.category_id')
+        ->where('categories_translations.locale',$this->lang_code)
+        ->where('categories.active',true)
+        ->where('categories.parent_id',0)
+        ->orderBy('categories.this_order')
+        ->select('categories.slug','categories.image','categories_translations.title')
+        ->get(); 
+
+         $this->data['categories'] = Category::transformCollection($categories,'Admin');
     }
 
     protected function _view($main_content, $type = 'front') {
         $main_content = "main_content/$type/$main_content";
-        //dd($main_content);
         return view($main_content, $this->data);
     }
 

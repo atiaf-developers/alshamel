@@ -20,7 +20,6 @@ class LoginController extends ApiController {
     );
 
     public function login(Request $request) {
-
         $validator = Validator::make($request->all(), $this->rules);
         if ($validator->fails()) {
             $errors = $validator->errors()->toArray();

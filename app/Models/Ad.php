@@ -60,7 +60,7 @@ class Ad extends MyModel {
         'email',
         'mobile',
     ];
-    private static $columns = ['ads.id', 'ads.lat', 'ads.lng','ads.category_id', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category', 'users.name','locations.id as city_id' , 'locations.parent_id as country_id','locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id'];
+    private static $columns = ['ads.id', 'ads.lat', 'ads.lng','ads.category_id', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email','categories.form_type','categories.parent_id as category_parent','categories_translations.title as category', 'users.name','locations.id as city_id' , 'locations.parent_id as country_id','locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id'];
 
     public static function get_All() {
 
@@ -69,7 +69,7 @@ class Ad extends MyModel {
     public static function getAdsApi($request, $user, $id = null, $type = null) {
         $lang_code = static::getLangCode();
 
-        $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type','categories_translations.title as category' ,'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id'];
+        $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email','categories.form_type','categories_translations.title as category' ,'users.name', 'locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id'];
 
         $ads = Ad::join('categories', 'ads.category_id', '=', 'categories.id')
         ->join('categories_translations', 'categories.id', '=', 'categories_translations.category_id')
@@ -328,7 +328,7 @@ class Ad extends MyModel {
 
     public static function transformEditApi($item,$extra_params = array())
     {
-
+       
         $lang = static::getLangCode();
 
         $transformer = new \stdClass();
@@ -380,8 +380,13 @@ class Ad extends MyModel {
         $transformer->name = $item->name;
         $transformer->mobile = $item->mobile;
         $transformer->email = $item->email;
-        
-        
+
+        $category = Category::where('id',$item->category_parent)->first();
+        if ($category->parent_id == 0) {
+            $transformer->category_id = $item->category_id;
+        }else{
+            $transformer->category_id = $category->id;
+        }
         return $transformer;
     }
 

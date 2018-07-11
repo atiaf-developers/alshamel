@@ -40,8 +40,7 @@ class AdsController extends ApiController {
         'lat' => 'required',
         'lng' => 'required',
         'email' => 'required',
-        'mobile' => 'required',
-        'price' => 'required',
+        'mobile' => 'required'
     ];
     private $real_states_rules = [
         'area' => 'required',
@@ -49,7 +48,8 @@ class AdsController extends ApiController {
         'rooms_number' => 'required',
         'baths_number' => 'required',
         'is_furnished' => 'required',
-        'has_parking' => 'required'
+        'has_parking' => 'required',
+        'price' => 'required'
     ];
     private $land_rules = [
         'area' => 'required'
@@ -62,7 +62,8 @@ class AdsController extends ApiController {
         'propulsion_system' => 'required',
         'mileage' => 'required',
         'mileage_unit' => 'required',
-        'fuel_type' => 'required'
+        'fuel_type' => 'required',
+        'price' => 'required'
     ];
 
     public function index(Request $request) {
@@ -230,8 +231,11 @@ class AdsController extends ApiController {
         $ad->lng = $request->input('lng');
         $ad->email = $request->input('email');
         $ad->mobile = $request->input('mobile');
-        $ad->price = $request->input('price');
-
+        if ($request->input('price')) {
+            $ad->price = $request->input('price');
+        }else{
+            $ad->price = 0;
+        }
         if (isset($request->images) && !empty($request->images)) {
             if ($ad->images) {
                 foreach (json_decode($ad->images) as $image) {

@@ -1,12 +1,54 @@
 @extends('layouts.backend')
 
-@section('pageTitle', 'Page Title')
+@section('pageTitle',  _lang('app.contact_messages'))
+@section('breadcrumb')
+<li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
+<li><span> {{_lang('app.contact_messages')}}</span></li>
+@endsection
 
 @section('js')
 <script src="{{url('public/backend/js')}}/contact_messages.js" type="text/javascript"></script>
 @endsection
 @section('content')
 {{ csrf_field() }}
+<div class="modal fade" id="reply" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="replyLabel">{{_lang('app.reply')}}</h4>
+            </div>
+
+            <div class="modal-body">
+                <form role="form"  id="replyForm"  enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                    <div>
+                        <h3>{{_lang('app.message')}}</h3>
+                        <p class="message">
+
+                        </p>
+                    </div>
+                    <div class="form-group form-md-line-input">
+                        <textarea class="form-control" id="reply" name="reply"  cols="30" rows="10"></textarea>
+                        <label for="reply">{{_lang('app.reply') }}</label>
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="clearfix"></div>
+                </form>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info submit-form"
+                        >{{_lang("app.send")}}</button>
+                <button type="button" class="btn btn-white"
+                        data-dismiss="modal"> {{ _lang("app.close") }} </button>
+            </div>
+        </div>
+    </div>
+</div>   
 <div class="modal fade" id="viewMessage" role="dialog">
     <div class="modal-dialog">
 
@@ -14,19 +56,29 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title" id="viewMessageLabel"></h4>
+                <h4 class="modal-title" id="viewMessageLabel">{{_lang('app.message')}}</h4>
             </div>
 
             <div class="modal-body">
+                <form role="form"  id="replyForm"  enctype="multipart/form-data">
+                    {{ csrf_field() }}
+                    <div>
+                        <h3>{{_lang('app.message')}}</h3>
+                        <p class="message">
 
-                <p id="message">
+                        </p>
+                    </div>
+                    <div>
+                        <h3>{{_lang('app.reply')}}</h3>
+                        <p class="reply">
 
-                </p>
+                        </p>
+                    </div>
+                </form>
 
             </div>
 
             <div class="modal-footer">
-
                 <button type="button" class="btn btn-white"
                         data-dismiss="modal"> {{ _lang("app.close") }} </button>
             </div>
@@ -34,20 +86,17 @@
     </div>
 </div>   
 <div class="panel panel-default">
-    <div class="panel-heading">
-        <h3 class="panel-title">{{ _lang('app.contact_messages')}}</h3>
-         <br>
+
+    <div class="panel-body">
         <div class="row">
-            <div class="col-md-2">
-            
-                    <button type="button" class="btn btn-sm btn-default btn-delete" disabled onclick="Contact_messages.delete(this);
-                                return false;">{{_lang('app.delete')}}</button>
-                      
+            <div class="col-md-2" style="margin-bottom: 10px;">
+
+                <button type="button" class="btn btn-sm btn-default btn-delete" disabled onclick="Contact_messages.delete(this);
+    return false;">{{_lang('app.delete')}}</button>
+
 
             </div>
         </div>
-    </div>
-    <div class="panel-body">
         <!--Table Wrapper Start-->
 
         <table class="table table-striped table-bordered table-hover table-checkable order-column dataTable no-footer">
@@ -63,7 +112,7 @@
                             </label>
                         </div>
                     </th>
-                    
+
                     <th>{{ _lang('app.type')}}</th>
                     <th>{{ _lang('app.name')}}</th>
                     <th>{{ _lang('app.email')}}</th>
@@ -81,7 +130,7 @@
 </div>
 <script>
     var new_lang = {
-        
+        view : "{{ _lang('app.view') }}"
     };
 </script>
 @endsection

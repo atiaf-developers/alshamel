@@ -4,23 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class UserPackage extends Model
+class UserPackage extends MyModel
 {
     protected $table = "users_packages";
-    public static $sizes = array(
-        's' => array('width' => 120, 'height' => 120),
-        'm' => array('width' => 400, 'height' => 400),
-    );
 
-    private $status=[
+    public static $status=[
         0=>'waiting',
-        1=>'accept',
-        2=>'reject'
+        1=>'accepted',
+        2=>'rejected'
     ];
-    public function user() {
-        return $this->hasOne(User::class, 'user_id');
-    }
-    public function package() {
-        return $this->hasOne(Package::class, 'package_id');
-    }
+   
 }

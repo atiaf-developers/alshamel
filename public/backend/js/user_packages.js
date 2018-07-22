@@ -1,14 +1,11 @@
-var User_Packages_grid;
+var UserPackages_grid;
 
-
-var User_Packages = function() {
+var UserPackages = function() {
     var ids = [];
     var init = function() {
         $.extend(lang, new_lang);
         handleRecords();
         handleCheckAll();
-
-
     };
     var handleCheckAll = function() {
         $("#check-all-messages").on('change', function() {
@@ -40,8 +37,12 @@ var User_Packages = function() {
         });
         ids = checked_ids;
     }
+
+    
+
+
     var handleRecords = function() {
-        User_Packages_grid = $('.dataTable').dataTable({
+        UserPackages_grid = $('.dataTable').dataTable({
             //"processing": true,
             "serverSide": true,
             "ajax": {
@@ -50,15 +51,15 @@ var User_Packages = function() {
                 "data": { _token: $('input[name="_token"]').val() },
             },
             "columns": [
-                { "data": "input", orderable: false },
-                { "data": "user" },
-                { "data": "package" },
-                { "data": "status" },
-                { "data": "created_at" },
-                { "data": "option", orderable: false },
+            { "data": "input", orderable: false },
+            { "data": "user" , "name" : "users.name"},
+            { "data": "package" , "name" : "packages_translations.title"},
+            { "data": "status",orderable: false, searchable:false },
+            { "data": "created_at","name" : "packages_translations.created_at" },
+            { "data": "option", orderable: false },
             ],
             "order": [
-                [4, "desc"]
+            [4, "desc"]
             ],
             "oLanguage": { "sUrl": config.base_url + '/datatable-lang-' + config.lang_code + '.json' }
 
@@ -85,7 +86,7 @@ var User_Packages = function() {
                         success: function(data) {
                             $(t).prop('disabled', false);
                             $(t).html(lang.delete);
-                            User_Packages_grid.api().ajax.reload();
+                            UserPackages_grid.api().ajax.reload();
                             enableOrDisableDeleteBtn();
                             ids = [];
                         }
@@ -109,6 +110,25 @@ var User_Packages = function() {
 
 
         },
+
+        status: function(t) {
+            var id = $(t).data("id"); 
+            var status = $(t).data("status"); 
+            $(t).prop('disabled', true);
+            $.ajax({
+                url: config.admin_url+'/user_packages/status/'+id,
+                data: { _method: 'GET', status: status, _token: $('input[name="_token"]').val() },
+                success: function(data){  
+                    $(t).prop('disabled', false);
+                    My.toast(data.message);
+                    UserPackages_grid.api().ajax.reload();
+            },
+            error: function (xhr, textStatus, errorThrown) {
+             My.ajax_error_message(xhr);
+         },
+     });
+
+        },
         empty: function() {
             $('#id').val(0)
             $('#active').find('option').eq(0).prop('selected', true);
@@ -122,5 +142,5 @@ var User_Packages = function() {
 
 }();
 jQuery(document).ready(function() {
-    User_Packages.init();
+    UserPackages.init();
 });

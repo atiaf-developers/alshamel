@@ -87,7 +87,8 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('basic_data', 'BasicDataController');
     Route::post('basic_data/data', 'BasicDataController@data');
 
-
+    
+    
     
 
     Route::resource('users', 'UsersController');
@@ -113,12 +114,14 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
 
     Route::resource('contact_messages', 'ContactMessagesController');
     Route::post('contact_messages/data', 'ContactMessagesController@data');
+    Route::post('contact_messages/reply', 'ContactMessagesController@reply');
 
     Route::resource('ad_reports', 'AdReportsController');
     Route::post('ad_reports/data', 'AdReportsController@data');
 
     Route::resource('user_packages', 'UserPackagesController');
     Route::post('user_packages/data', 'UserPackagesController@data');
+    Route::get('user_packages/status/{id}', 'UserPackagesController@status');
 
     Route::get('login', 'LoginController@showLoginForm')->name('admin.login');
     Route::post('login', 'LoginController@login')->name('admin.login.submit');

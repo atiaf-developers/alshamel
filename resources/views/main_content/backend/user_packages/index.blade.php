@@ -1,6 +1,6 @@
 @extends('layouts.backend')
 
-@section('pageTitle', 'Ad Reports')
+@section('pageTitle', _lang('app.user_packages'))
 
 @section('js')
 <script src="{{url('public/backend/js')}}/user_packages.js" type="text/javascript"></script>
@@ -40,7 +40,7 @@
         <div class="row">
             <div class="col-md-2">
             
-                    <button type="button" class="btn btn-sm btn-default btn-delete" disabled onclick="User_Packages.delete(this);
+                    <button type="button" class="btn btn-sm btn-default btn-delete" disabled onclick="UserPackages.delete(this);
                                 return false;">{{_lang('app.delete')}}</button>
                       
 
@@ -65,12 +65,10 @@
                     </th>
                     
                     <th>{{ _lang('app.user')}}</th>
-                    <th>{{ _lang('app.packages')}}</th>
+                    <th>{{ _lang('app.package')}}</th>
                     <th>{{ _lang('app.status')}}</th>
                     <th>{{ _lang('app.created_at')}}</th>
                     <th>{{ _lang('app.option')}}</th>
-
-                    <th></th>
                 </tr>
             </thead>
             <tbody>

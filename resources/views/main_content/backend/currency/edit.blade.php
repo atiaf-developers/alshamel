@@ -1,6 +1,6 @@
 @extends('layouts.backend')
 
-@section('pageTitle',_lang('app.edit_category'))
+@section('pageTitle',_lang('app.edit_currency'))
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>

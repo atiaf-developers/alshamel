@@ -190,72 +190,12 @@
                                            <div class="table-scrollable">
                                                     <table class="table table-hover">
                                                         <tbody>
-                                                            @if ($ad->form_type == 1)
+                                                            @foreach ($ad->features as $feature)
                                                                 <tr>
-                                                                    <td>{{ _lang('app.area')}}</td>
-                                                                    <td>{{$ad->area}}</td>
+                                                                    <td>{{ $feature['name'] }}</td>
+                                                                    <td>{{ $feature['value'] }}</td>
                                                                 </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.rooms_number')}}</td>
-                                                                    <td>{{$ad->rooms_number}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.baths_number')}}</td>
-                                                                    <td>{{$ad->baths_number}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.is_furnished')}}</td>
-                                                                    <td>{{$ad->is_furnished}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.has_parking')}}</td>
-                                                                    <td>{{$ad->area}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.property_type')}}</td>
-                                                                    <td>{{$ad->property_type}}</td>
-                                                                </tr>
-
-                                                            @elseif($ad->form_type == 2)
-                                                                <tr>
-                                                                    <td>{{ _lang('app.area')}}</td>
-                                                                    <td>{{$ad->area}}</td>
-                                                                </tr>
-                                                            @elseif($ad->form_type == 3)
-                                                                <tr>
-                                                                    <td>{{ _lang('app.motion_vector')}}</td>
-                                                                    <td>{{$ad->motion_vector}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.engine_capacity')}}</td>
-                                                                    <td>{{$ad->engine_capacity}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.propulsion_system')}}</td>
-                                                                    <td>{{$ad->propulsion_system}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.fuel_type')}}</td>
-                                                                    <td>{{$ad->fuel_type}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.mileage')}}</td>
-                                                                    <td>{{$ad->mileage}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.mileage_unit')}}</td>
-                                                                    <td>{{$ad->mileage_unit}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.status')}}</td>
-                                                                    <td>{{$ad->status}}</td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td>{{ _lang('app.manufacturing_year')}}</td>
-                                                                    <td>{{$ad->manufacturing_year}}</td>
-                                                                </tr>
-                                                                
-                                                            @endif
+                                                            @endforeach
 
                                                     </tbody>
                                                 </table>

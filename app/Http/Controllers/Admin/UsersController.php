@@ -15,7 +15,6 @@ class UsersController extends BackendController {
 
   
     public function __construct() {
-
         parent::__construct();
         $this->middleware('CheckPermission:users,open', ['only' => ['index','show']]);
         $this->middleware('CheckPermission:users,add', ['only' => ['store']]);

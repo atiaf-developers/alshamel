@@ -145,7 +145,6 @@ class BasicDataController extends BackendController
             $this->middleware('CheckPermission:'.$this->data['type_title'].',edit', ['only' => ['edit']]);
             $this->data['translations'] = BasicDataTranslation::where('basic_data_id', $id)->get()->keyBy('locale');
             $this->data['info'] = $data;
-
             return $this->_view('basic_data/edit', 'backend');
         }else{
             $this->err404();
@@ -171,6 +170,7 @@ class BasicDataController extends BackendController
             $this->rules['this_order'] = "required|unique:basic_data,this_order,{$id},id,type,{$basic_data->type}";
             $this->rules = array_merge($this->rules, $this->lang_rules(['title' => 
                 "required|unique:basic_data_translations,title,{$id},basic_data_id"]));
+
 
             $validator = Validator::make($request->all(), $this->rules);
             

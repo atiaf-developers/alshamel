@@ -1,6 +1,6 @@
 @extends('layouts.backend')
 
-@section('pageTitle',_lang('app.edit_donation_type'))
+@section('pageTitle',_lang('app.edit_'.$type_title.''))
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>

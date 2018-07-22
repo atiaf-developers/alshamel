@@ -5,11 +5,13 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>MP</title>
+        <title>Alshamel</title>
 
        
     </head>
     <body>
-        <p>{{$data['message']}}</p>
+        <p>{{ $message }}</p>
+        <hr>
+        <p>{{ $reply }}</p>
     </body>
 </html>

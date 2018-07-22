@@ -19,7 +19,7 @@ if (!function_exists('handleKeywordWhere')) {
     function handleKeywordWhere($columns, $keyword) {
         $search_exploded = explode(" ", $keyword);
         $i = 0;
-        $construct = " ";
+        $construct = "( ";
         foreach ($columns as $col) {
             //pri($col);
             $x = 0;
@@ -43,6 +43,7 @@ if (!function_exists('handleKeywordWhere')) {
                 }
             }
         }
+        $construct .= ")";
         return $construct;
     }
 
@@ -94,8 +95,6 @@ if (!function_exists('_json')) {
         else {
             $json['message'] = $data;
         }
-
-
         return response()->json($json, $http_code);
     }
 

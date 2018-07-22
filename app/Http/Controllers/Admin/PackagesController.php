@@ -105,14 +105,16 @@ class PackagesController extends BackendController
 
             $packageTranslation = array();
             $title = $request->input('title');
-            foreach ($title as $key => $value) {
+
+            foreach ($this->languages as $key => $value) {
                 $packageTranslation[] = array(
                     'locale' => $key,
-                    'title' => $value,
+                    'title' => $title[$key],
                     'package_id' => $package->id
-                );
-                PackageTranslation::insert($packageTranslation);
+                ); 
             }
+            
+            PackageTranslation::insert($packageTranslation);
             DB::commit();
             return _json('success', _lang('app.updated_successfully'));
         } catch (\Exception $ex) {

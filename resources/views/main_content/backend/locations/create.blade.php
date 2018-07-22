@@ -8,8 +8,6 @@
 <li><a href="{{url('admin/locations')}}">{{_lang('app.locations')}}</a> <i class="fa fa-circle"></i></li>
 {!!$path!!}
 <li><span> {{_lang('app.create')}}</span></li>
-@else
-<li><span> {{_lang('app.locations')}}</span></li>
 @endif
 @endsection
 

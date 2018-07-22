@@ -39,8 +39,6 @@ var Users = function() {
         init: function() {
             init();
         },
-      
-     
        status: function(t) {
             var user_id = $(t).data("id"); 
             $(t).prop('disabled', true);

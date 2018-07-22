@@ -7,8 +7,14 @@ use App\Http\Controllers\BackendController;
 use App\Models\Module;
 use App\Models\ContactMessage;
 use Validator;
+use Mail;
+use App\Mail\ContactMessageMail;
 
 class ContactMessagesController extends BackendController {
+
+    private $rules = array(
+        'reply' => 'required'
+    );
 
     public function __construct() {
 
@@ -39,15 +45,31 @@ class ContactMessagesController extends BackendController {
     public function show($id) {
         $find = ContactMessage::find($id);
         if ($find) {
-            return response()->json([
-                        'type' => 'success',
-                        'message' => $find
-            ]);
+            return  _json('success', $find);
         } else {
-            return response()->json([
-                        'type' => 'success',
-                        'message' => 'error'
-            ]);
+            return _json('error', _lang('app.error_is_occured'), 400);
+        }
+    }
+
+    public function reply(Request $request) {
+
+        $validator = Validator::make($request->all(), $this->rules);
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+            return _json('error', $errors);
+        } else {
+            try {
+                $contact_message = ContactMessage::find($request->input('contact_message_id'));
+                if (!$contact_message) {
+                    return _json('error', _lang('app.error_is_occured'), 400);
+                }
+                $contact_message->reply = $request->input('reply');
+                $contact_message->save();
+                Mail::to( $contact_message->email)->send(new ContactMessageMail($contact_message->message,$contact_message->reply));
+                return _json('success', _lang('app.sent_successfully'));
+            } catch (\Exception $ex) {
+                return _json('error', _lang('app.error_is_occured'), 400);
+            }
         }
     }
 
@@ -70,7 +92,7 @@ class ContactMessagesController extends BackendController {
                             $back = "";
 
                             $back .= '<a href="" class="btn btn-info" onclick = "Contact_messages.viewMessage(this);return false;" data-id = "' . $item->id . '">';
-                            $back .= '' . _lang('app.message') . '';
+                            $back .= '' . _lang('app.view') . '';
                             $back .= '</a>';
                             return $back;
                         })

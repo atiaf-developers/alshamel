@@ -80,8 +80,6 @@
 @endif
 
 
-
-
 <script>
     var config = {
         url: "{{url('')}}",

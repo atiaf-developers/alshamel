@@ -18,6 +18,21 @@ var Settings = function() {
                 'setting[email]': {
                     required: true
                 },
+                'setting[manufacturing_year_start]': {
+                    required: true
+                },
+                'setting[rooms_range][from]': {
+                    required: true
+                },
+                'setting[rooms_range][to]': {
+                    required: true
+                },
+                'setting[baths_range][from]': {
+                    required: true
+                },
+                'setting[baths_range][to]': {
+                    required: true
+                },
                 'setting[social_media][facebook]': {
                     required: true
                 },

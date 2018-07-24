@@ -7,12 +7,14 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use App\Models\Pages;
 use App\Traits\Basic;
+use App\Traits\Rate;
 use Auth;
 use Image;
 
 class BackendController extends Controller {
 
     use Basic;
+    use Rate;
 
     protected $lang_code = 'en';
     protected $User;

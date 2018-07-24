@@ -8,6 +8,9 @@ class Rating extends MyModel {
 
     protected $table = 'rating';
 
+
+    
+
     public static function transform($item)
     {
     	$transformer = new \stdClass();

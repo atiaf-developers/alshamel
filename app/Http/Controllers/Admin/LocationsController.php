@@ -22,10 +22,10 @@ class LocationsController extends BackendController {
     public function __construct() {
 
         parent::__construct();
-        $this->middleware('CheckPermission:locations,open', ['only' => ['index']]);
-        $this->middleware('CheckPermission:locations,add', ['only' => ['store']]);
-        $this->middleware('CheckPermission:locations,edit', ['only' => ['show', 'update']]);
-        $this->middleware('CheckPermission:locations,delete', ['only' => ['delete']]);
+        $this->middleware('CheckPermission:countries,open', ['only' => ['index']]);
+        $this->middleware('CheckPermission:countries,add', ['only' => ['store']]);
+        $this->middleware('CheckPermission:countries,edit', ['only' => ['show', 'update']]);
+        $this->middleware('CheckPermission:countries,delete', ['only' => ['delete']]);
     }
 
     public function index(Request $request) {
@@ -282,13 +282,13 @@ class LocationsController extends BackendController {
                         ->addColumn('options', function ($item) {
 
                             $back = "";
-                            if (\Permissions::check('locations', 'edit') || \Permissions::check('locations', 'delete')) {
+                            if (\Permissions::check('countries', 'edit') || \Permissions::check('countries', 'delete')) {
                                 $back .= '<div class="btn-group">';
-                                $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> options';
+                                $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> '._lang('app.options');
                                 $back .= '<i class="fa fa-angle-down"></i>';
                                 $back .= '</button>';
                                 $back .= '<ul class = "dropdown-menu" role = "menu">';
-                                if (\Permissions::check('locations', 'edit')) {
+                                if (\Permissions::check('countries', 'edit')) {
                                     $back .= '<li>';
                                     $back .= '<a href="' . route('locations.edit', $item->id) . '">';
                                     $back .= '<i class = "icon-docs"></i>' . _lang('app.edit');
@@ -296,7 +296,7 @@ class LocationsController extends BackendController {
                                     $back .= '</li>';
                                 }
 
-                                if (\Permissions::check('locations', 'delete')) {
+                                if (\Permissions::check('countries', 'delete')) {
                                     $back .= '<li>';
                                     $back .= '<a href="" data-toggle="confirmation" onclick = "Locations.delete(this);return false;" data-id = "' . $item->id . '">';
                                     $back .= '<i class = "icon-docs"></i>' . _lang('app.delete');

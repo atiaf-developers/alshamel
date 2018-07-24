@@ -15,6 +15,15 @@ class SettingsController extends BackendController {
         'setting.num_free_ads' => 'required',
         'setting.phone' => 'required',
         'setting.email' => 'required',
+        'setting.social_media.facebook' => 'required',
+        'setting.social_media.twitter' => 'required',
+        'setting.social_media.google' => 'required',
+        'setting.social_media.youtube' => 'required',
+        'setting.rooms_range.from' => 'required',
+        'setting.rooms_range.to' => 'required',
+        'setting.baths_range.from' => 'required',
+        'setting.baths_range.to' => 'required',
+        'setting.manufacturing_year_start' => 'required',
     );
 
     public function index() {
@@ -23,6 +32,8 @@ class SettingsController extends BackendController {
         $this->data['settings_translations'] = SettingTranslation::get()->keyBy('locale');
         if (isset($this->data['settings']['social_media'])) {
             $this->data['settings']['social_media']= json_decode($this->data['settings']['social_media']->value);
+            $this->data['settings']['rooms_range']= isset($this->data['settings']['rooms_range']) ? json_decode($this->data['settings']['rooms_range']->value) : '';
+            $this->data['settings']['baths_range']= isset($this->data['settings']['baths_range']) ? json_decode($this->data['settings']['baths_range']->value) : '';
         }
         return $this->_view('settings/index', 'backend');
     }
@@ -47,7 +58,7 @@ class SettingsController extends BackendController {
                 $setting = $request->input('setting');
                 
                 foreach($setting as $key => $value){
-                    if($key=='social_media'){
+                    if($key=='social_media' || $key == 'rooms_range' || $key == 'baths_range'){
                         Setting::updateOrCreate(['name' => $key], ['value' => json_encode($value)]);
                     }else{
                         Setting::updateOrCreate(['name' => $key], ['value' => $value]);

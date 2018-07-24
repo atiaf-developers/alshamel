@@ -58,7 +58,9 @@ class AdReportsController extends BackendController
         }
     }
     public function data() {
-        $reprot = AdReport::select('*');
+        $reprot = AdReport::Join('users','ad_reports.user_id','=','users.id')
+        ->join('ads','ad_reports.ad_id','=','ads.id')
+        ->select(['ad_reports.id','users.name as user','ads.title','ad_reports.type','ad_reports.user_id','ad_reports.ad_id','ad_reports.created_at']);
         // $reprot=AdReport::transformCollection($reprot);
         
         return \Datatables::eloquent($reprot)
@@ -82,8 +84,8 @@ class AdReportsController extends BackendController
 
                     $back = "";
 
-                    $back .= '<a href="'.route('users.show',$item->user->id).'"  data-id = "' . $item->user->id . '">';
-                    $back .= $item->user->username;
+                    $back .= '<a href="'.route('users.show',$item->user_id).'"  data-id = "' . $item->user_id . '">';
+                    $back .= $item->user;
                     $back .= '</a>';
                     return $back;
                 })
@@ -91,8 +93,8 @@ class AdReportsController extends BackendController
 
                     $back = "";
 
-                    $back .= '<a href="'.route('ads.show',$item->ad->id).'"  data-id = "' . $item->ad->id . '">';
-                    $back .= $item->ad->title;
+                    $back .= '<a href="'.route('ads.show',$item->ad_id).'"  data-id = "' . $item->ad_id . '">';
+                    $back .= $item->title;
                     $back .= '</a>';
                     return $back;
                 })

@@ -153,7 +153,7 @@ class PackagesController extends BackendController
                             $back = "";
                             if (\Permissions::check('packages', 'edit') || \Permissions::check('packages', 'delete')) {
                                 $back .= '<div class="btn-group">';
-                                $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> options';
+                                $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> '._lang('app.options');
                                 $back .= '<i class="fa fa-angle-down"></i>';
                                 $back .= '</button>';
                                 $back .= '<ul class = "dropdown-menu" role = "menu">';

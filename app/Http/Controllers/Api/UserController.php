@@ -177,14 +177,17 @@ class UserController extends ApiController {
 
             if ($check) {
                 $check->delete();
+                $message = _lang('app.ad_has_been_deleted_from_favorites');
+
             }
             else{
                 $favourite = new Favourite;
                 $favourite->ad_id = $request->input('ad_id');
                 $favourite->user_id = $user->id;
                 $favourite->save();
+                $message = _lang('app.ad_has_been_added_to_favorites');
             }
-            return _api_json('',['message' => _lang('app.updated_successfully')]);
+            return _api_json('',['message' => $message]);
         } catch (\Exception $e) {
             $message = _lang('app.error_is_occured');
             return _api_json('', ['message' => $message],400);

@@ -61,7 +61,7 @@ class CategoriesController extends BackendController {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $this->rules['this_order'] = "required|unique:categories,this_order,NULL,id,parent_id,{$request->parent_id}";
+        //$this->rules['this_order'] = "required|unique:categories,this_order,NULL,id,parent_id,{$request->parent_id}";
         if ($request->level == 1 || $request->level == 2) {
             $this->rules['image'] = 'required|image|mimes:gif,png,jpeg|max:1000';
         }
@@ -199,7 +199,7 @@ class CategoriesController extends BackendController {
         }
      
         
-        $this->rules['this_order'] = "required|unique:categories,this_order,{$id},id,parent_id,{$request->parent_id}";
+        //$this->rules['this_order'] = "required|unique:categories,this_order,{$id},id,parent_id,{$request->parent_id}";
         if ($request->level == 1 || $request->level == 2) {
             $this->rules['image'] = 'image|mimes:gif,png,jpeg|max:1000';
         }
@@ -317,7 +317,7 @@ class CategoriesController extends BackendController {
                             $back = "";
                             if (\Permissions::check('categories', 'edit') || \Permissions::check('categories', 'delete')) {
                                 $back .= '<div class="btn-group">';
-                                $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> options';
+                                $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> '._lang('app.options');
                                 $back .= '<i class="fa fa-angle-down"></i>';
                                 $back .= '</button>';
                                 $back .= '<ul class = "dropdown-menu" role = "menu">';

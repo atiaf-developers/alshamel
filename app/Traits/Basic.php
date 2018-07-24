@@ -59,28 +59,30 @@ trait Basic {
         $this->data['title_slug'] = $this->title_slug;
     }
 
-    protected function send_noti_fcm($notification, $user_id = false, $device_token = false, $device_type = false) {
+   protected function send_noti_fcm($notification, $user_id = false, $device_token = false, $device_type = false) {
+        if(!isset($notification['title'])){
+            $notification['title']= env('APP_NAME');
+        }
         $Fcm = new Fcm;
         if ($user_id) {
-            $token_and = Device::where('user_id', $user_id)
+            $token_and = Device::whereIn('user_id', $user_id)
                     ->where('device_type', 1)
                     ->pluck('device_token');
-            $token_ios = Device::where('user_id', $user_id)
+            $token_ios = Device::whereIn('user_id', $user_id)
                     ->where('device_type', 2)
                     ->pluck('device_token');
             $token_and = $token_and->toArray();
             $token_ios = $token_ios->toArray();
-            //dd($token_ios);
             if (count($token_and) > 0) {
                 $Fcm->send($token_and, $notification, 'and');
             } 
             if (count($token_ios) > 0) {
-              
                 $Fcm->send($token_ios, $notification, 'ios');
             }
         } else {
             $device_type = $device_type == 1 ? 'and' : 'ios';
-            return $Fcm->send($device_token, $notification, $device_type);
+            $Fcm->send($device_token, $notification, $device_type);
+           
         }
     }
 

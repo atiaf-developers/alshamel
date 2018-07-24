@@ -103,6 +103,43 @@ var Ads = function() {
                 }
             });
         },
+        CommentStatus: function (t) {
+            var id = $(t).data("id");
+            $(t).prop('disabled', true);
+            $(t).html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
+
+            $.ajax({
+                url: config.admin_url + '/ads/comments/' + id + '/status',
+                success: function (data) {
+                    $(t).prop('disabled', false);
+                    if ($(t).hasClass("btn-primary")) {
+                        $(t).addClass('btn-warning').removeClass('btn-primary');
+                        $(t).html(lang.not_active);
+
+                    } else {
+                        $(t).addClass('btn-primary').removeClass('btn-warning');
+                        $(t).html(lang.active);
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    My.ajax_error_message(xhr);
+                },
+            });
+        },
+        delete_comment: function (t) {
+            var id = $(t).attr("data-id");
+            My.deleteForm({
+                element: t,
+                url: config.admin_url + '/ads/comments/' + id + '/delete',
+                data: {_method: 'DELETE', _token: $('input[name="_token"]').val()},
+                success: function (data)
+                {
+                    setTimeout(function () {
+                        window.location.reload();
+                    }, 500);
+                }
+            });
+        },
         empty: function() {
             $('#id').val(0);
             $('#active').find('option').eq(0).prop('selected', true);

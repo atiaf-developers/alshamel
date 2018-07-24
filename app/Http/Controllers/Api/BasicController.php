@@ -132,7 +132,6 @@ class BasicController extends ApiController {
 
             return _api_json(Category::transformCollection($categories));
         } catch (\Exception $e) {
-            dd($e);
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
     }
@@ -155,8 +154,11 @@ class BasicController extends ApiController {
             $raters = Rating::join('rating_users', 'rating.id', '=', 'rating_users.rating_id')
                     ->join('users', 'users.id', '=', 'rating_users.user_id')
                     ->where('rating.entity_id', $ad->id)
+                    ->where('rating_users.active',true)
                     ->select('users.name', 'users.image', 'rating.score', 'rating_users.comment', 'rating.created_at')
                     ->paginate($this->limit);
+
+                    
             return _api_json(Rating::transformCollection($raters));
         } catch (\Exception $e) {
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);

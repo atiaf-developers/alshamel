@@ -86,7 +86,7 @@ class UsersController extends BackendController {
 
                         if (\Permissions::check('users', 'open') || \Permissions::check('users', 'delete')) {
                             $back .= '<div class="btn-group">';
-                            $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> options';
+                            $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> '._lang('app.options');
                             $back .= '<i class="fa fa-angle-down"></i>';
                             $back .= '</button>';
                             $back .= '<ul class = "dropdown-menu" role = "menu">';

@@ -26,7 +26,12 @@ trait Rate {
                 $y += $one->total_rates;
             }
         }
-        return ceil($x / $y);
+        if ($y == 0) {
+            return 0;
+        }else{
+            return ceil($x / $y);
+        }
+        
         //return floor($x / $y);
     }
 

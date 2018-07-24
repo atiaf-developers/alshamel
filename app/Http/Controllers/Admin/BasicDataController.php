@@ -13,6 +13,7 @@ class BasicDataController extends BackendController
 {
     private $rules = array(
         'active' => 'required',
+        'this_order' => 'required',
         // 'type' => 'required',
     );
     public function __construct() {
@@ -66,7 +67,7 @@ class BasicDataController extends BackendController
             $this->middleware('CheckPermission:'.$this->data['type_title'].',add', ['only' => ['store']]);
 
             $this->rules = array_merge($this->rules,  $this->lang_rules(['title' => 'required']));
-            $this->rules = array_merge($this->rules,['this_order' => "required|unique:basic_data,this_order,NULL,id,type,{$request->type}"]);
+            //$this->rules = array_merge($this->rules,['this_order' => "required|unique:basic_data,this_order,NULL,id,type,{$request->type}"]);
             $validator = Validator::make($request->all(), $this->rules);
             // dd($validator->fails());
             if ($validator->fails()) {
@@ -167,7 +168,7 @@ class BasicDataController extends BackendController
         if(array_key_exists($basic_data->type,BasicData::$types)){
             $this->data['type_title']=BasicData::$types[$basic_data->type];
             $this->middleware('CheckPermission:'.$this->data['type_title'].',edit', ['only' => ['update']]);
-            $this->rules['this_order'] = "required|unique:basic_data,this_order,{$id},id,type,{$basic_data->type}";
+            //$this->rules['this_order'] = "required|unique:basic_data,this_order,{$id},id,type,{$basic_data->type}";
             $this->rules = array_merge($this->rules, $this->lang_rules(['title' => 
                 "required|unique:basic_data_translations,title,{$id},basic_data_id"]));
 

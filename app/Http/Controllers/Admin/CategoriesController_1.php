@@ -65,11 +65,10 @@ class CategoriesController extends BackendController {
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-
-        $columns_arr = array(
-            'title' => 'required|unique:categories_translations,title'
-        );
         $parent = $request->parent_id;
+        $columns_arr = array(
+            'title' => "required|unique:categories_translations,title,NULL,id,parent_id,{$parent}"
+        );
         $this->rules['this_order'] = "required|unique:categories,this_order,NULL,id,parent_id,{$parent}";
         if ($request->input('parent_id') == 0) {
           $this->rules['image'] = 'required|image|mimes:gif,png,jpeg|max:1000';

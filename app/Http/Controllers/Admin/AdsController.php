@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\BackendController;
 use App\Models\Ad;
 use App\Models\Feature;
+use App\Models\Rating;
+use App\Models\RatingUser;
 use Validator;
 use DB;
 
@@ -42,6 +44,43 @@ class AdsController extends BackendController
         }
     }
 
+    public function comment_status($id) {
+        try {
+            $Comment = RatingUser::find($id);
+            if ($Comment) {
+                $Comment->active = !$Comment->active;
+                $Comment->save();
+            }
+
+            return _json('success', _lang('app.success'));
+        } catch (\Exception $e) {
+            return _json('error', _lang('app.error_is_occured'));
+        }
+    }
+    public function delete_comment($id) {
+        DB::beginTransaction();
+        try {
+
+            $Comment = RatingUser::join('rating','rating.id','=','rating_users.rating_id')
+            ->where('rating_users.id',$id)
+            ->select('rating_users.*','rating.entity_id')
+            ->first();
+
+            if ($Comment) {
+                $Comment->delete();
+                $ad = Ad::find($Comment->entity_id);
+                $ad->rate = $this->countRates($Comment->entity_id);
+                $ad->save();
+            }
+            DB::commit();
+            return _json('success', _lang('app.success'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            dd($e);
+            return _json('error', _lang('app.error_is_occured'));
+        }
+    }
+
     public function show(Request $request,$id){
         $ad = Ad::Join('categories','ads.category_id','=','categories.id')
                 ->where('ads.id',$id)
@@ -53,7 +92,29 @@ class AdsController extends BackendController
         $request['status'] = 'all';
         $this->data['ad'] = Ad::getAdsApi($request,null, $id);
 
+        $this->data['rates'] = Rating::join('rating_users', 'rating.id', '=', 'rating_users.rating_id')
+                    ->join('users', 'users.id', '=', 'rating_users.user_id')
+                    ->where('rating.entity_id', $id)
+                    ->select('rating_users.id','users.name', 'users.image','rating_users.comment', 'rating.created_at','rating_users.active')
+                    ->get();
+
         return $this->_view('ads/view', 'backend');
+    }
+
+    public function destroy($id) {
+        DB::beginTransaction();
+        try {
+            $ad = Ad::where('id', $id)->first();
+            if (!$ad) {
+                _json('error', _lang('app.not_found'));
+            }
+            $ad->delete();
+            DB::commit();
+           return _json('success', _lang('app.deleted_successfully'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            return _json('error', _lang('app.error_is_occured'));
+        }
     }
 
     public function data(Request $request){
@@ -67,6 +128,7 @@ class AdsController extends BackendController
         }else if($request->user_id){
             $ads->where('ads.user_id',$request->user_id);
         }
+        $ads->orderBy('ads.id','desc');
         $ads = $ads->select(['ads.id','ads.title',"ads.email","ads.mobile","ads.special","ads.active","categories_translations.title as categoty"
         ]);
         
@@ -76,7 +138,7 @@ class AdsController extends BackendController
                 $back = "";
                 if (\Permissions::check('ads', 'edit') || \Permissions::check('ads', 'delete')) {
                     $back .= '<div class="btn-group">';
-                    $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> options';
+                    $back .= ' <button class="btn btn-xs green dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false"> '._lang('app.options');
                     $back .= '<i class="fa fa-angle-down"></i>';
                     $back .= '</button>';
                     $back .= '<ul class = "dropdown-menu" role = "menu">';

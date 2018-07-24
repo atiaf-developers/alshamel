@@ -99,6 +99,11 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::post('ads/data', 'AdsController@data');
     Route::get('ads/special/{id}', 'AdsController@special');
     Route::get('ads/active/{id}', 'AdsController@active');
+    Route::get('ads/comments/{id}/status', 'AdsController@comment_status');
+    Route::delete('ads/comments/{id}/delete', 'AdsController@delete_comment');
+
+    
+
 
 
     Route::resource('orders_reports', 'OrdersReportsController');

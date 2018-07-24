@@ -60,7 +60,7 @@ class Ad extends MyModel {
         'email',
         'mobile',
     ];
-    private static $columns = ['ads.id', 'ads.lat', 'ads.lng','ads.category_id', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email','categories.form_type','categories.parent_id as category_parent','categories_translations.title as category', 'users.name','locations.id as city_id' , 'locations.parent_id as country_id','locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id'];
+    private static $columns = ['ads.id', 'ads.lat', 'ads.lng','ads.category_id', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email','categories.form_type','categories.parent_id as category_parent','categories_translations.title as category', 'users.name','locations.id as city_id' , 'locations.parent_id as country_id','locations_translations.title as city', 'ads.details', 'ads.images','ads.user_id','ads.active','currency_translations.title as currency'];
 
     public static function get_All() {
 
@@ -75,7 +75,14 @@ class Ad extends MyModel {
         ->join('categories_translations', 'categories.id', '=', 'categories_translations.category_id')
         ->join('locations', 'ads.city_id', '=', 'locations.id')
         ->join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
-        ->join('users', 'users.id', '=', 'ads.user_id');
+        ->join('users', 'users.id', '=', 'ads.user_id')
+        ->join('locations as l2', 'ads.country_id', '=', 'l2.id')
+        ->join('currency', 'l2.currency_id', '=', 'currency.id')
+        ->join('currency_translations', function($join) {
+                            $join->on('currency.id', '=', 'currency_translations.currency_id')
+                            ->where('currency_translations.locale', static::getLangCode());
+        })
+        ;
         if ($request->status != "all") {
            $ads->where('ads.active', true);
         }
@@ -138,7 +145,7 @@ class Ad extends MyModel {
         }
 
         //show [1 => added today ,2  => only address ,3 => contain images ,4 => near to me]
-        if (isset($options->show)) {
+        if (isset($options->show) && !empty($options->show)) {
             if (in_array(1, $options->show)) {
                 $ads->where('ads.created_at', '>=', Carbon::today());
             }
@@ -156,7 +163,7 @@ class Ad extends MyModel {
         if ($type == 3) {
             $ads->where('ads.special', 1);
         }
-        $ads = static::handleFromTypeWhere($ads, $request);
+        $ads = static::handleFromTypeWhere($options,$ads, $request);
 
         //here
         $ads->select(static::$columns);
@@ -191,44 +198,44 @@ class Ad extends MyModel {
         //return  $ads = $ads->get();
     }
 
-    private static function handleFromTypeWhere($ads, $request) {
+    private static function handleFromTypeWhere($options,$ads, $request) {
         $lang_code = static::getLangCode();
         // real states
         if ($request->input('form_type') == 1) {
-
+            
             $ads->join('real_states_ads', 'real_states_ads.ad_id', '=', 'ads.id');
             $ads->join('basic_data', 'real_states_ads.property_type_id', '=', 'basic_data.id');
             $ads->join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id');
             $ads->where('trans.locale', $lang_code);
 
-
+            
             static::$columns = array_merge(static::$columns, [
                 "trans.title as property_type", "real_states_ads.has_parking", "real_states_ads.area", "real_states_ads.property_type_id", "real_states_ads.rooms_number",
                 "real_states_ads.baths_number", "real_states_ads.is_furnished"]);
 
-            if (isset($options->property_type)) {
+            if (isset($options->property_type) && !empty($options->property_type)) {
                 $ads->whereIn('real_states_ads.property_type_id', $options->property_type);
             }
-            if (isset($options->rooms_number)) {
+            if (isset($options->rooms_number) && !empty($options->rooms_number)) {
 
                 $ads->whereBetween('real_states_ads.rooms_number', [$options->rooms_number[0], $options->rooms_number[1]]);
             }
-            if (isset($options->baths_number)) {
+            if (isset($options->baths_number) && !empty($options->baths_number)) {
                 $ads->whereBetween('real_states_ads.baths_number', [$options->baths_number[0], $options->baths_number[1]]);
             }
-            if (isset($options->is_furnished)) {
+            if (isset($options->is_furnished) && $options->is_furnished != -1) {
                 $ads->where('real_states_ads.is_furnished', $options->is_furnished);
             }
-            if (isset($options->has_parking)) {
+            if (isset($options->has_parking)  && $options->has_parking != -1) {
                 $ads->where('real_states_ads.has_parking', $options->has_parking);
             }
-            if (isset($options->area)) {
+            if (isset($options->area) && !empty($options->area)) {
                 $ads->whereBetween('real_states_ads.area', [$options->area[0], $options->area[1]]);
             }
         }// lands
         else if ($request->input('form_type') == 2) {
             $ads->join('lands_ads', 'lands_ads.ad_id', '=', 'ads.id');
-            if (isset($options->area)) {
+            if (isset($options->area) && !empty($options->area)) {
                 $ads->whereBetween('lands_ads.area', [$options->area[0], $options->area[1]]);
             }
             static::$columns = array_merge(static::$columns, ["lands_ads.area"]);
@@ -260,32 +267,32 @@ class Ad extends MyModel {
                 "b3.id as propulsion_system_id", "propulsion_system_trans.title as propulsion_system", "b4.id as fuel_type_id", "fuel_type_trans.title as fuel_type",
                 "b5.id as mileage_id", "mileage_trans.title as mileage", "vehicles_ads.mileage_unit", "vehicles_ads.status", "vehicles_ads.manufacturing_year"]);
 
-            if (isset($options->status)) {
+            if (isset($options->status)  && $options->status != -1) {
                 $ads->where('vehicles_ads.status', $options->status);
             }
-            if (isset($options->manufacturing_year)) {
+            if (isset($options->manufacturing_year)  && !empty($options->manufacturing_year)) {
                 $ads->whereBetween('vehicles_ads.manufacturing_year', [$options->manufacturing_year[0], $options->manufacturing_year[1]]);
             }
-            if (isset($options->motion_vector)) {
+            if (isset($options->motion_vector) && !empty($options->motion_vector)) {
                 $ads->whereIn('vehicles_ads.motion_vector_id', $options->motion_vector);
             }
-            if (isset($options->engine_capacity)) {
+            if (isset($options->engine_capacity) && !empty($options->engine_capacity)) {
                 $ads->whereIn('vehicles_ads.engine_capacity_id', $options->engine_capacity);
             }
-            if (isset($options->propulsion_system)) {
+            if (isset($options->propulsion_system) && !empty($options->propulsion_system)) {
                 $ads->whereIn('vehicles_ads.propulsion_system_id', $options->propulsion_system);
             }
-            if (isset($options->fuel_type)) {
+            if (isset($options->fuel_type) && !empty($options->fuel_type)) {
                 $ads->whereIn('vehicles_ads.fuel_type_id', $options->fuel_type);
             }
-            if (isset($options->mileage_unit)) {
+            if (isset($options->mileage_unit) && $options->mileage_unit != -1) {
                 $ads->where('vehicles_ads.mileage_unit', $options->mileage_unit);
             }
-            if (isset($options->mileage)) {
+            if (isset($options->mileage)  && !empty($options->mileage)) {
                 $ads->whereIn('vehicles_ads.mileage_id', $options->mileage);
             }
         }
-        if (isset($options->price)) {
+        if (isset($options->price) && !empty($options->price)) {
             $ads->whereBetween('ads.price', [$options->price[0], $options->price[1]]);
         }
 
@@ -408,6 +415,7 @@ class Ad extends MyModel {
         $transformer->special = $item->special == 1 ? true : false;
         $transformer->created_at = date('Y-m-d H:i', strtotime($item->created_at));
         $transformer->price = $item->price;
+        $transformer->currency = $item->currency;
         $transformer->form_type = $item->form_type;
         $transformer->distance = round($item->distance, 1);
         $prefixed_array = array();
@@ -435,8 +443,8 @@ class Ad extends MyModel {
             $parking = $item->has_parking == 1 ? _lang('app.exist') : _lang('app.none');
             $data = array(
                 [
-                    'name' => _lang('app.area'),
-                    'value' => $item->area
+                    'name' => _lang('app.property_type'),
+                    'value' => $item->property_type
                 ],
                 [
                     'name' => _lang('app.rooms_number'),
@@ -455,9 +463,10 @@ class Ad extends MyModel {
                     'value' => $parking
                 ],
                 [
-                    'name' => _lang('app.property_type'),
-                    'value' => $item->property_type
+                    'name' => _lang('app.area'),
+                    'value' => $item->area
                 ],
+                
             );
           $transformer->features = $data;
           
@@ -594,6 +603,10 @@ class Ad extends MyModel {
         return $this->hasOne(Location::class, 'id', 'city_id');
     }
 
+    public function favourites() {
+        return $this->hasMany(Favourit::class, 'ad_id');
+    }
+
     protected static function boot() {
         parent::boot();
 
@@ -603,6 +616,9 @@ class Ad extends MyModel {
             }
             foreach ($ad->reports as $report) {
                 $report->delete();
+            }
+            foreach ($ad->favourites as $favourite) {
+                $favourite->delete();
             }
             if ($ad->realStateAd) {
                 $ad->realStateAd->delete();

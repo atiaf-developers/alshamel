@@ -140,7 +140,7 @@ class Ad extends MyModel {
 
         if ($request->input('category_id') && !isset($options->category)) {
             $ads->where('ads.category_id', $request->input('category_id'));
-        } else if (isset($options->category)) {
+        } else if (isset($options->category) && !empty($options->category)) {
             $ads->whereIn('ads.category_id', $options->category);
         }
 
@@ -414,8 +414,7 @@ class Ad extends MyModel {
         $transformer->address = getAddress($item->lat, $item->lng, $lang);
         $transformer->special = $item->special == 1 ? true : false;
         $transformer->created_at = date('Y-m-d H:i', strtotime($item->created_at));
-        $transformer->price = $item->price;
-        $transformer->currency = $item->currency;
+        $transformer->price = $item->price.' '.$item->currency;
         $transformer->form_type = $item->form_type;
         $transformer->distance = round($item->distance, 1);
         $prefixed_array = array();

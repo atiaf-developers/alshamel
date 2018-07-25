@@ -81,8 +81,7 @@ class Ad extends MyModel {
         ->join('currency_translations', function($join) {
                             $join->on('currency.id', '=', 'currency_translations.currency_id')
                             ->where('currency_translations.locale', static::getLangCode());
-        })
-        ;
+        });
         if ($request->status != "all") {
            $ads->where('ads.active', true);
         }

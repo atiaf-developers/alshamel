@@ -4,7 +4,7 @@
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
 <li><a href="{{url('admin/users')}}">{{_lang('app.users')}}</a> <i class="fa fa-circle"></i></li>
-<li><span> {{ $user->name }}</span></li>
+<li><span> {{_lang('app.view')}}</span></li>
 
 @endsection
 @section('js')

@@ -18,26 +18,20 @@ class FrontController extends Controller {
     protected $isUser = false;
     protected $_Request = false;
     protected $limit = 1;
-    protected $order_minutes_limit = 16;
     protected $_settings;
     protected $data = array();
 
     public function __construct() {
-        if (Auth::guard('web')->user() != null) {
-            $this->User = Auth::guard('web')->user();
-            $this->isUser = true;
-        }
-        $this->data['User'] = $this->User;
-        $this->data['isUser'] = $this->isUser;
-        $segment2 = \Request::segment(2);
-        $this->data['page_link_name'] = $segment2;
 
+        $this->init();
+    }
 
+    private function init() {
+        $this->check_auth();
         $this->getLangCode();
-        $this->getSettings();
-        $this->getCategories();
-        $this->data['page_title'] = '';
-       
+        $this->data['categories'] = Category::transformCollection(Category::getAllFront(), 'Front');
+        $this->data['settings'] = Setting::getAll();
+        $this->_settings = $this->data['settings'];
     }
 
     private function getLangCode() {
@@ -56,30 +50,13 @@ class FrontController extends Controller {
         $this->slugsCreate();
     }
 
-    protected function iniDiffLocations($tableName, $lat, $lng) {
-        $diffLocations = "SQRT(POW(69.1 * ($tableName.lat - {$lat}), 2) + POW(69.1 * ({$lng} - $tableName.lng) * COS($tableName.lat / 57.3), 2)) as distance";
-        return $diffLocations;
-    }
-
-    private function getSettings() {
-        $this->data['settings'] = Setting::get()->keyBy('name');
-        $this->_settings = $this->data['settings'];
-        $this->data['settings']['social_media'] = json_decode($this->data['settings']['social_media']->value);
-        //$this->data['settings']['store'] = json_decode($this->data['settings']['store']->value);
-        $this->data['settings_translations'] = SettingTranslation::where('locale', $this->lang_code)->first();
-
-    }
-
-    private function getCategories() {
-        $categories = Category::Join('categories_translations','categories.id','=','categories_translations.category_id')
-        ->where('categories_translations.locale',$this->lang_code)
-        ->where('categories.active',true)
-        ->where('categories.parent_id',0)
-        ->orderBy('categories.this_order')
-        ->select('categories.slug','categories.image','categories_translations.title')
-        ->get(); 
-
-         $this->data['categories'] = Category::transformCollection($categories,'Admin');
+    private function check_auth() {
+        if (Auth::guard('web')->user() != null) {
+            $this->User = Auth::guard('web')->user();
+            $this->isUser = true;
+        }
+        $this->data['User'] = $this->User;
+        $this->data['isUser'] = $this->isUser;
     }
 
     protected function _view($main_content, $type = 'front') {

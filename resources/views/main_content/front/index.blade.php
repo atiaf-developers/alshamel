@@ -267,7 +267,7 @@
                     <div class="col-md-9">
                         <div class="sales-details">
                             <h5>عن الشامل</h5>
-                            <p>{{ $settings_translations->about_us }}</p>
+                            <p>{{ $settings['info']->about_us }}</p>
 
                             <h6>حمل الآن تطبيق الشامل على هاتفك</h6>
                             <a href="#" class="bg"><img src="{{url('public/front/images')}}/apple.png" alt="" >حمل من Apple store</a>

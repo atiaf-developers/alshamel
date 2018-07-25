@@ -142,6 +142,7 @@ class BasicDataController extends BackendController
             return _json('error', _lang('app.error_is_occured'), 404);
         }
         if(array_key_exists($data->type,BasicData::$types)){
+             $this->data['type']=$data->type;
             $this->data['type_title']=BasicData::$types[$data->type];
             $this->middleware('CheckPermission:'.$this->data['type_title'].',edit', ['only' => ['edit']]);
             $this->data['translations'] = BasicDataTranslation::where('basic_data_id', $id)->get()->keyBy('locale');

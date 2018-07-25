@@ -4,7 +4,7 @@
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
-<li><a href="{{route('basic_data.index')}}?type='.$type_title.'">{{_lang('app.'.$type_title.'')}}</a> <i class="fa fa-circle"></i></li>
+<li><a href="{{route('basic_data.index')}}?type={{ $type }}">{{_lang('app.'.$type_title.'')}}</a> <i class="fa fa-circle"></i></li>
 <li><span> {{_lang('app.edit')}}</span></li>
 @endsection
 

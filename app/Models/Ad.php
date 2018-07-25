@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use DB;
+use Carbon\Carbon;
 
 class Ad extends MyModel {
 
@@ -507,12 +508,8 @@ class Ad extends MyModel {
                     'value' => $item->propulsion_system
                 ],
                 [
-                    'name' => _lang('app.mileage'),
+                    'name' => _lang('app.kilometers'),
                     'value' => $mileage
-                ],
-                [
-                    'name' => _lang('app.mileage_unit'),
-                    'value' => $item->mileage_unit
                 ],
                 [
                     'name' => _lang('app.fuel_type'),

@@ -45,6 +45,8 @@ class SettingsController extends BackendController {
         $columns_arr = array(
             'about_us' => 'required',
             'policy' => 'required',
+            'description' => 'required',
+            'key_words' => 'required',
         );
 
         $this->rules = array_merge($this->rules, $this->lang_rules($columns_arr));
@@ -74,9 +76,11 @@ class SettingsController extends BackendController {
                 $this->updateValues('\App\Models\Setting', $data_update, true);
                 $about_us = $request->input('about_us');
                 $policy = $request->input('policy');
+                $description = $request->input('description');
+                $key_words = $request->input('key_words');
                 foreach ($this->languages as $key => $value) {
                     SettingTranslation::updateOrCreate(
-                            ['locale' => $key], ['locale' => $key, 'policy' => $policy[$key], 'about_us' => $about_us[$key]]
+                            ['locale' => $key], ['locale' => $key, 'policy' => $policy[$key], 'about_us' => $about_us[$key] ,'description' => $description[$key] ,'key_words' => $key_words[$key]]
                     );
                 }
 

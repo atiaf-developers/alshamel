@@ -262,7 +262,11 @@ class AdsController extends ApiController {
                 }
                 $images[] = Ad::upload($image, 'ads', true, false, true);
             }
-            $ad->images = json_encode($images);
+            
+            if (count($images) > 0) {
+                $ad->images = json_encode($images);
+            }
+            
         }
         $ad->save();
 
@@ -286,8 +290,10 @@ class AdsController extends ApiController {
                 $user->save();
             }
         } else {
-            $user->num_free_ads -= 1;
-            $user->save();
+            if ($user->num_free_ads != 0) {
+                $user->num_free_ads -= 1;
+                $user->save();
+            }
         }
 
         return $ad;

@@ -69,6 +69,14 @@ var Settings = function() {
         for (var x = 0; x < langs.length; x++) {
             var about_us = "textarea[name='about_us[" + langs[x] + "]']";
             var usage_conditions = "textarea[name='policy[" + langs[x] + "]']";
+            var description = "textarea[name='description[" + langs[x] + "]']";
+            var key_words = "textarea[name='key_words[" + langs[x] + "]']";
+            $(key_words).rules('add', {
+                required: true
+            });
+            $(description).rules('add', {
+                required: true
+            });
             $(about_us).rules('add', {
                 required: true
             });

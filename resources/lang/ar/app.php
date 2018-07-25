@@ -796,7 +796,11 @@ return [
 	'area' => 'المساحة',
 	'exist' => 'يوجد',
     'none' => 'لا يوجد',
-	'used' => 'مستخدم'
+	'used' => 'مستخدم',
+	'you_have_already_sent_a_request' => 'لقد قمت بارسال طلب بالفعل',
+    'you_are_already_subscribed_to_the_package' => 'انت بالفعل مشترك فى باقة',
+	'kilometers' => 'الكيلومترات'
+	
 
 
 

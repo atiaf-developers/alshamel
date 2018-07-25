@@ -76,7 +76,6 @@ class AdsController extends BackendController
             return _json('success', _lang('app.success'));
         } catch (\Exception $e) {
             DB::rollback();
-            dd($e);
             return _json('error', _lang('app.error_is_occured'));
         }
     }
@@ -95,7 +94,7 @@ class AdsController extends BackendController
         $this->data['rates'] = Rating::join('rating_users', 'rating.id', '=', 'rating_users.rating_id')
                     ->join('users', 'users.id', '=', 'rating_users.user_id')
                     ->where('rating.entity_id', $id)
-                    ->select('rating_users.id','users.name', 'users.image','rating_users.comment', 'rating.created_at','rating_users.active')
+                    ->select('rating_users.id','rating.score','users.name', 'users.image','rating_users.comment', 'rating.created_at','rating_users.active')
                     ->get();
 
         return $this->_view('ads/view', 'backend');

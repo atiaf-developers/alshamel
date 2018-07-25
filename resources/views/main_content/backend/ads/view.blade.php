@@ -71,12 +71,14 @@
                                                                 <td>{{$ad->created_at}}</td>
 
                                                             </tr>
-
+                                                            @if (in_array($ad->form_type,[1,2,3]))
                                                             <tr>
                                                                 <td>{{ _lang('app.price')}}</td>
                                                                 <td>{{$ad->price}}</td>
 
                                                             </tr>
+                                                            @endif
+                                                            
 
                                                             <tr>
                                                                 <td>{{ _lang('app.special')}}</td>
@@ -125,7 +127,7 @@
                                                 </div>
                                             </div>
                                             <div class="portlet-body">
-                                             <div class="table-scrollable">
+                                               <div class="table-scrollable">
                                                 <table class="table table-hover">
 
                                                     <tbody>
@@ -188,7 +190,7 @@
                                         </div>
                                     </div>
                                     <div class="portlet-body">
-                                     <div class="table-scrollable">
+                                       <div class="table-scrollable">
                                         <table class="table table-hover">
                                             <tbody>
                                                 @foreach ($ad->features as $feature)
@@ -221,60 +223,64 @@
                                     </div>
                                 </div>
                                 <div class="portlet-body">
-                                   <div class="blog-single-content bordered blog-container">
+                                 <div class="blog-single-content bordered blog-container">
                                     <div class="blog-comments">
                                         <h3 class="sbold blog-comments-title">{{ _lang('app.comments') }}({{ $rates->count() }})</h3>
                                         <hr>
                                         <div class="c-comment-list" style="height: 200px; overflow-y: auto;">
 
 
-                                         @foreach ($rates as $rate)
-                                         <div class="media">
-                                           <div class="media-left">
+                                           @foreach ($rates as $rate)
+                                           <div class="media">
+                                             <div class="media-left">
 
-                                            <a href="#">
-                                                <img class="media-object" alt="" src="{{ url('public/uploads/users/'.$rate->image) }}" width="75" height="75"> </a>
+                                                <a href="#">
+                                                    <img class="media-object" alt="" src="{{ url('public/uploads/users/'.$rate->image) }}" width="75" height="75"> </a>
+                                                </div>
+
+                                                <div class="media-body">
+                                                    <h4 class="media-heading"><span class="c-date">{{ $rate->created_at }}</span></h4>
+                                                   <span>{{ _lang('app.rate') }}</span> {{ $rate->score }}
+                                                   @for ($i = 0; $i < $rate->score; $i++)
+                                                       <span style="color:#f4d142" class="fa fa-star checked"></span>
+                                                   @endfor
+                                                    <br>
+                                                    {{ $rate->comment ? $rate->comment : '' }}
+                                                </div>
+
+                                                <a href="javascript:;" data-id="{{$rate->id}}" onclick="Ads.delete_comment(this);return false;" class="btn btn-danger btn-sm pull-right">
+                                                    <i class="fa fa-times" aria-hidden="true"></i>
+                                                </a>
+                                                <a class="btn btn-sm pull-right {{$rate->active==1?'btn-primary':'btn-warning'}}" onclick = "Ads.CommentStatus(this);return false;" data-id = "{{$rate->id}}" > 
+                                                    {{$rate->active==1?_lang('app.active'):_lang('app.not_active')}}
+                                                </a>
+
                                             </div>
-
-                                            <div class="media-body">
-                                                <h4 class="media-heading"><span class="c-date">{{ $rate->created_at }}</span></h4>
-                                                <br>
-                                                {{ $rate->comment }}
-                                            </div>
-
-                                            <a href="javascript:;" data-id="{{$rate->id}}" onclick="Ads.delete_comment(this);return false;" class="btn btn-danger btn-sm pull-right">
-                                                <i class="fa fa-times" aria-hidden="true"></i>
-                                            </a>
-                                            <a class="btn btn-sm pull-right {{$rate->active==1?'btn-primary':'btn-warning'}}" onclick = "Ads.CommentStatus(this);return false;" data-id = "{{$rate->id}}" > 
-                                                {{$rate->active==1?_lang('app.active'):_lang('app.not_active')}}
-                                            </a>
-
+                                            @endforeach
                                         </div>
-                                        @endforeach
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
+
+
+
+
+
 
                 </div>
 
-           
-
-
-
-
-            </div>
 
 
 
 
 
 
+                <script>
+                    var new_lang = {};
 
-            <script>
-                var new_lang = {};
 
-
-            </script>
-            @endsection
+                </script>
+                @endsection

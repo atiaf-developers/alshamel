@@ -32,6 +32,6 @@ class ContactMessageMail extends Mailable
      */
     public function build()
     {
-        return $this->subject('Alshamel CRM')->markdown('emails.contact_message',['message' => $this->message , 'reply' => $this->reply]);
+        return $this->subject('الشامل')->markdown('emails.contact_message',['message' => $this->message , 'reply' => $this->reply]);
     }
 }

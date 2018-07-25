@@ -91,7 +91,7 @@ class BasicController extends ApiController {
                 $ContactMessage->message = $request->input('message');
                 $ContactMessage->type = $request->input('type');
                 $ContactMessage->save();
-                return _api_json('', ['message' => _lang('app.message_is_sent_successfully')]);
+                return _api_json('', ['message' => _lang('app.message_sent_successfully')]);
             } catch (\Exception $ex) {
                 return _api_json('', ['message' => _lang('app.error_is_occured')], 400);
             }

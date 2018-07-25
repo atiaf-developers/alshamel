@@ -1,15 +1,15 @@
 @extends('layouts.backend')
 
-@section('pageTitle', _lang('app.locations'))
+@section('pageTitle', $parent_id == 0 ? _lang('app.countries') :  _lang('app.cities') )
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
 
 @if($path)
-<li><a href="{{url('admin/locations')}}">{{_lang('app.locations')}}</a> <i class="fa fa-circle"></i></li>
+<li><a href="{{url('admin/locations')}}">{{_lang('app.countries')}}</a> <i class="fa fa-circle"></i></li>
 {!!$path!!}
 @else
-<li><span> {{_lang('app.locations')}}</span></li>
+<li><span> {{_lang('app.countries')}}</span></li>
 @endif
 
 

@@ -35,7 +35,7 @@
 </div>   
 <div class="panel panel-default">
     <div class="panel-heading">
-        <h3 class="panel-title">{{ _lang('app.ad_reports')}}</h3>
+        <h3 class="panel-title">{{ _lang('app.user_packages')}}</h3>
          <br>
         <div class="row">
             <div class="col-md-2">

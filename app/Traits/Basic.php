@@ -86,30 +86,7 @@ trait Basic {
         }
     }
 
-    /* public function updateValues($model, $data) {
-      //dd($values);
-      $table = $model::getModel()->getTable();
-      //dd($table);
-      $cases = [];
-      $ids = [];
-      $sql_arr = [];
-      $columns = array_keys($data);
-      foreach ($data as $one) {
-      $id = (int) $one['id'];
-      $cases[] = "WHEN {$id} then {$one['value']}";
-      $ids[] = $id;
-      }
-      $ids = implode(',', $ids);
-      $cases = implode(' ', $cases);
-      foreach ($columns as $column) {
-      $sql_arr[] = "SET `{$column}` = CASE `id` {$cases} END";
-      }
-      $sql_str = implode(',', $sql_arr);
-      //dd($sql_str);
-      //$params[] = Carbon::now();
-      //return DB::update("UPDATE `$table` SET `remaining_available_of_accommodation` = CASE `id` {$cases} END WHERE `id` in ({$ids})");
-      return DB::update("UPDATE `$table` $sql_str WHERE `id` in ({$ids})");
-      } */
+  
 
     protected function create_noti($entity_id, $notifier_id, $entity_type, $notifible_type = 1) {
         $NotiObject = new NotiObject;
@@ -138,57 +115,52 @@ trait Basic {
         return $rules;
     }
 
-    public function updateValues($model, $data) {
+     public function updateValues($model, $data,$quote=false) {
         //dd($values);
         $table = $model::getModel()->getTable();
         //dd($table);
 
         $columns = array_keys($data);
 
-        $ids = [];
+           $where_arr=[];
         $sql_arr = [];
+        $count=0;
         foreach ($data as $column => $value_arr) {
+            //dd($value_arr);
             $cases = [];
             foreach ($value_arr as $one) {
-                $id = (int) $one['id'];
-                $cases[] = "WHEN {$id} then {$one['value']}";
-                $ids[] = $id;
+          
+                $value =  $one['value'];
+                $cond =  $one['cond'];
+                $where_str=[];
+                foreach($cond as $one_cond){
+                    $where_str[]=$one_cond[0].' '.$one_cond[1].' '.$one_cond[2];
+                }
+                $where_str=implode(' and ', $where_str);
+                $where_arr[]="($where_str)";
+                if($quote){
+                      $cases[] = "WHEN $where_str then '{$value}'";
+                }else{
+                      $cases[] = "WHEN $where_str then {$value}";
+                }
+            
             }
-            //dd($cases);
+                
             $cases = implode(' ', $cases);
-            $sql_arr[] = "SET `{$column}` = CASE `id` {$cases} END";
+           
+            if($count==0){
+                 $sql_arr[] = "SET `{$column}` = CASE  {$cases} END";
+            }else{
+                 $sql_arr[] = "`{$column}` = CASE  {$cases} END";
+            }
+            $count++;
         }
-        $ids = implode(',', $ids);
+     
+        $where_arr = implode(' or ', $where_arr);
+        //dd($where_arr);
         $sql_str = implode(',', $sql_arr);
-        //dd($sql_str);
-        //$params[] = Carbon::now();
-        //return DB::update("UPDATE `$table` SET `remaining_available_of_accommodation` = CASE `id` {$cases} END WHERE `id` in ({$ids})");
-        return DB::update("UPDATE `$table` $sql_str WHERE `id` in ({$ids})");
-    }
-
-    public function updateValues2($model, $data) {
-        //dd($values);
-        $table = $model::getModel()->getTable();
-        //dd($table);
-        $cases = [];
-        $ids = [];
-        $sql_arr = [];
-        $columns = array_keys($data);
-        foreach ($data as $one) {
-            $id = (int) $one['id'];
-            $cases[] = "WHEN {$id} then {$one['value']}";
-            $ids[] = $id;
-        }
-        $ids = implode(',', $ids);
-        $cases = implode(' ', $cases);
-        foreach ($columns as $column) {
-            $sql_arr[] = "SET `{$column}` = CASE `id` {$cases} END";
-        }
-        $sql_str = implode(',', $sql_arr);
-        //dd($sql_str);
-        //$params[] = Carbon::now();
-        //return DB::update("UPDATE `$table` SET `remaining_available_of_accommodation` = CASE `id` {$cases} END WHERE `id` in ({$ids})");
-        return DB::update("UPDATE `$table` $sql_str WHERE `id` in ({$ids})");
+        //dd("UPDATE `$table` $sql_str WHERE $where_arr");
+        return DB::update("UPDATE `$table` $sql_str WHERE $where_arr");
     }
 
 }

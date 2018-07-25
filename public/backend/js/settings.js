@@ -18,6 +18,12 @@ var Settings = function() {
                 'setting[email]': {
                     required: true
                 },
+                'setting[android_url]': {
+                    required: true
+                },
+                'setting[ios_url]': {
+                    required: true
+                },
                 'setting[manufacturing_year_start]': {
                     required: true
                 },
@@ -128,12 +134,20 @@ var Settings = function() {
                         if (typeof data.errors === 'object') {
                             for (i in data.errors) {
                                 var message = data.errors[i];
-                                if (i.startsWith('usage_conditions') || i.startsWith('about_us')) {
-                                    var key_arr = i.split('.');
-                                    var key_text = key_arr[0] + '[' + key_arr[1] + ']';
-                                    i = key_text;
+                                var key_arr = i.split('.');
+                                var name = '';
+                                for (var x = 0; x < key_arr.length; x++) {
+                                    if (x == 0) {
+                                        name += key_arr[x];
+                                    } else {
+                                        name += '[' + key_arr[x] + ']';
+                                    }
                                 }
-                                $('[name="' + i + '"]').closest('.form-group').addClass('has-error');
+                                i = name;
+
+
+                                $('[name="' + i + '"]')
+                                        .closest('.form-group').addClass('has-error');
                                 $('[name="' + i + '"]').closest('.form-group').find(".help-block").html(message).css('opacity', 1);
                             }
                         }

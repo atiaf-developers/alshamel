@@ -1,12 +1,14 @@
 @extends('layouts.backend')
 
 @section('pageTitle', _lang('app.dashboard'))
-
+@section('breadcrumb')
+<li><span> {{_lang('app.categories')}}</span></li>
+@endsection
 
 
 @section('content')
 <div class="row" style="margin-top: 40px;">
-   
+    
    
     
 <!--    <div class="col-md-3 col-sm-6 col-xs-12">

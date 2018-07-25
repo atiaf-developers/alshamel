@@ -92,6 +92,7 @@ class AdsController extends ApiController {
 
             return _api_json($ads);
         } catch (\Exception $e) {
+            dd($e);
             return _api_json([], ['message' => _lang('app.error_is_occured')], 400);
         }
     }

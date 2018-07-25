@@ -27,12 +27,35 @@ class Category extends MyModel {
 
         return $data;
     }
+    public static function getAllFront($where_array=array()) {
+        $categories = static::Join('categories_translations','categories.id','=','categories_translations.category_id')
+        ->where('categories_translations.locale',static::getLangCode())
+        ->where('categories.active',true)
+        ->where('categories.parent_id',0)
+        ->orderBy('categories.this_order')
+        ->select('categories.slug','categories.image','categories_translations.title')
+        ->get(); 
+
+        return $categories;
+    }
 
     public function translations() {
         return $this->hasMany(CategoryTranslation::class, 'category_id');
     }
 
     public static function transformAdmin($item) {
+        $transformer = new \stdClass();
+        $transformer->slug = $item->slug;
+        $transformer->title = $item->title;
+        $transformer->image = "";
+        if ($item->image) {
+            $category_image = static::rmv_prefix($item->image);   
+            $transformer->image =  url('public/uploads/categories') . '/m_'.$category_image;
+        }    
+        $transformer->has_sub = $item->childrens->count() > 0 ? true : false;
+        return $transformer;
+    }
+    public static function transformFront($item) {
         $transformer = new \stdClass();
         $transformer->slug = $item->slug;
         $transformer->title = $item->title;

@@ -1,7 +1,11 @@
 @extends('layouts.backend')
 
 @section('pageTitle', _lang('app.users'))
+@section('breadcrumb')
+<li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
+<li><span> {{_lang('app.users')}}</span></li>
 
+@endsection
 @section('js')
 
 <script src="{{url('public/backend/js')}}/users.js" type="text/javascript"></script>

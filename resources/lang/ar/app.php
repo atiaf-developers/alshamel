@@ -806,7 +806,11 @@ return [
 	'user_info' => 'بينات المستخدم',
 	'ad_features' => 'ميزات الإعلان',
 	'comments' => 'التعليقات',
-	'm²' => 'م٢'
+	'm²' => 'م٢',
+	'rooms_range' => 'عدد الغرف',
+	'baths_range' => 'عدد الحمامات',
+	'policy' => 'سياسة الاستخدام',
+	'manufacturing_year_start' => 'بداية سنة التصنيع'
 	
 	
 

@@ -94,7 +94,7 @@
                    
                 @endif
 
-                @if($level==2||$level==3)
+                @if($level==2)
                 <div class="form-group form-md-line-input col-md-3">
                     <select class="form-control" id="form_type" name="form_type" required>
                         <option value="">{{ _lang('app.Select') }}</option>

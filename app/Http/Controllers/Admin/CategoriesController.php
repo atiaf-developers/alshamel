@@ -65,11 +65,11 @@ class CategoriesController extends BackendController {
         if ($request->level == 1 || $request->level == 2) {
             $this->rules['image'] = 'required|image|mimes:gif,png,jpeg|max:1000';
         }
-        if ($request->level == 2 || $request->level == 3) {
+        if ($request->level == 2) {
             $this->rules['form_type'] = 'required';
         }
         if ($request->input('num_of_levels') == 3) {
-           $this->rules = array_merge($this->rules, $this->lang_rules(['label' => 'required|unique:categories_translations,label']));
+           $this->rules = array_merge($this->rules, $this->lang_rules(['label' => 'required']));
         }
         $this->rules = array_merge($this->rules, $this->lang_rules(['title' => 'required|unique:categories_translations,title']));
         $validator = Validator::make($request->all(), $this->rules);
@@ -87,7 +87,7 @@ class CategoriesController extends BackendController {
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
             $category->parent_id = $request->input('parent_id');
-            if ($request->level == 2 || $request->level == 3) {
+            if ($request->level == 2) {
                 $category->form_type = $request->form_type;
             }
             if ($request->level == 1 || $request->level == 2) {
@@ -203,11 +203,11 @@ class CategoriesController extends BackendController {
         if ($request->level == 1 || $request->level == 2) {
             $this->rules['image'] = 'image|mimes:gif,png,jpeg|max:1000';
         }
-        if ($request->level == 2 || $request->level == 3) {
+        if ($request->level == 2 ) {
             $this->rules['form_type'] = 'required';
         }
         if ($request->input('num_of_levels') == 3) {
-           $this->rules = array_merge($this->rules, $this->lang_rules(['label' => "required|unique:categories_translations,label,{$id},category_id"]));
+           $this->rules = array_merge($this->rules, $this->lang_rules(['label' => "required"]));
         }
         $this->rules = array_merge($this->rules, $this->lang_rules(['title' => 'required|unique:categories_translations,title,' . $id . ',category_id']));
         $validator = Validator::make($request->all(), $this->rules);
@@ -222,7 +222,7 @@ class CategoriesController extends BackendController {
             $category->slug = str_slug($request->input('title')['en']);
             $category->active = $request->input('active');
             $category->this_order = $request->input('this_order');
-            if ($request->level == 2 || $request->level == 3) {
+            if ($request->level == 2) {
                 $category->form_type = $request->form_type;
             }
             if ($request->level == 1 || $request->level == 2) {

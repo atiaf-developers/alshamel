@@ -274,7 +274,7 @@ class Ad extends MyModel {
                 ],
                 [
                     'name' => _lang('app.area'),
-                    'value' => $item->area
+                    'value' => $item->area.' '._lang('app.m²')
                 ],
             );
             $transformer->features = $data;
@@ -282,12 +282,12 @@ class Ad extends MyModel {
             $data = array(
                 [
                     'name' => _lang('app.area'),
-                    'value' => $item->area
+                    'value' => $item->area.' '._lang('app.m²')
                 ]
             );
             $transformer->features = $data;
         } else if ($item->form_type == 3) {
-            $mileage_unit = $item->mileage_unit == 1 ? _lang('app.km') : _lang('app.ml');
+            $mileage_unit = $item->mileage_unit == 1 ? _lang('app.km') : _lang('app.mi');
             $mileage = $item->mileage . ' ' . $mileage_unit;
             $status = $item->status == 0 ? _lang('app.new') : _lang('app.used');
             $data = array(

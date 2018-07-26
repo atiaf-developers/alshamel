@@ -12,7 +12,7 @@ class Ad extends MyModel {
     private static $level;
     public static $sizes = array(
         's' => array('width' => 120, 'height' => 120),
-        'm' => array('width' => 400, 'height' => 400),
+        'm' => array('width' => 900, 'height' => 700),
     );
     public static $filter = [1, 2, 3, 4];
     public static $form_types = [
@@ -552,7 +552,7 @@ class Ad extends MyModel {
                 $ads->where('ads.created_at', '>=', Carbon::today());
             }
             if (in_array(2, $options->show)) {
-                $ads->whereNull('ads.title');
+                $ads->whereNotNull('ads.title');
             }
             if (in_array(3, $options->show)) {
                 $ads->whereNotNull('ads.images');

@@ -151,6 +151,7 @@ class AdsController extends ApiController {
                 $notification['body'] = 'اعلان جديد  - ' . $ad->title;
                 $notification['type'] = 1;
                 $notification['id'] = $ad->id;
+                $notification['user_id'] = $user->id;
                 $notification['form_type'] = $request->input('form_type');
                 $this->send_noti_fcm($notification, false, '/topics/alshamel_and', 1);
                 $this->send_noti_fcm($notification, false, '/topics/alshamel_ios', 2);

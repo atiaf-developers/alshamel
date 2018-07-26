@@ -44,7 +44,7 @@
                                         </tr>
                                     <tr>
                                         <td>{{ _lang('app.mobile')}}</td>
-                                        <td>{{$user->mobile}}</td>
+                                        <td>{{$user->dial_code.' '.$user->mobile}}</td>
 
                                     </tr>
                                     <tr>

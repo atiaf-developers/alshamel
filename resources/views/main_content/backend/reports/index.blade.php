@@ -1,6 +1,6 @@
 @extends('layouts.backend')
 
-@section('pageTitle', 'Ad Reports')
+@section('pageTitle', _lang('app.ad_reports'))
 
 @section('js')
 <script src="{{url('public/backend/js')}}/ad_report.js" type="text/javascript"></script>

@@ -803,14 +803,16 @@ return [
 	'km' => 'كم',
 	'mi' => 'ميل',
 	'message_sent_successfully' => 'تم ارسال الرسالة بنجاح',
-	'user_info' => 'بينات المستخدم',
+	'user_info' => 'بيانات المستخدم',
 	'ad_features' => 'ميزات الإعلان',
 	'comments' => 'التعليقات',
 	'm²' => 'م٢',
 	'rooms_range' => 'عدد الغرف',
 	'baths_range' => 'عدد الحمامات',
 	'policy' => 'سياسة الاستخدام',
-	'manufacturing_year_start' => 'بداية سنة التصنيع'
+	'manufacturing_year_start' => 'بداية سنة التصنيع',
+	'rate' => 'التقييم',
+	
 	
 	
 

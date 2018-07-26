@@ -3,30 +3,23 @@
 @section('pageTitle',_lang('app.Alshamel'))
 
 @section('js')
-<scrip>
-    <script type="text/javascript">
-        $(window).on('load', function () {
-            $('#myModal-index').modal('show');
-        });
-    </script>
-</scrip>
+
 @endsection
 
 @section('content')
 
 <div id="myCarousel" class="carousel slide" data-ride="carousel">
     <ol class="carousel-indicators">
-        <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-        <li data-target="#myCarousel" data-slide-to="1" class=""></li>
-        <li data-target="#myCarousel" data-slide-to="2" class=""></li>
-        <li data-target="#myCarousel" data-slide-to="3" class=""></li>
-        <li data-target="#myCarousel" data-slide-to="4" class=""></li> 
+        @foreach ($slider as $key => $item)
+        <li data-target="#myCarousel" data-slide-to="{{$key}}" class="{{ $key == 0 ? 'active' : '' }}"></li>
+        @endforeach
+
     </ol>
     <div class="carousel-inner" role="listbox">
 
         @foreach ($slider as $key => $item)
         <div class="item {{ $key == 0 ? 'active' : 'item'.$key }}"> 
-            <img src="{{url('public/uploads/slider/'.$item->image)}}" alt="{{ $item->title }}">
+            <img src="{{$item->image}}" alt="{{ $item->title }}">
             <div class="container">
                 <div class="carousel-caption">
                     <div class="carousel-details">

@@ -8,6 +8,7 @@ use Auth;
 use App\Models\Setting;
 use App\Models\SettingTranslation;
 use App\Models\Category;
+use App\Models\Location;
 
 class FrontController extends Controller {
 
@@ -29,9 +30,12 @@ class FrontController extends Controller {
     private function init() {
         $this->check_auth();
         $this->getLangCode();
-        $this->data['categories'] = Category::transformCollection(Category::getAllFront(), 'Front');
+        $this->check_selected_country();
+        $this->data['categories'] = Category::getAllFront();
+        $this->data['locations'] = Location::getAllFront();
         $this->data['settings'] = Setting::getAll();
         $this->_settings = $this->data['settings'];
+        $this->data['locations'] = Location::getAllFront();
     }
 
     private function getLangCode() {
@@ -57,6 +61,15 @@ class FrontController extends Controller {
         }
         $this->data['User'] = $this->User;
         $this->data['isUser'] = $this->isUser;
+    }
+
+    private function check_selected_country() {
+        $this->data['country_id'] = null;
+        $this->data['city_id'] = null;
+        if (\Cookie::get('country_id') !== null || \Cookie::get('city_id') !== null) {
+            $this->data['country_id'] = \Cookie::get('country_id')?decrypt(\Cookie::get('country_id')):null ;
+            $this->data['city_id'] = \Cookie::get('city_id')?decrypt(\Cookie::get('city_id')):null;
+        }
     }
 
     protected function _view($main_content, $type = 'front') {

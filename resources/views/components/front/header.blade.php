@@ -6,7 +6,7 @@
         <div class="col-md-6 phone-w3l">
             <ul>
                 <li><a href="{{url($next_lang_code.'/'.substr(Request()->path(), 3))}}"><span class="fa fa-language" aria-hidden="true"></span>{{$next_lang_text}}</a></li>
-                @if (Auth::check())
+                @if ($isUser)
                 @else
                 <li><a href="{{_url('login?return='.base64_encode(request()->getPathInfo() . (request()->getQueryString() ? ('?' . request()->getQueryString()) : ''))) }}"><span class="fa fa-sign-in" aria-hidden="true"></span>تسجيل دخول</a></li>
                 @endif
@@ -35,11 +35,11 @@
                                     </div>
                                     <div class="collapse navbar-collapse menu--shylock" id="bs-example-navbar-collapse-1">
                                         <ul class="nav navbar-nav">
-                                            <li class="active menu__item--current"><a class="menu__link" href="index.php" id="home">الرئيسية <span class="sr-only">(current)</span></a></li>
+                                            <li class="active menu__item--current"><a class="menu__link" href="index.php" id="home">{{_lang('app.home')}} <span class="sr-only">(current)</span></a></li>
                                             <li><a class="menu__link" href="realestate.php">{{ $categories[0]->title }}</a></li>
                                             <li><a class="menu__link" href="cars.php">{{ $categories[1]->title }}</a></li>
                                             <li class="dropdown">
-                                                <a href="#" class="dropdown-toggle menu__link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">التصنيفات<span class="caret"></span></a>
+                                                <a href="#" class="dropdown-toggle menu__link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{_lang('app.categories')}}<span class="caret"></span></a>
                                                 <ul class="dropdown-menu multi-column columns-3">
                                                     <div class="agile_inner_drop_nav_info">
                                                         <div class="multi-gd-img">
@@ -56,8 +56,8 @@
                                                     </div>
                                                 </ul>
                                             </li>
-                                            <li><a class="menu__link" href="about.php">عن الشامل</a></li>
-                                            <li><a class="menu__link" href="contact.php">اتصل بنا</a></li>
+                                            <li><a class="menu__link" href="{{_url('about-us')}}" title="{{_lang('app.about_us')}}">{{_lang('app.about_us')}}</a></li>
+                                            <li><a class="menu__link" href="{{_url('contact-us')}}" title="{{_lang('app.contact_us')}}">{{_lang('app.contact_us')}}</a></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -67,36 +67,34 @@
                 </div>
                 <div class="col-md-4">
                     <div class="search-agileinfo">
-                        <h3 class="country" data-toggle="modal" data-target="#myModal-index">اختر الدولة<i class="fa fa-globe"></i></h3>
+                        <h3 class="country" data-toggle="modal" data-target="#searchModal">اختر الدولة<i class="fa fa-globe"></i></h3>
 
-                        <div id="myModal-index" class="modal" data-backdrop="static" data-keyboard="false">
+                        <div id="searchModal" class="modal" data-backdrop="static" data-keyboard="false">
                             <div class="modal-dialog modal-dialog-centered">
                                 <div class="modal-content">
 
                                     <!-- Modal Header -->
                                     <div class="modal-header">
-                                        <h4 class="modal-title">اختر الدولة والمدينة</h4>
+                                        <h4 class="modal-title">{{_lang('app.choose_country_and_city')}}</h4>
                                     </div>
 
                                     <!-- Modal body -->
                                     <div class="modal-body">
-                                        <form role="form">
+                                        <form role="form" id="searchForm">
                                             <div class="form-group">
-                                                <select class="frm-field required sect form-control">
-                                                    <option>حدد الدولة</option>	
-                                                    <option>المملكة العربية السعودية</option>	
-                                                    <option>جمهورية مصر العربية</option>	
-                                                    <option>الامارات</option>
-                                                    <option>عمان</option>	
+                                                <select class="frm-field required sect form-control" name="country" id="country">
+                                                    <option value="">{{_lang('app.choose_country')}}</option>
+                                                     @foreach ($locations as $key => $one)
+                                                     <option {{$country_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
+                                                    @endforeach
+                                          	
                                                 </select>
+                                                <span class="help-block"></span>
                                             </div>
                                             <div class="form-group">
-                                                <select class="frm-field required sect form-control">
-                                                    <option>حدد المدينة</option>	
-                                                    <option>جدة</option>	
-                                                    <option>الرياض</option>	
-                                                    <option>مكة</option>
-                                                    <option>المدينة</option>	
+                                                <select class="frm-field sect form-control" name="city" id="city">
+                                                    <option value="">{{_lang('app.choose_city')}}</option>	
+                                                  
                                                 </select>
                                             </div>
                                         </form>
@@ -104,7 +102,7 @@
 
                                     <!-- Modal footer -->
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">تم</button>
+                                        <button type="button" class="btn btn-secondary submit-form" data-dismiss="modal">{{_lang('app.apply')}}</button>
                                     </div>
 
                                 </div>

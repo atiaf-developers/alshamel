@@ -11,6 +11,7 @@
 <script type="text/javascript" src="{{ url('public/front/js/bootbox.min.js') }}"></script>
 <script src="{{ url('public/front/scripts/app.js') }}"></script>
 <script type="text/javascript" src="{{url('public/front/js')}}/script.js"></script>
+<script type="text/javascript" src="{{url('public/front/scripts')}}/main.js"></script>
 <script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
 		function hideURLbar(){ window.scrollTo(0,1); } </script>
 @yield('js')

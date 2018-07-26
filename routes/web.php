@@ -33,6 +33,12 @@ if (in_array($currentLanguageCode, $languages)) {
         Route::get('/', 'HomeController@index')->name('home');
        
         Auth::routes();
+        /*         * ************************* ajax ************** */
+        Route::group(['prefix' => 'ajax'], function () {
+            Route::get('change-location', 'AjaxController@changeLocation');
+            Route::get('get-cities/{id}', 'AjaxController@getCities');
+     
+        });
 
       
 

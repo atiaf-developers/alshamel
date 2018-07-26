@@ -82,8 +82,8 @@ class Ad extends MyModel {
         });
         $ads->where('locations_translations.locale', $lang_code);
         $ads->where('categories_translations.locale', $lang_code);
-        $ads = static::handleFromTypeJoin($ads, $request,$user);
-        $ads = static::handleFromTypeWhere($ads, $request,$type);
+        $ads = static::handleFromTypeJoin($ads, $request, $user);
+        $ads = static::handleFromTypeWhere($ads, $request, $type);
 
         //here
         $ads->select(static::$columns);
@@ -112,14 +112,12 @@ class Ad extends MyModel {
         //return  $ads = $ads->get();
     }
 
-    
-
     public static function transformPaginationApi($item, $extra_params = array()) {
         $lang = static::getLangCode();
 
         $transformer = new \stdClass();
         $transformer->id = $item->id;
-        $transformer->title = $item->title;
+        $transformer->title = $item->title ? $item->title : '';
         $transformer->rate = $item->rate;
         $transformer->lat = $item->lat;
         $transformer->lng = $item->lng;
@@ -155,7 +153,7 @@ class Ad extends MyModel {
         $transformer->id = $item->id;
         $transformer->city_id = (int) $item->city_id;
         $transformer->country_id = (int) $item->country_id;
-        $transformer->title = $item->title;
+        $transformer->title = $item->title ? $item->title : '';
         $transformer->details = $item->details;
         $transformer->lat = $item->lat;
         $transformer->lng = $item->lng;
@@ -217,7 +215,7 @@ class Ad extends MyModel {
         $transformer->city = $item->city;
         $transformer->city_id = (int) $item->city_id;
         $transformer->country_id = (int) $item->country_id;
-        $transformer->title = $item->title;
+        $transformer->title = $item->title ? $item->title : '';
         $transformer->details = $item->details;
         $transformer->rate = $item->rate;
         $transformer->lat = $item->lat;
@@ -274,7 +272,7 @@ class Ad extends MyModel {
                 ],
                 [
                     'name' => _lang('app.area'),
-                    'value' => $item->area.' '._lang('app.m²')
+                    'value' => $item->area . ' ' . _lang('app.m²')
                 ],
             );
             $transformer->features = $data;
@@ -282,7 +280,7 @@ class Ad extends MyModel {
             $data = array(
                 [
                     'name' => _lang('app.area'),
-                    'value' => $item->area.' '._lang('app.m²')
+                    'value' => $item->area . ' ' . _lang('app.m²')
                 ]
             );
             $transformer->features = $data;
@@ -371,7 +369,7 @@ class Ad extends MyModel {
         } else {
             $transformer->Feature = [];
         }
-        
+
         return $transformer;
     }
 
@@ -451,7 +449,7 @@ class Ad extends MyModel {
                         ->find();
     }
 
-    private static function handleFromTypeJoin($ads, $request,$user) {
+    private static function handleFromTypeJoin($ads, $request, $user) {
         $lang_code = static::getLangCode();
         if ($request->input('form_type') == 1) {
             $ads->join('real_states_ads', 'real_states_ads.ad_id', '=', 'ads.id');
@@ -516,13 +514,13 @@ class Ad extends MyModel {
 
     private static function handleFromTypeWhere($ads, $request, $type) {
         $options = json_decode($request->input('filter')) ? json_decode($request->input('filter')) : new \stdClass();
+        //dd($options);
         //admin
         if ($request->status != "all") {
             $ads->where('ads.active', true);
         }
-        
+
         //api
-        
         //normal where
         if ($request->input('search')) {
             $ads->whereRaw(handleKeywordWhere(['ads.title', 'ads.details'], $request->input('search')));
@@ -539,14 +537,125 @@ class Ad extends MyModel {
         } else if ($type == 2) {
             $ads->where('ads.special', 0);
         }
-        if ($request->input('category_id') && !isset($options->category)) {
+        //dd($request->input('category_id') );
+        if (isset($options->category) && empty($options->category)) {
+            //dd($request->input('category_id'));
             $ads->where('ads.category_id', $request->input('category_id'));
         } else if (isset($options->category) && !empty($options->category)) {
             $ads->whereIn('ads.category_id', $options->category);
         }
-        
+
         //filter
-        
+        //show [1 => added today ,2  => only address ,3 => contain images ,4 => near to me]
+        if (isset($options->show) && !empty($options->show)) {
+            if (in_array(1, $options->show)) {
+                $ads->where('ads.created_at', '>=', Carbon::today());
+            }
+            if (in_array(2, $options->show)) {
+                $ads->whereNull('ads.title');
+            }
+            if (in_array(3, $options->show)) {
+                $ads->whereNotNull('ads.images');
+            }
+            if (in_array(4, $options->show)) {
+                $ads->orderBy('distance');
+            }
+        }
+        //realstates
+        if ($request->input('form_type') == 1) {
+            if (isset($options->property_type) && !empty($options->property_type)) {
+                $ads->whereIn('real_states_ads.property_type_id', $options->property_type);
+            }
+            if (isset($options->rooms_number) && !empty($options->rooms_number)) {
+
+                $ads->whereBetween('real_states_ads.rooms_number', [$options->rooms_number[0], $options->rooms_number[1]]);
+            }
+            if (isset($options->baths_number) && !empty($options->baths_number)) {
+                $ads->whereBetween('real_states_ads.baths_number', [$options->baths_number[0], $options->baths_number[1]]);
+            }
+            if (isset($options->is_furnished) && $options->is_furnished != -1) {
+                $ads->where('real_states_ads.is_furnished', $options->is_furnished);
+            }
+            if (isset($options->has_parking) && $options->has_parking != -1) {
+                $ads->where('real_states_ads.has_parking', $options->has_parking);
+            }
+            if (isset($options->area) && !empty($options->area)) {
+                $ads->whereBetween('real_states_ads.area', [$options->area[0], $options->area[1]]);
+            }
+        } else if ($request->input('form_type') == 2) {
+
+            //lands
+            if (isset($options->area) && !empty($options->area)) {
+                $ads->whereBetween('lands_ads.area', [$options->area[0], $options->area[1]]);
+            }
+        } else if ($request->input('form_type') == 3) {
+            //cars
+            if (isset($options->status) && $options->status != -1) {
+                $ads->where('vehicles_ads.status', $options->status);
+            }
+            if (isset($options->manufacturing_year) && !empty($options->manufacturing_year)) {
+                $ads->whereBetween('vehicles_ads.manufacturing_year', [$options->manufacturing_year[0], $options->manufacturing_year[1]]);
+            }
+            if (isset($options->motion_vector) && !empty($options->motion_vector)) {
+                $ads->whereIn('vehicles_ads.motion_vector_id', $options->motion_vector);
+            }
+            if (isset($options->engine_capacity) && !empty($options->engine_capacity)) {
+                $ads->whereIn('vehicles_ads.engine_capacity_id', $options->engine_capacity);
+            }
+            if (isset($options->propulsion_system) && !empty($options->propulsion_system)) {
+                $ads->whereIn('vehicles_ads.propulsion_system_id', $options->propulsion_system);
+            }
+            if (isset($options->fuel_type) && !empty($options->fuel_type)) {
+                $ads->whereIn('vehicles_ads.fuel_type_id', $options->fuel_type);
+            }
+            if (isset($options->mileage_unit) && $options->mileage_unit != -1) {
+                $ads->where('vehicles_ads.mileage_unit', $options->mileage_unit);
+            }
+            if (isset($options->mileage) && !empty($options->mileage)) {
+                $ads->whereIn('vehicles_ads.mileage_id', $options->mileage);
+            }
+        }
+        //all
+        if (isset($options->price) && !empty($options->price)) {
+            $ads->whereBetween('ads.price', [$options->price[0], $options->price[1]]);
+        }
+        return $ads;
+    }
+
+    private static function handleFromTypeWhere2($ads, $request, $type) {
+        $options = json_decode($request->input('filter')) ? json_decode($request->input('filter')) : new \stdClass();
+        //dd($options);
+        //admin
+        if ($request->status != "all") {
+            $ads->where('ads.active', true);
+        }
+
+        //api
+        //normal where
+        if ($request->input('search')) {
+            $ads->whereRaw(handleKeywordWhere(['ads.title', 'ads.details'], $request->input('search')));
+        }
+        if ($request->input('country_id')) {
+            $ads->where('ads.country_id', $request->input('country_id'));
+        }
+        if ($request->input('city_id')) {
+            $ads->where('ads.city_id', $request->input('city_id'));
+        }
+
+        if ($type == 1 || $type == 3) {
+            $ads->where('ads.special', 1);
+        } else if ($type == 2) {
+            $ads->where('ads.special', 0);
+        }
+        //dd($request->input('category_id') );
+        if ($request->input('category_id') && !isset($options->category)) {
+
+            $ads->where('ads.category_id', $request->input('category_id'));
+        } else if (isset($options->category) && !empty($options->category)) {
+            $ads->whereIn('ads.category_id', $options->category);
+        }
+
+        //filter
         //show [1 => added today ,2  => only address ,3 => contain images ,4 => near to me]
         if (isset($options->show) && !empty($options->show)) {
             if (in_array(1, $options->show)) {
@@ -583,16 +692,14 @@ class Ad extends MyModel {
             if (isset($options->area) && !empty($options->area)) {
                 $ads->whereBetween('real_states_ads.area', [$options->area[0], $options->area[1]]);
             }
-        }
-        else if ($request->input('form_type') == 2) {
+        } else if ($request->input('form_type') == 2) {
 
-        //lands
+            //lands
             if (isset($options->area) && !empty($options->area)) {
                 $ads->whereBetween('lands_ads.area', [$options->area[0], $options->area[1]]);
             }
-        }
-        else if ($request->input('form_type') == 3) {
-        //cars
+        } else if ($request->input('form_type') == 3) {
+            //cars
             if (isset($options->status) && $options->status != -1) {
                 $ads->where('vehicles_ads.status', $options->status);
             }
@@ -617,7 +724,7 @@ class Ad extends MyModel {
             if (isset($options->mileage) && !empty($options->mileage)) {
                 $ads->whereIn('vehicles_ads.mileage_id', $options->mileage);
             }
-       }
+        }
         //all
         if (isset($options->price) && !empty($options->price)) {
             $ads->whereBetween('ads.price', [$options->price[0], $options->price[1]]);

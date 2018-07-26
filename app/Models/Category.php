@@ -36,7 +36,7 @@ class Category extends MyModel {
         ->select('categories.slug','categories.image','categories_translations.title')
         ->get(); 
 
-        return $categories;
+        return static::transformCollection($categories, 'Front');
     }
 
     public function translations() {

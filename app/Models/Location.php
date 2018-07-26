@@ -28,18 +28,25 @@ class Location extends MyModel {
                         ->select('locations.id', 'locations.parent_id', 'locations_translations.title', 'locations.image', 'currency_translations.sign')
                         ->get();
     }
-    public static function getAllFront($where_array=array()) {
-        return static::join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
-                        ->leftJoin('currency', 'locations.currency_id', '=', 'currency.id')
-                        ->leftJoin('currency_translations', function($join) {
-                            $join->on('currency.id', '=', 'currency_translations.currency_id')
-                            ->where('currency_translations.locale', static::getLangCode());
-                        })
-                        ->orderBy('locations.this_order', 'ASC')
-                        ->where('locations.parent_id', $parent_id)
-                        ->where('locations_translations.locale', static::getLangCode())
-                        ->select('locations.id', 'locations.parent_id', 'locations_translations.title', 'locations.image', 'currency_translations.sign')
-                        ->get();
+
+    public static function getAllFront($where_array = array()) {
+        $locations = static::join('locations_translations', 'locations.id', '=', 'locations_translations.location_id');
+        $locations->leftJoin('currency', 'locations.currency_id', '=', 'currency.id');
+        $locations->leftJoin('currency_translations', function($join) {
+            $join->on('currency.id', '=', 'currency_translations.currency_id')
+                    ->where('currency_translations.locale', static::getLangCode());
+        });
+        $locations->orderBy('locations.this_order', 'ASC');
+        if (isset($where_array['parent_id'])) {
+            $locations->where('locations.parent_id', $where_array['parent_id']);
+        }  else {
+            $locations->where('locations.parent_id', 0);
+        }
+
+        $locations->where('locations_translations.locale', static::getLangCode());
+        $locations->select('locations.id', 'locations.parent_id', 'locations_translations.title', 'locations.image', 'currency_translations.sign');
+        $locations = $locations->get();
+        return static::transformCollection($locations);
     }
 
     public function currancy() {

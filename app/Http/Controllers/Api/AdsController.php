@@ -35,7 +35,7 @@ class AdsController extends ApiController {
         'category_id' => 'required',
         'country_id' => 'required',
         'city_id' => 'required',
-        'title' => 'required',
+        //'title' => 'required',
         'details' => 'required',
         'lat' => 'required',
         'lng' => 'required',
@@ -227,12 +227,13 @@ class AdsController extends ApiController {
 
     private function handleAd($request, $ad = null, $user, $avaliable_ads = null) {
         //$user = $this->auth_user();
-
+        $action = 'edit';
         if (!$ad) {
             $ad = new Ad;
             $ad->category_id = $request->input('category_id');
             $ad->user_id = $user->id;
             $ad->active = true;
+            $action = 'add';
         }
 
         $ad->country_id = $request->input('country_id');
@@ -262,11 +263,10 @@ class AdsController extends ApiController {
                 }
                 $images[] = Ad::upload($image, 'ads', true, false, true);
             }
-            
+
             if (count($images) > 0) {
                 $ad->images = json_encode($images);
             }
-            
         }
         $ad->save();
 
@@ -281,7 +281,7 @@ class AdsController extends ApiController {
         }
 
         // decreament available ads
-        if ($avaliable_ads) {
+        if ($action == 'add' && $avaliable_ads) {
             if ($user->num_free_ads == 0) {
                 $avaliable_ads->available_of_ads -= 1;
                 $avaliable_ads->save();
@@ -289,16 +289,14 @@ class AdsController extends ApiController {
                 $user->num_free_ads -= 1;
                 $user->save();
             }
-        } else {
-            if ($user->num_free_ads != 0) {
-                $user->num_free_ads -= 1;
-                $user->save();
-            }
+        }
+        if ($action == 'add' && $user->num_free_ads != 0) {
+            $user->num_free_ads -= 1;
+            $user->save();
         }
 
         return $ad;
     }
-
 
     private function handleRealStateAdDetails($request, $ad_id) {
         $real_state_ad = RealStateAd::where('ad_id', $ad_id)->first();

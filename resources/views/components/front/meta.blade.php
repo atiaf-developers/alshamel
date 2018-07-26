@@ -29,8 +29,9 @@
 
 <script>
     var config = {
-        url: " {{ _url('') }}",
+        site_url: " {{ _url('') }}",
         base_url: " {{ url('') }}",
+        ajax_url: " {{ _url('ajax') }}",
         customer_url: " {{ _url('customer') }}",
         lang: "{{ $lang_code }}",
         lang_code: "{{ $lang_code }}",
@@ -40,10 +41,13 @@
         pusher_cluster: "{{env('PUSHER_CLUSTER')}}",
         pusher_encrypted: true,
         user_id: '{{$User?$User->id:false}}',
+        country_id: '{{$country_id}}',
+        city_id: '{{$city_id}}',
     };
 
 
     var lang = {
+        apply: "{{ _lang('app.apply') }}",
         currency_sign: "{{ $currency_sign }}",
         order_is_deleted: "{{ _lang('app.order_is_deleted') }}",
         save: "{{ _lang('app.save') }}",

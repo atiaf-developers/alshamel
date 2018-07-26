@@ -32,6 +32,7 @@ class User extends Authenticatable {
     public static function transform($item)
     {
         $transformer = new \stdClass();
+        $transformer->id = $item->id;
         $transformer->name = $item->name;
         $transformer->username = $item->username;
         $transformer->email = $item->email;

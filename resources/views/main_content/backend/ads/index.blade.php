@@ -1,10 +1,10 @@
 @extends('layouts.backend')
 
-@section('pageTitle', _lang('app.Ads'))
+@section('pageTitle', _lang('app.ads'))
 
 @section('breadcrumb')
 <li><a href="{{url('admin')}}">{{_lang('app.dashboard')}}</a> <i class="fa fa-circle"></i></li>
-<li><span> {{_lang('app.Ads')}}</span></li>
+<li><span> {{_lang('app.ads')}}</span></li>
 
 
 @endsection

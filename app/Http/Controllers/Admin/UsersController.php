@@ -93,14 +93,14 @@ class UsersController extends BackendController {
                             if (\Permissions::check('users', 'edit')) {
                                 $back .= '<li>';
                                 $back .= '<a href="" onclick = "Users.edit(this);return false;" data-id = "' . $item->id . '">';
-                                $back .= '<i class = "icon-docs"></i>' . _lang('app.show');
+                                $back .= '<i class = "icon-docs"></i>' . _lang('app.edit');
                                 $back .= '</a>';
                                 $back .= '</li>';
                             }
                             if (\Permissions::check('users', 'open')) {
                                 $back .= '<li>';
                                 $back .= '<a href="'.route('users.show',$item->id).'" onclick = "" data-id = "' . $item->id . '">';
-                                $back .= '<i class = "icon-docs"></i>' . _lang('app.show');
+                                $back .= '<i class = "icon-docs"></i>' . _lang('app.view');
                                 $back .= '</a>';
                                 $back .= '</li>';
                             }

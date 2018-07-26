@@ -552,7 +552,7 @@ class Ad extends MyModel {
                 $ads->where('ads.created_at', '>=', Carbon::today());
             }
             if (in_array(2, $options->show)) {
-                $ads->whereNull('ads.title');
+                $ads->whereNotNull('ads.title');
             }
             if (in_array(3, $options->show)) {
                 $ads->whereNotNull('ads.images');

@@ -39,7 +39,7 @@ if (in_array($currentLanguageCode, $languages)) {
             Route::get('get-cities/{id}', 'AjaxController@getCities');
      
         });
-
+         Route::get('{any}','CategoriesController@index');
       
 
 

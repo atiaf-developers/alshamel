@@ -31,7 +31,7 @@ class FrontController extends Controller {
         $this->check_auth();
         $this->getLangCode();
         $this->check_selected_country();
-        $this->data['categories'] = Category::getAllFront();
+        $this->data['categories'] = Category::getAllFront(['parent_id'=>0]);
         $this->data['locations'] = Location::getAllFront();
         $this->data['settings'] = Setting::getAll();
         $this->_settings = $this->data['settings'];
@@ -67,8 +67,9 @@ class FrontController extends Controller {
         $this->data['country_id'] = null;
         $this->data['city_id'] = null;
         if (\Cookie::get('country_id') !== null || \Cookie::get('city_id') !== null) {
-            $this->data['country_id'] = \Cookie::get('country_id')?decrypt(\Cookie::get('country_id')):null ;
-            $this->data['city_id'] = \Cookie::get('city_id')?decrypt(\Cookie::get('city_id')):null;
+            $this->data['country_id'] = \Cookie::get('country_id') ? decrypt(\Cookie::get('country_id')) : null;
+            $this->data['city_id'] = \Cookie::get('city_id') ? decrypt(\Cookie::get('city_id')) : null;
+            $this->data['cities'] = Location::getAllFront(['parent_id' => $this->data['country_id']]);
         }
     }
 

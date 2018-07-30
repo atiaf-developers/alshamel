@@ -27,16 +27,30 @@ class Category extends MyModel {
 
         return $data;
     }
-    public static function getAllFront($where_array=array()) {
-        $categories = static::Join('categories_translations','categories.id','=','categories_translations.category_id')
-        ->where('categories_translations.locale',static::getLangCode())
-        ->where('categories.active',true)
-        ->where('categories.parent_id',0)
-        ->orderBy('categories.this_order')
-        ->select('categories.slug','categories.image','categories_translations.title')
-        ->get(); 
 
-        return static::transformCollection($categories, 'Front');
+    public static function getAllFront($where_array = array()) {
+        $categories = static::Join('categories_translations', 'categories.id', '=', 'categories_translations.category_id');
+        $categories->where('categories_translations.locale', static::getLangCode());
+        $categories->where('categories.active', true);
+        if (isset($where_array['parent_id'])) {
+            $categories->where('categories.parent_id', $where_array['parent_id']);
+        } else if (isset($where_array['id'])) {
+            $categories->where('categories.id', $where_array['id']);
+        } else if (isset($where_array['slug'])) {
+            $categories->where('categories.slug', $where_array['slug']);
+        }
+        $categories->select('categories.id','categories.slug','categories.level', 'categories.image', 'categories.parents_ids', 'categories_translations.title');
+        if (isset($where_array['parent_id'])) {
+            $categories->orderBy('categories.this_order');
+            $categories->get();
+
+            $categories= static::transformCollection($categories, 'Front');
+        } else {
+            $categories = $categories->first();
+
+            $categories= static::transformFront($categories);
+        }
+        return $categories;
     }
 
     public function translations() {
@@ -49,22 +63,26 @@ class Category extends MyModel {
         $transformer->title = $item->title;
         $transformer->image = "";
         if ($item->image) {
-            $category_image = static::rmv_prefix($item->image);   
-            $transformer->image =  url('public/uploads/categories') . '/m_'.$category_image;
-        }    
+            $category_image = static::rmv_prefix($item->image);
+            $transformer->image = url('public/uploads/categories') . '/m_' . $category_image;
+        }
         $transformer->has_sub = $item->childrens->count() > 0 ? true : false;
         return $transformer;
     }
+
     public static function transformFront($item) {
         $transformer = new \stdClass();
+        $transformer->id = $item->id;
         $transformer->slug = $item->slug;
         $transformer->title = $item->title;
+        $transformer->level = $item->level;
         $transformer->image = "";
         if ($item->image) {
-            $category_image = static::rmv_prefix($item->image);   
-            $transformer->image =  url('public/uploads/categories') . '/m_'.$category_image;
-        }    
+            $category_image = static::rmv_prefix($item->image);
+            $transformer->image = url('public/uploads/categories') . '/m_' . $category_image;
+        }
         $transformer->has_sub = $item->childrens->count() > 0 ? true : false;
+        $transformer->url = _url($item->slug . '/' . implode('/', static::node_path($item->id)));
         return $transformer;
     }
 
@@ -88,6 +106,23 @@ class Category extends MyModel {
         $item->url = _url('category/' . $item->slug);
 
         return $item;
+    }
+
+    private static function node_path($id, $action = false) {
+        $category = Category::where('id', $id)->first();
+        $categories = [];
+        if ($category) {
+            $parents_ids = explode(',', $category->parents_ids);
+            $parents_ids[] = $id;
+            $categories = Category::leftJoin('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
+                    ->whereIn('categories.id', $parents_ids)
+                    ->where('trans.locale', $this->lang_code)
+                    ->orderBy('categories.id', 'ASC')
+                    ->select('trans.slug')
+                    ->pluck('trans.slug')
+                    ->toArray();
+        }
+        return $categories;
     }
 
     protected static function boot() {

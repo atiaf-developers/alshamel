@@ -4,10 +4,13 @@
         <div class="col-md-3 footer-grid sign-gd">
             <h4>القائمة</h4>
             <ul>
-                <li><a href="index.php">الرئيسية</a></li>
-                <li><a href="about.php">عن الشامل</a></li>
-                <li><a href="realestate.php">عقارات</a></li>
-                <li><a href="cars.php">سيارات</a></li>
+                <li><a href="{{_url('')}}">الرئيسية</a></li>
+                <li><a href="{{_url('about-us')}}">عن الشامل</a></li>
+                @foreach ($categories as $key => $category)
+                @continue($key == 0 || $key == 1)
+                <li><a href="realestate.php">{{ $category->title }}</a></li>
+                @endforeach
+
             </ul>
         </div>
         <div class="col-md-3 footer-grid sign-gd">

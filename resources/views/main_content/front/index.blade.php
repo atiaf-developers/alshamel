@@ -24,7 +24,7 @@
                 <div class="carousel-caption">
                     <div class="carousel-details">
                         <h3>{{ $item->title }}</h3>
-                        <a class="hvr-outline-out button2 " href="{{ $item->url }}">تفاصيل العرض</a>
+                        <a class="hvr-outline-out button2 " href="{{ $item->url }}">{{_lang('app.details')}}</a>
                     </div>
                 </div>
             </div>
@@ -48,39 +48,39 @@
 <div class="agile_last_double_sectionw3ls">
     <div class="container">
         <div class="col-md-6 multi-gd-img multi-gd-text ">
-            <a href="realestate.php"><img src="{{$categories[0]->image}}" alt=" "><h4>{{ $categories[0]->title }}</h4></a>
+            <a href="{{$categories[0]->url}}"><img src="{{$categories[0]->image}}" alt=" "><h4>{{ $categories[0]->title }}</h4></a>
         </div>
         <div class="col-md-6 multi-gd-img multi-gd-text ">
-            <a href="cars.php"><img src="{{$categories[1]->image}}" alt=" "><h4>{{ $categories[1]->title }}</h4></a>
+            <a href="{{$categories[0]->url}}"><img src="{{$categories[1]->image}}" alt=" "><h4>{{ $categories[1]->title }}</h4></a>
         </div>
     </div>
     <div class="clearfix"></div>
 </div>
 <div class="banner-bootom-w3-agileits">
     <div class="container">
-        <h3 class="wthree_text_info">التصنيفات</h3>
+        <h3 class="wthree_text_info">{{_lang('app.categories')}}</h3>
         <div class="col-md-4 bb-grids bb-middle-agileits-w3layouts">
             @if (isset($categories[2]))
-            <a href="department.php">
+            <a href="{{$categories[2]->url}}">
                 <div class="bb-middle-agileits-w3layouts grid">
                     <figure class="effect-roxy">
                         <img src="{{$categories[2]->image}}" alt=" " class="img-responsive" />
                         <figcaption>
                             <h3>{{ $categories[2]->title }}</h3>
-                            <p>مشاهدة المنتجات</p>
+                            <p>{{_lang('app.view_products')}}</p>
                         </figcaption>           
                     </figure>
                 </div>
             </a>
             @endif
             @if (isset($categories[3]))
-            <a href="department.php">
+            <a href="{{$categories[3]->url}}">
                 <div class="bb-middle-agileits-w3layouts forth grid">
                     <figure class="effect-roxy">
                         <img src="{{$categories[3]->image}}" alt=" " class="img-responsive">
                         <figcaption>
                             <h3>{{ $categories[3]->title }}</h3>
-                            <p>مشاهدة المنتجات</p>
+                            <p>{{_lang('app.view_products')}}</p>
                         </figcaption>       
                     </figure>
                 </div>
@@ -89,13 +89,13 @@
         @endif
         @if (isset($categories[4]))
         <div class="col-md-4 bb-grids bb-left-agileits-w3layouts">
-            <a href="department.php">
+            <a href="{{$categories[4]->url}}">
                 <div class="bb-left-agileits-w3layouts-inner grid">
                     <figure class="effect-roxy">
                         <img src="{{$categories[4]->image}}" alt=" " class="img-responsive center" />
                         <figcaption>
                             <h3>{{ $categories[4]->title }}</h3>
-                            <p>مشاهدة المنتجات</p>
+                            <p>{{_lang('app.view_products')}}</p>
                         </figcaption>           
                     </figure>
                 </div>
@@ -104,26 +104,26 @@
         @endif
         @if (isset($categories[5]))
         <div class="col-md-4 bb-grids bb-middle-agileits-w3layouts">
-            <a href="department.php">
+            <a href="{{$categories[5]->url}}">
                 <div class="bb-middle-agileits-w3layouts grid">
                     <figure class="effect-roxy">
                         <img src="{{$categories[5]->image}}" alt=" " class="img-responsive" />
                         <figcaption>
                             <h3>{{ $categories[5]->title }}</h3>
-                            <p>مشاهدة المنتجات</p>
+                           <p>{{_lang('app.view_products')}}</p>
                         </figcaption>           
                     </figure>
                 </div>
             </a>
             @endif
             @if (isset($categories[6]))
-            <a href="department.php">
+            <a href="{{$categories[6]->url}}">
                 <div class="bb-middle-agileits-w3layouts forth grid">
                     <figure class="effect-roxy">
                         <img src="{{$categories[6]->image}}" alt=" " class="img-responsive">
                         <figcaption>
                             <h3>{{ $categories[6]->title }}</h3>
-                            <p>مشاهدة المنتجات</p>
+                            <p>{{_lang('app.view_products')}}</p>
                         </figcaption>       
                     </figure>
                 </div>

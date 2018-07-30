@@ -84,17 +84,22 @@
                                             <div class="form-group">
                                                 <select class="frm-field required sect form-control" name="country" id="country">
                                                     <option value="">{{_lang('app.choose_country')}}</option>
-                                                     @foreach ($locations as $key => $one)
-                                                     <option {{$country_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
+                                                    @foreach ($locations as $key => $one)
+                                                    <option {{$country_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
                                                     @endforeach
-                                          	
+
                                                 </select>
                                                 <span class="help-block"></span>
                                             </div>
                                             <div class="form-group">
                                                 <select class="frm-field sect form-control" name="city" id="city">
-                                                    <option value="">{{_lang('app.choose_city')}}</option>	
-                                                  
+                                                    <option value="">{{_lang('app.choose_city')}}</option>
+                                                    @if(isset($cities))
+                                                    @foreach ($cities as $key => $one)
+                                                    <option {{$city_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
+                                                    @endforeach
+                                                    @endif
+
                                                 </select>
                                             </div>
                                         </form>

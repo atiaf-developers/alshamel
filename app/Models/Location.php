@@ -20,7 +20,8 @@ class Location extends MyModel {
                         ->leftJoin('currency', 'locations.currency_id', '=', 'currency.id')
                         ->leftJoin('currency_translations', function($join) {
                             $join->on('currency.id', '=', 'currency_translations.currency_id')
-                            ->where('currency_translations.locale', static::getLangCode());
+                            ->where('currency_translations.locale', static::getLangCode())
+                            ->orderBy('locations.this_order', 'ASC');
                         })
                         ->orderBy('locations.this_order', 'ASC')
                         ->where('locations.parent_id', $parent_id)

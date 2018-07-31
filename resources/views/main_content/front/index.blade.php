@@ -266,7 +266,7 @@
         <div class="col-md-9">
             <div class="sales-details">
                 <h5>{{_lang('app.about_alshamel')}}</h5>
-                <p>{{ $settings['info']->about_us}}</p>
+                <p>{{ str_limit( $settings['info']->about_us, 500, '...') }}</p>
 
                 <h6>{{_lang('app.download_now_an_application_on_your_phone')}}</h6>
                 <a href="{{ $settings['android_url']->value }}" class="bg"><img src="{{url('public/front/images')}}/apple.png" alt="" >{{_lang('app.download_from_app_store')}}</a>

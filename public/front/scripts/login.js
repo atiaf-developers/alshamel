@@ -80,7 +80,7 @@ var Login = function () {
                 formData.append('return', return_url);
             }
             $.ajax({
-                url: config.url + "/login",
+                url: config.site_url + "/login",
                 type: 'POST',
                 dataType: 'json',
                 data: formData,
@@ -93,7 +93,7 @@ var Login = function () {
                     console.log(data);
                     if (data.type == 'success') {
                         setTimeout(function () {
-                            window.location.href = config.url + '/';
+                            window.location.href = config.site_url + '/';
                         }, 1000);
 
 
@@ -182,7 +182,7 @@ var Login = function () {
         $('#forgotPasswordForm').submit(function () {
             var formData = new FormData($(this)[0]);
             $.ajax({
-                url: config.url + "/password/email",
+                url: config.site_url + "/password/email",
                 type: 'POST',
                 dataType: 'json',
                 data: formData,
@@ -301,7 +301,7 @@ var Login = function () {
         $('#changePasswordForm').submit(function () {
             var formData = new FormData($(this)[0]);
             $.ajax({
-                url: config.url + "/password/reset",
+                url: config.site_url + "/password/reset",
                 type: 'POST',
                 dataType: 'json',
                 data: formData,
@@ -312,11 +312,11 @@ var Login = function () {
                 success: function (data)
                 {
                     console.log(data);
-                     if (data.type == 'success') {
+                    if (data.type == 'success') {
 //                        $('.alert-danger').hide();
 //                        $('.alert-success').show().find('.message').html(data.message);
                         setTimeout(function () {
-                            window.location.href = config.url + '/login';
+                            window.location.href = config.site_url + '/login';
                         }, 3000);
 
                     } else {
@@ -336,7 +336,7 @@ var Login = function () {
                             $('.alert-danger').show().find('.message').html(data.message);
                         }
                     }
-                  
+
 
 
                 },
@@ -424,7 +424,7 @@ var Login = function () {
         $('#register-form').submit(function () {
             var formData = new FormData($(this)[0]);
             $.ajax({
-                url: config.url + "/register",
+                url: config.site_url + "/register",
                 type: 'POST',
                 dataType: 'json',
                 data: formData,
@@ -442,7 +442,7 @@ var Login = function () {
                         $('.alert-danger').hide();
                         $('.alert-success').show().find('.message').html(data.message);
                         setTimeout(function () {
-                            window.location.href = config.url + '/login';
+                            window.location.href = config.site_url + '/login';
                         }, 3000);
 
                     } else {
@@ -532,7 +532,7 @@ var Login = function () {
         $('#activationForm').submit(function () {
             var form_data = new FormData($(this)[0]);
             $.ajax({
-                url: config.url + "/activateuser",
+                url: config.site_url + "/activateuser",
                 type: 'POST',
                 dataType: 'json',
                 data: form_data,
@@ -643,7 +643,7 @@ var Login = function () {
         $('#editMobileForm').submit(function () {
             var form_data = new FormData($(this)[0]);
             $.ajax({
-                url: config.url + "/edituserphone",
+                url: config.site_url + "/edituserphone",
                 type: 'POST',
                 dataType: 'json',
                 data: form_data,
@@ -700,7 +700,7 @@ var Login = function () {
         });
 
     }
-      var handle_register = function () {
+    var handle_register = function () {
         $("#regForm").validate({
             //ignore: "",
             rules: {
@@ -755,7 +755,7 @@ var Login = function () {
                 formData.append('ajax_code', activation_code);
             }
             $.ajax({
-                url: config.url + "/register",
+                url: config.site_url + "/register",
                 type: 'POST',
                 dataType: 'json',
                 data: formData,
@@ -777,6 +777,9 @@ var Login = function () {
                             $('.next2').hide();
                             $('.alert-danger').hide();
                             $('.alert-success').show().find('.message').html(data.data.message);
+                            setTimeout(function () {
+                                window.location.href = config.site_url + '/login';
+                            }, 2000);
                         } else if (step == 1) {
                             $('#mobile-message').html($('#mobile').val());
                             activation_code = data.data.activation_code;
@@ -840,7 +843,7 @@ var Login = function () {
         });
 
     }
-      var showTab = function (n) {
+    var showTab = function (n) {
         // This function will display the specified tab of the form...
         var x = document.getElementsByClassName("tab");
         x[n].style.display = "block";
@@ -880,7 +883,7 @@ var Login = function () {
 
             App.emptyForm();
         },
-          nextPrev: function (ele, n) {
+        nextPrev: function (ele, n) {
             var type = $(ele).data('type');
             var x = document.getElementsByClassName("tab");
             var validate = $('#regForm').validate().form();
@@ -904,6 +907,33 @@ var Login = function () {
             }
 
 
+
+        },
+        resend_code: function () {
+
+            var action = config.site_url + '/ajax/resend_code';
+            $.ajax({
+                url: action,
+                data: {mobile: $('#mobile').val()},
+                async: false,
+                success: function (data) {
+                    console.log(data);
+                    if (data.type == 'success') {
+                        activation_code = data.data.activation_code;
+                        $('.alert-danger').hide();
+                        $('.alert-success').show().find('.message').html(lang.sent_successfully);
+                        $('.alert-success').delay(3000).fadeOut(1000);
+
+                    }
+
+
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    App.ajax_error_message(xhr);
+                },
+                dataType: "JSON",
+                type: "GET"
+            });
 
         }
     }

@@ -38,7 +38,13 @@ if (in_array($currentLanguageCode, $languages)) {
         Route::group(['prefix' => 'ajax'], function () {
             Route::get('change-location', 'AjaxController@changeLocation');
             Route::get('get-cities/{id}', 'AjaxController@getCities');
+            Route::get('get-cats/{id}', 'AjaxController@getCategories');
+            Route::get('get-basic-data/{id}', 'AjaxController@getBasicData');
+            Route::get('resend_code', 'AjaxController@resend_code');
         });
+        
+        Route::get('about-us', 'StaticController@about_us')->name('about_us');
+        Route::get('contact-us', 'StaticController@contact_us')->name('contact_us');
 
 
 
@@ -47,7 +53,8 @@ if (in_array($currentLanguageCode, $languages)) {
             Route::get('dashboard', 'DashboardController@index');
             Route::get('user/edit', 'UserController@showEditForm');
             Route::post('user/edit', 'UserController@edit');
-            Route::get('user/notifications', 'UserController@notifications');
+      
+            Route::resource('ads', 'AdsController');
         });
         Route::get('{any}','CategoriesController@index')->where('any', '.*');
     });

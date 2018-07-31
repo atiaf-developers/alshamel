@@ -17,9 +17,11 @@ class FrontController extends Controller {
     protected $lang_code;
     protected $User = false;
     protected $isUser = false;
+    protected $selectedCountry = null;
+    protected $selectedCity = null;
     protected $_Request = false;
     protected $limit = 1;
-    protected $_settings;
+    protected $settings;
     protected $data = array();
 
     public function __construct() {
@@ -31,10 +33,10 @@ class FrontController extends Controller {
         $this->check_auth();
         $this->getLangCode();
         $this->check_selected_country();
-        $this->data['categories'] = Category::getAllFront(['parent_id'=>0]);
-        $this->data['locations'] = Location::getAllFront();
+        $this->data['categories'] = Category::getAllFront(['parent_id' => 0]);
+        $this->data['countries'] = Location::getAllFront();
         $this->data['settings'] = Setting::getAll();
-        $this->_settings = $this->data['settings'];
+        $this->settings = $this->data['settings'];
         $this->data['locations'] = Location::getAllFront();
     }
 
@@ -64,13 +66,14 @@ class FrontController extends Controller {
     }
 
     private function check_selected_country() {
-        $this->data['country_id'] = null;
-        $this->data['city_id'] = null;
+
         if (\Cookie::get('country_id') !== null || \Cookie::get('city_id') !== null) {
-            $this->data['country_id'] = \Cookie::get('country_id') ? decrypt(\Cookie::get('country_id')) : null;
-            $this->data['city_id'] = \Cookie::get('city_id') ? decrypt(\Cookie::get('city_id')) : null;
-            $this->data['cities'] = Location::getAllFront(['parent_id' => $this->data['country_id']]);
+            $this->selectedCountry = \Cookie::get('country_id') ? decrypt(\Cookie::get('country_id')) : null;
+            $this->selectedCity = \Cookie::get('city_id') ? decrypt(\Cookie::get('city_id')) : null;
+            $this->data['cities'] = Location::getAllFront(['parent_id' => $this->selectedCountry]);
         }
+        $this->data['country_id'] = $this->selectedCountry;
+        $this->data['city_id'] = $this->selectedCity;
     }
 
     protected function _view($main_content, $type = 'front') {

@@ -51,6 +51,7 @@
         currency_sign: "{{ $currency_sign }}",
         order_is_deleted: "{{ _lang('app.order_is_deleted') }}",
         save: "{{ _lang('app.save') }}",
+        sent_successfully: "{{ _lang('app.sent_successfully') }}",
         request_sent_successfully: "{{ _lang('app.request_sent_successfully') }}",
         you_must_login_first: "{{ _lang('app.you_must_login_first') }}",
         view_resturantes: "{{ _lang('app.view_resturantes') }}",

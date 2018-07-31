@@ -67,7 +67,7 @@
                                                 <label class="control-label">{{ _lang('app.subject') }}</label>
                                                 <select class="form-control" name="type">
                                                    @foreach ($types as $key => $type)
-                                                       <option value="{{ $ke }}">{{ _lang('app.'.$type) }}</option>
+                                                       <option value="{{ $key }}">{{ _lang('app.'.$type) }}</option>
                                                        
                                                    @endforeach
                                                 </select>

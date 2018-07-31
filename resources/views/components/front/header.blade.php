@@ -7,6 +7,7 @@
             <ul>
                 <li><a href="{{url($next_lang_code.'/'.substr(Request()->path(), 3))}}"><span class="fa fa-language" aria-hidden="true"></span>{{$next_lang_text}}</a></li>
                 @if ($isUser)
+                <li><a href="{{_url('customer/dashboard') }}"><span class="fa fa-user-circle" aria-hidden="true"></span>{{_lang('app.profile')}}</a></li>
                 @else
                 <li><a href="{{_url('login?return='.base64_encode(request()->getPathInfo() . (request()->getQueryString() ? ('?' . request()->getQueryString()) : ''))) }}"><span class="fa fa-sign-in" aria-hidden="true"></span>تسجيل دخول</a></li>
                 @endif
@@ -35,7 +36,7 @@
                                     </div>
                                     <div class="collapse navbar-collapse menu--shylock" id="bs-example-navbar-collapse-1">
                                         <ul class="nav navbar-nav">
-                                            <li class="active menu__item--current"><a class="menu__link" href="index.php" id="home">{{_lang('app.home')}} <span class="sr-only">(current)</span></a></li>
+                                            <li class="active menu__item--current"><a class="menu__link" href="{{_url('')}}" id="home">{{_lang('app.home')}} <span class="sr-only">(current)</span></a></li>
                                             <li><a class="menu__link" href="{{isset($categories[0])? $categories[0]->url:'' }}">{{isset($categories[0])? $categories[0]->title:'' }}</a></li>
                                             <li><a class="menu__link" href="{{isset($categories[1])? $categories[1]->url:'' }}">{{isset($categories[1])? $categories[1]->title:'' }}</a></li>
                                             <li class="dropdown">
@@ -47,7 +48,7 @@
 
                                                                 @foreach ($categories as $key => $category)
                                                                 @continue($key == 0 || $key == 1)
-                                                                <li class="col-sm-4"><a href="">{{ $category->title }}</a></li>
+                                                                <li class="col-sm-4"><a href="{{ $category->url }}">{{ $category->title }}</a></li>
                                                                 @endforeach
 
                                                             </ul>
@@ -67,7 +68,7 @@
                 </div>
                 <div class="col-md-4">
                     <div class="search-agileinfo">
-                        <h3 class="country" data-toggle="modal" data-target="#searchModal">اختر الدولة<i class="fa fa-globe"></i></h3>
+                        <h3 class="country" data-toggle="modal" data-target="#searchModal">{{_lang('app.choose_country')}}<i class="fa fa-globe"></i></h3>
 
                         <div id="searchModal" class="modal" data-backdrop="static" data-keyboard="false">
                             <div class="modal-dialog modal-dialog-centered">
@@ -84,7 +85,7 @@
                                             <div class="form-group">
                                                 <select class="frm-field required sect form-control" name="country" id="country">
                                                     <option value="">{{_lang('app.choose_country')}}</option>
-                                                    @foreach ($locations as $key => $one)
+                                                    @foreach ($countries as $key => $one)
                                                     <option {{$country_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
                                                     @endforeach
 

@@ -23,6 +23,7 @@ class StaticController extends FrontController {
     }
 
     public function about_us() {
+        
         return $this->_view('static_pages/about_us');
     }
 

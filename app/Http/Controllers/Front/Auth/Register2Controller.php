@@ -12,7 +12,7 @@ use App\Models\User;
 use Session;
 use Socialite;
 
-class RegisterController extends FrontController {
+class Register2Controller extends FrontController {
     /*
       |--------------------------------------------------------------------------
       | Register Controller
@@ -29,7 +29,6 @@ use RegistersUsers;
     protected $redirectTo = '/activation';
     private $step_one_rules = array(
         'mobile' => 'required|unique:users',
-        'dial_code' => 'required',
     );
     private $step_two_rules = array(
         'code.*' => 'required',
@@ -37,7 +36,6 @@ use RegistersUsers;
     private $step_three_rules = array(
         'name' => 'required',
         'username' => 'required|unique:users',
-        'email' => 'required|unique:users',
         'mobile' => 'required|unique:users',
         'password' => 'required|min:6',
         'confirm_password' => 'required|same:password',
@@ -79,8 +77,8 @@ use RegistersUsers;
         }
         if ($step == 1) {
             $activation_code = Random(4);
-            $mobile = $request->input('dial_code') . $request->input('mobile');
-            //$send = $this->sendSMS([$mobile], $activation_code);
+            $mobile= $request->input('dial_code').$request->input('mobile');
+            $send = $this->sendSMS([$mobile], $activation_code);
             $message = _lang('app.verification_code_is') . ' ' . $activation_code;
             return _json('success', ['step' => $step, 'activation_code' => $activation_code]);
         } else if ($step == 2) {
@@ -97,17 +95,18 @@ use RegistersUsers;
                 $User = new User;
                 $User->name = $request->input('name');
                 $User->username = $request->input('username');
-                $User->mobile = $request->input('mobile');
-                $User->dial_code = $request->input('dial_code');
-                $User->image = "default.png";
-                $User->num_free_ads = $this->settings['num_free_ads']->value;
-                $User->email = $request->input('email');
+                $User->mobile = $request->input('dial_code') . $request->input('mobile');
+                if ($request->input('email')) {
+                    $User->email = $request->input('email');
+                }
                 $User->password = bcrypt($request->input('password'));
                 $User->active = 1;
+                $User->type = 1;
                 $User->save();
                 $message = _lang('app.registered_done_successfully');
                 return _json('success', ['step' => $step, 'message' => $message]);
             } catch (\Exception $ex) {
+
                 $message = _lang('app.error_is_occured');
                 return _json('error', $message);
             }

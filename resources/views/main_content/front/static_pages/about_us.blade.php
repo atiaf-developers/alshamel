@@ -29,9 +29,11 @@
                     <h3 class="title">{{ _lang('app.about_alshamel') }}</h3>
                      <div class="col-md-8 ab_pic_w3ls_text_info">
                         {{ $settings['info']->about_us }}
+                       
                      </div>
                     <div class="col-md-4 ab_pic_w3ls">
-                            <img src="{{url('public/uploads/settings/'.$settings['about_image']->value)}}" alt=" " class="img-responsive">
+                        
+                            <img src="{{$settings['about_image']}}" alt=" " class="img-responsive">
                     </div>
                     <div class="clearfix"></div>
                 </div>

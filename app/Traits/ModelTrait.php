@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Traits;
+
 use Image;
 
 trait ModelTrait {
@@ -8,9 +9,6 @@ trait ModelTrait {
     protected $lang_code;
     protected static $limit = 10;
     protected static $distance = 1000000;
-
-    
-    
 
     protected static function getLangCode() {
         $lang_code = app()->getLocale();
@@ -27,7 +25,6 @@ trait ModelTrait {
         }
         return $currency_sign;
     }
-
 
     protected static function transformCollection($items, $type = null, $extra_params = array()) {
 
@@ -50,7 +47,6 @@ trait ModelTrait {
 
         return $transformers;
     }
-
 
     protected static function handleKeywordWhere($columns, $keyword) {
         $search_exploded = explode(" ", $keyword);
@@ -135,7 +131,9 @@ trait ModelTrait {
     }
 
     protected static function deleteUploaded($path, $old_image) {
-
+        if (in_array($old_image, ['default.png', 'male.png', 'female.png'])) {
+            return;
+        }
         if (isset(static::$sizes) && !empty(static::$sizes)) {
             $files = array();
             $image_without_prefix = substr($old_image, strpos($old_image, '_') + 1); //without s_

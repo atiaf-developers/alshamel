@@ -16,8 +16,9 @@ class Setting extends MyModel {
     public static function getAll() {
         $settings = static::get()->keyBy('name');
         $settings['social_media'] = json_decode($settings['social_media']->value);
-        $settings['phone'] =explode(',',$settings['phone']->value);
-        $settings['email'] =explode(',',$settings['email']->value);
+        $settings['about_image'] = url('public/uploads/settings') . '/m_' . static::rmv_prefix($settings['about_image']->value);
+        $settings['phone'] = explode(',', $settings['phone']->value);
+        $settings['email'] = explode(',', $settings['email']->value);
         $settings['info'] = SettingTranslation::where('locale', static::getLangCode())->first();
         return $settings;
     }

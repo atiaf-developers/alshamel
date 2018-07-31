@@ -39,7 +39,7 @@ class Category extends MyModel {
         } else if (isset($where_array['slug'])) {
             $categories->where('categories.slug', $where_array['slug']);
         }
-        $categories->select('categories.id','categories.slug','categories.level', 'categories.image', 'categories.parents_ids', 'categories_translations.title');
+        $categories->select('categories.id','categories.slug','categories.level', 'categories.image','categories.form_type', 'categories.parents_ids', 'categories_translations.title');
         if (isset($where_array['parent_id'])) {
             $categories->orderBy('categories.this_order');
             $categories=$categories->get();
@@ -76,6 +76,7 @@ class Category extends MyModel {
         $transformer->slug = $item->slug;
         $transformer->title = $item->title;
         $transformer->level = $item->level;
+        $transformer->parents_ids = $item->parents_ids;
         $transformer->image = "";
         if ($item->image) {
             $category_image = static::rmv_prefix($item->image);

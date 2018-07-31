@@ -33,10 +33,17 @@ class CategoriesController extends FrontController {
             $this->data['cats'] = Category::getAllFront(['parent_id' => $category->id]);
             return $this->_view('categories.index');
         } else {
+            $where_array['form_type']=$category->form_type;
+            $where_array['country_id']= $this->selectedCountry;
+            if($this->selectedCity){
+                  $where_array['city_id']=$this->selectedCity;
+            }
+            $special_ads = Ad::getAdsApi($where_array, $this->User, null, 1);
+            $oridnary_ads = Ad::getAdsApi($where_array, $this->User, null, 2);
+            $ads = array_merge($special_ads, $oridnary_ads);
             $this->data['ads'] = $ads;
             return $this->_view('ads.index');
         }
-    
     }
 
 }

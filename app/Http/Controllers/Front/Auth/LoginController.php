@@ -28,49 +28,24 @@ class LoginController extends FrontController {
     }
 
     public function login(Request $request) {
+        
         $validator = Validator::make($request->all(), $this->rules);
         if ($validator->fails()) {
-            if ($request->ajax()) {
-                $errors = $validator->errors()->toArray();
-                return response()->json([
-                            'type' => 'error',
-                            'errors' => $errors
-                ]);
-            } else {
-                //dd($validator);
-                return redirect()->back()->withInput($request->only('email'))->withErrors($validator->errors()->toArray());
-            }
+            $errors = $validator->errors()->toArray();
+             return _json('error', $errors);
         } else {
             $username = $request->input('username');
             $password = $request->input('password');
             $User = $this->checkAuth($username);
             $is_logged_in = false;
             if ($User) {
-                $is_logged_in = true;
-                if ($password) {
-                    if (password_verify($password, $User->password)) {
-                        $is_logged_in = true;
-                    } else {
-                        $is_logged_in = false;
+                  if (password_verify($password, $User->password)) {
+                        Auth::guard('web')->login($User);
+                        return _json('success', route('home'));
                     }
-                }
             }
-            if ($is_logged_in) {
-                Auth::guard('web')->login($User);
-                if ($request->ajax()) {
-
-                    return _json('success', route('home'));
-                } else {
-                    return redirect()->intended(route('home'));
-                }
-            } else {
-                $msg = _lang('messages.invalid_credentials');
-                if ($request->ajax()) {
-                    return _json('error', $msg);
-                } else {
-                    return redirect()->back()->withInput($request->only('email', 'remember'))->withErrors(['msg' => $msg]);
-                }
-            }
+            return _json('error', _lang('app.invalid_credentials'));
+         
         }
     }
 

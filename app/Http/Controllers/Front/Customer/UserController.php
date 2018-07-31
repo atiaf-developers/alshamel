@@ -33,26 +33,20 @@ class UserController extends FrontController {
         }
         $rules['mobile'] = "required|unique:users,mobile,$User->id";
         $rules['username'] = "required|unique:users,username,$User->id";
+        $rules['email'] = "required|unique:users,email,$User->id";
         $rules['name'] = "required";
-        $rules['email'] = "email";
 
         $validator = Validator::make($request->all(), $this->edit_rules);
         if ($validator->fails()) {
             $this->errors = $validator->errors()->toArray();
-            if ($request->ajax()) {
-                return _json('error', $this->errors);
-            } else {
-                return redirect()->back()->withInput($request->all())->withErrors($this->errors);
-            }
+            return _json('error', $this->errors);
         }
 
         try {
             $User->name = $request->input('name');
             $User->username = $request->input('username');
             $User->mobile = $request->input('mobile');
-            if ($request->input('email')) {
-                $User->email = $request->input('email');
-            }
+            $User->email = $request->input('email');
             if ($image = $request->input('password')) {
                 $User->password = bcrypt($request->input('password'));
             }
@@ -62,27 +56,20 @@ class UserController extends FrontController {
                 $User->image = User::upload($image, 'users', true);
             }
             $User->save();
-            $message = _lang('app.registered_done_successfully');
-            if ($request->ajax()) {
-                return _json('success', $message);
-            } else {
-                return redirect()->back()->withInput($request->all())->with(['successMessage' => $message]);
-            }
+            $message = _lang('app.updated_successfully');
+            return _json('success', $message);
         } catch (\Exception $ex) {
-            dd($ex->getMessage());
+            //dd($ex->getMessage());
             $message = _lang('app.error_is_occured');
-            if ($request->ajax()) {
-                return _json('error', $message);
-            } else {
-                return redirect()->back()->withInput($request->all())->with(['errorMessage' => $message]);
-            }
+            return _json('error', $message);
         }
     }
 
     public function notifications() {
         $where_array['notifier_id'] = $this->User->id;
         $where_array['notifiable_type'] = 1;
-        $this->data['noti'] = Noti::getNoti($where_array,'ForFront');
+        $where_array['created_at'] = $this->User->created_at;
+        $this->data['noti'] = Noti::getNoti($where_array, 'ForFront');
         //dd($this->data['noti']);
         $view = 'customer.notifications';
         return $this->_view($view);

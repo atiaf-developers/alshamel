@@ -3,15 +3,94 @@ var Profile = function () {
 
     var init = function () {
         handle_edit();
-//        $.notify("asdf", {
-//        icon: "https://avatars3.githubusercontent.com/u/11307908?v=3&s=460"
-//      });
+        handleChangeCountry();
+        handleChangeCategory();
+        handleChangeSubCategory();
+
 
 
     }
 
+    var handleChangeCountry = function (ele, suite) {
+        $(document).on('change', 'select[name="ad_country"]', function () {
+            var country = $(this).val();
+            var html = '<option value="">' + lang.choose + '</option>';
+            if (country && country != '') {
+                $.get('' + config.ajax_url + '/get-cities/' + country, function (data) {
+                    if (data.data.length != 0)
+                    {
+                        $.each(data.data, function (index, Obj) {
+                            html += '<option value="' + Obj.id + '">' + Obj.title + '</option>';
+                        });
+                    }
+                    $('select[name="ad_city"]').html(html);
+
+                }, "json");
+            } else {
+                $('select[name="ad_city"]').html(html);
+            }
+        });
+
+
+    }
+    var handleChangeCategory = function (ele, suite) {
+        $(document).on('change', 'select[name="main_category"]', function () {
+            var main_category = $(this).val();
+            var html = '<option value="">' + lang.choose + '</option>';
+            if (country && country != '') {
+                $.get('' + config.ajax_url + '/get-cats/' + main_category, function (data) {
+                    if (data.data.length != 0)
+                    {
+                        $.each(data.data, function (index, Obj) {
+                            html += '<option value="' + Obj.id + '">' + Obj.title + '</option>';
+                        });
+                    }
+                    $('select[name="sub_category"]').html(html);
+
+                }, "json");
+            } else {
+                $('select[name="sub_category"]').html(html);
+            }
+        });
+
+
+    }
+      var handleChangeSubCategory = function () {
+        $(document).on('change', 'select[name="sub_category"]', function () {
+            var sub_category = $(this).val();
+            var url = config.ajax_url + '/get-basic-data/' + sub_category;
+
+            $('#loader').show();
+            $('.ad-form-content').addClass('loading');
+            setTimeout(function () {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    dataType: 'text',
+                    success: function (data)
+                    {
+                        console.log(data);
+                        $('#loader').hide();
+                        $('.ad-form-content').removeClass('loading');
+                          $('#basic-data-content').html(data);
+
+
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                       
+                        App.ajax_error_message(xhr);
+                    },
+                });
+
+            }, 1000);
+
+
+
+
+        });
+    }
     var handle_edit = function () {
-        $("#edit-form").validate({
+        $("#loginform").validate({
             rules: {
 //                name: {
 //                    required: true
@@ -49,44 +128,44 @@ var Profile = function () {
             }
 
         });
-        $('#edit-form .submit-form').click(function () {
-            var validate_2 = $('#edit-form').validate().form();
+        $('#loginform .submit-form').click(function () {
+            var validate_2 = $('#loginform').validate().form();
             errorElements = errorElements1.concat(errorElements2);
             if (validate_2) {
-                $('#edit-form .submit-form').prop('disabled', true);
-                $('#edit-form .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
+                $('#loginform .submit-form').prop('disabled', true);
+                $('#loginform .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
                 setTimeout(function () {
-                    $('#edit-form').submit();
+                    $('#loginform').submit();
                 }, 1000);
 
             }
             if (errorElements.length > 0) {
-                App.scrollToTopWhenFormHasError($('#edit-form'));
+                App.scrollToTopWhenFormHasError($('#loginform'));
             }
 
             return false;
 
         });
-        $('#edit-form input').keypress(function (e) {
+        $('#loginform input').keypress(function (e) {
             if (e.which == 13) {
-                var validate_2 = $('#edit-form').validate().form();
+                var validate_2 = $('#loginform').validate().form();
                 errorElements = errorElements1.concat(errorElements2);
                 if (validate_2) {
-                    $('#edit-form .submit-form').prop('disabled', true);
-                    $('#edit-form .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
+                    $('#loginform .submit-form').prop('disabled', true);
+                    $('#loginform .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
                     setTimeout(function () {
-                        $('#edit-form').submit();
+                        $('#loginform').submit();
                     }, 1000);
 
                 }
                 if (errorElements.length > 0) {
-                    App.scrollToTopWhenFormHasError($('#edit-form'));
+                    App.scrollToTopWhenFormHasError($('#loginform'));
                 }
 
                 return false;
             }
         });
-        $('#edit-form').submit(function () {
+        $('#loginform').submit(function () {
             var formData = new FormData($(this)[0]);
             $.ajax({
                 url: config.customer_url + "/user/edit",
@@ -101,8 +180,8 @@ var Profile = function () {
                 {
                     console.log(data);
 
-//                    $('#edit-form .submit-form').prop('disabled', false);
-//                    $('#edit-form .submit-form').html(lang.save);
+//                    $('#loginform .submit-form').prop('disabled', false);
+//                    $('#loginform .submit-form').html(lang.save);
                     if (data.type == 'success') {
 //                        $('.alert-danger').hide();
 //                        $('.alert-success').show().find('.message').html(data.message);
@@ -111,8 +190,8 @@ var Profile = function () {
                         }, 3000);
 
                     } else {
-                        $('#edit-form .submit-form').prop('disabled', false);
-                        $('#edit-form .submit-form').html(lang.edit);
+                        $('#loginform .submit-form').prop('disabled', false);
+                        $('#loginform .submit-form').html(lang.edit);
                         if (typeof data.errors !== 'undefined') {
                             console.log(data.errors);
                             for (i in data.errors)
@@ -131,8 +210,8 @@ var Profile = function () {
 
                 },
                 error: function (xhr, textStatus, errorThrown) {
-                    $('#edit-form .submit-form').prop('disabled', false);
-                    $('#edit-form .submit-form').html(lang.save);
+                    $('#loginform .submit-form').prop('disabled', false);
+                    $('#loginform .submit-form').html(lang.save);
                     App.ajax_error_message(xhr);
 
                 },
@@ -148,7 +227,7 @@ var Profile = function () {
         init: function () {
             init();
         }
-        
+
     }
 
 }();

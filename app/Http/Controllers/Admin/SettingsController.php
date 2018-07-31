@@ -15,8 +15,12 @@ class SettingsController extends BackendController {
         'setting.num_free_ads' => 'required',
         'setting.phone' => 'required',
         'setting.email' => 'required',
+
         'setting.android_url' => 'required',
         'setting.ios_url' => 'required',
+
+
+
         'setting.social_media.facebook' => 'required',
         'setting.social_media.twitter' => 'required',
         'setting.social_media.google' => 'required',
@@ -60,8 +64,11 @@ class SettingsController extends BackendController {
             DB::beginTransaction();
             try {
                 $setting = $request->input('setting');
+                $setting_upload = $request->file('setting');
+
 
                 $data_update = [];
+                
 
 
                 foreach ($setting as $key => $value) {
@@ -73,6 +80,18 @@ class SettingsController extends BackendController {
                         'cond' => [['name', '=', "'$key'"]],
                     ];
                 }
+
+                 if ($setting_upload) {
+                    foreach ($setting_upload as $key => $value) {
+                        $value = Setting::upload($value, 'settings', true);
+                        
+                        $data_update['value'][] = [
+                            'value' => $value,
+                            'cond' => [['name', '=', "'$key'"]],
+                        ];
+                    }
+                }
+                
                 $this->updateValues('\App\Models\Setting', $data_update, true);
                 $about_us = $request->input('about_us');
                 $policy = $request->input('policy');
@@ -80,7 +99,7 @@ class SettingsController extends BackendController {
                 $key_words = $request->input('key_words');
                 foreach ($this->languages as $key => $value) {
                     SettingTranslation::updateOrCreate(
-                            ['locale' => $key], ['locale' => $key, 'policy' => $policy[$key], 'about_us' => $about_us[$key] ,'description' => $description[$key] ,'key_words' => $key_words[$key]]
+                        ['locale' => $key], ['locale' => $key, 'policy' => $policy[$key], 'about_us' => $about_us[$key] ,'description' => $description[$key] ,'key_words' => $key_words[$key]]
                     );
                 }
 
@@ -123,7 +142,7 @@ class SettingsController extends BackendController {
                 $policy = $request->input('policy');
                 foreach ($this->languages as $key => $value) {
                     SettingTranslation::updateOrCreate(
-                            ['locale' => $key], ['locale' => $key, 'policy' => $policy[$key], 'about_us' => $about_us[$key]]
+                        ['locale' => $key], ['locale' => $key, 'policy' => $policy[$key], 'about_us' => $about_us[$key]]
                     );
                 }
                 DB::commit();

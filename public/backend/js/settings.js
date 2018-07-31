@@ -2,6 +2,7 @@ var Settings = function() {
 
     var init = function() {
         handleSubmit();
+        My.readImageMulti('about_image');
     };
 
     var handleSubmit = function() {

@@ -86,7 +86,7 @@ var Locations = function() {
                 { "data": "options", orderable: false, searchable: false }
             ],
             "order": [
-                [2, "asc"]
+                [1, "asc"]
             ],
             "oLanguage": { "sUrl": config.url + '/datatable-lang-' + config.lang_code + '.json' }
 

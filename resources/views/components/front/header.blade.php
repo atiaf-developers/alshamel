@@ -36,8 +36,8 @@
                                     <div class="collapse navbar-collapse menu--shylock" id="bs-example-navbar-collapse-1">
                                         <ul class="nav navbar-nav">
                                             <li class="active menu__item--current"><a class="menu__link" href="index.php" id="home">{{_lang('app.home')}} <span class="sr-only">(current)</span></a></li>
-                                            <li><a class="menu__link" href="realestate.php">{{ $categories[0]->title }}</a></li>
-                                            <li><a class="menu__link" href="cars.php">{{ $categories[1]->title }}</a></li>
+                                            <li><a class="menu__link" href="{{isset($categories[0])? $categories[0]->url:'' }}">{{isset($categories[0])? $categories[0]->title:'' }}</a></li>
+                                            <li><a class="menu__link" href="{{isset($categories[1])? $categories[1]->url:'' }}">{{isset($categories[1])? $categories[1]->title:'' }}</a></li>
                                             <li class="dropdown">
                                                 <a href="#" class="dropdown-toggle menu__link" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{_lang('app.categories')}}<span class="caret"></span></a>
                                                 <ul class="dropdown-menu multi-column columns-3">

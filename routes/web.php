@@ -21,6 +21,7 @@ if ($defaultLanguage) {
 }
 
 $currentLanguageCode = Request::segment(1, $defaultLanguageCode);
+
 if (in_array($currentLanguageCode, $languages)) {
     Route::get('/', function () use($defaultLanguageCode) {
         return redirect()->to($defaultLanguageCode);
@@ -29,18 +30,16 @@ if (in_array($currentLanguageCode, $languages)) {
 
     Route::group(['namespace' => 'Front', 'prefix' => $currentLanguageCode], function () use($currentLanguageCode) {
         app()->setLocale($currentLanguageCode);
-        app()->setLocale($currentLanguageCode);
+
         Route::get('/', 'HomeController@index')->name('home');
-       
+
         Auth::routes();
         /*         * ************************* ajax ************** */
         Route::group(['prefix' => 'ajax'], function () {
             Route::get('change-location', 'AjaxController@changeLocation');
             Route::get('get-cities/{id}', 'AjaxController@getCities');
-     
         });
-         Route::get('{any}','CategoriesController@index');
-      
+
 
 
         /*         * ************************* user ************** */
@@ -50,6 +49,7 @@ if (in_array($currentLanguageCode, $languages)) {
             Route::post('user/edit', 'UserController@edit');
             Route::get('user/notifications', 'UserController@notifications');
         });
+        Route::get('{any}','CategoriesController@index')->where('any', '.*');
     });
 } else {
     Route::get('/' . $currentLanguageCode, function () use($defaultLanguageCode) {
@@ -60,7 +60,7 @@ if (in_array($currentLanguageCode, $languages)) {
 
 //Route::group(['middleware'=>'auth:admin'], function () {
 Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
-    
+
     Route::get('/', 'AdminController@index')->name('admin.dashboard');
     Route::get('/error', 'AdminController@error')->name('admin.error');
     Route::get('/change_lang', 'AjaxController@change_lang')->name('ajax.change_lang');
@@ -93,9 +93,9 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::resource('basic_data', 'BasicDataController');
     Route::post('basic_data/data', 'BasicDataController@data');
 
-    
-    
-    
+
+
+
 
     Route::resource('users', 'UsersController');
     Route::post('users/data', 'UsersController@data');
@@ -108,7 +108,7 @@ Route::group(['namespace' => 'Admin', 'prefix' => 'admin'], function () {
     Route::get('ads/comments/{id}/status', 'AdsController@comment_status');
     Route::delete('ads/comments/{id}/delete', 'AdsController@delete_comment');
 
-    
+
 
 
 

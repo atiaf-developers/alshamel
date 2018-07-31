@@ -42,7 +42,7 @@ class Category extends MyModel {
         $categories->select('categories.id','categories.slug','categories.level', 'categories.image', 'categories.parents_ids', 'categories_translations.title');
         if (isset($where_array['parent_id'])) {
             $categories->orderBy('categories.this_order');
-            $categories->get();
+            $categories=$categories->get();
 
             $categories= static::transformCollection($categories, 'Front');
         } else {
@@ -82,7 +82,9 @@ class Category extends MyModel {
             $transformer->image = url('public/uploads/categories') . '/m_' . $category_image;
         }
         $transformer->has_sub = $item->childrens->count() > 0 ? true : false;
-        $transformer->url = _url($item->slug . '/' . implode('/', static::node_path($item->id)));
+        $path_arr=static::node_path($item->id);
+        $transformer->path_arr = $path_arr;
+        $transformer->url = _url(static::node_path_url($path_arr)) ;
         return $transformer;
     }
 
@@ -116,14 +118,23 @@ class Category extends MyModel {
             $parents_ids[] = $id;
             $categories = Category::leftJoin('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
                     ->whereIn('categories.id', $parents_ids)
-                    ->where('trans.locale', $this->lang_code)
+                    ->where('trans.locale', static::getLangCode())
                     ->orderBy('categories.id', 'ASC')
-                    ->select('trans.slug')
-                    ->pluck('trans.slug')
-                    ->toArray();
+                    ->select('trans.title','categories.slug')
+                    ->get();
         }
         return $categories;
     }
+    private static function node_path_url($path_arr) {
+        $str='';
+        if(!empty($path_arr)){
+            foreach($path_arr as $one){
+                $str.=$one->slug.'/';
+            }
+        }
+        return trim($str, '/');
+    }
+
 
     protected static function boot() {
         parent::boot();

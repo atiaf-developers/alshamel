@@ -51,7 +51,7 @@
             <a href="{{$categories[0]->url}}"><img src="{{$categories[0]->image}}" alt=" "><h4>{{ $categories[0]->title }}</h4></a>
         </div>
         <div class="col-md-6 multi-gd-img multi-gd-text ">
-            <a href="{{$categories[0]->url}}"><img src="{{$categories[1]->image}}" alt=" "><h4>{{ $categories[1]->title }}</h4></a>
+            <a href="{{$categories[1]->url}}"><img src="{{$categories[1]->image}}" alt=" "><h4>{{ $categories[1]->title }}</h4></a>
         </div>
     </div>
     <div class="clearfix"></div>

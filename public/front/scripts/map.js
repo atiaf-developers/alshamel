@@ -482,6 +482,7 @@ var Map = function () {
                     createMarker(map, latlng,false,results[0].formatted_address);
                     document.getElementById('lat').value = latlng.lat();
                     document.getElementById('lng').value = latlng.lng();
+                    document.getElementById('latlng').value = latlng.lat()+','+latlng.lng();
                     console.log(results[0]);
                 } else {
                     window.alert('No results found');

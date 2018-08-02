@@ -23,6 +23,318 @@ class BasicData extends MyModel {
         4 => []
     ];
 
+    public static function getDataFrontAjax($params = array()) {
+        $data = array();
+
+        if ($params['form_type'] == 1) {
+            $data = array(
+                [
+                    'name' => 'property_type',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'rooms_number',
+                    'type' => 'range',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'baths_number',
+                    'type' => 'range',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'has_parking',
+                    'type' => 'radio',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'furnished',
+                    'type' => 'radio',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'area',
+                    'type' => 'text',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'price',
+                    'type' => 'text',
+                    'rules' => 'required'
+                ]
+            );
+        } else if ($params['form_type'] == 2) {
+            $data = array(
+                [
+                    'name' => 'area',
+                    'type' => 'text',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'price',
+                    'type' => 'text',
+                    'rules' => 'required'
+                ]
+            );
+        } else if ($params['form_type'] == 3) {
+            $data = array(
+                [
+                    'name' => 'engine_capacity',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'fuel_type',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'motion_vector',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'propulsion_system',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'measruing_unit',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'car_speedometer',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'manufacturing_year',
+                    'type' => 'range',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'status',
+                    'type' => 'dropdown',
+                    'rules' => 'required'
+                ],
+                [
+                    'name' => 'price',
+                    'type' => 'text',
+                    'rules' => 'required'
+                ]
+            );
+        }
+        $category_childrens = Category::getAll($params['category_id']);
+
+        if ($category_childrens->count() > 0) {
+            $data[] = [
+                'name' => 'category',
+                'type' => 'dropdown',
+                'rules' => 'required'
+            ];
+        }
+
+
+
+        return $data;
+    }
+
+    private static function getDataFront($params) {
+        $data = array();
+        $settings = Setting::get()->keyBy('name');
+        $settings['rooms_range'] = json_decode($settings['rooms_range']->value);
+        $settings['baths_range'] = json_decode($settings['baths_range']->value);
+
+        if ($params['form_type'] == 1) {
+            $data = array(
+                'property_types' => [
+                    'name' => 'property_type',
+                    'label' => _lang('app.property_type'),
+                    'type' => 'dropdown',
+                    'values' => array()
+                ],
+                'rooms_number' => [
+                    'name' => 'rooms_number',
+                    'label' => _lang('app.rooms_number'),
+                    'type' => 'range',
+                    'from' => (int) $settings['rooms_range']->from,
+                    'to' => (int) $settings['rooms_range']->to
+                ],
+                'baths_number' => [
+                    'name' => 'baths_number',
+                    'label' => _lang('app.baths_number'),
+                    'type' => 'range',
+                    'from' => (int) $settings['baths_range']->from,
+                    'to' => (int) $settings['baths_range']->to
+                ],
+                'furnished' => [
+                    'name' => 'furnished',
+                    'label' => _lang('app.furnished'),
+                    'type' => 'radio',
+                    'values' => [(object) ['id' => 1, 'title' => _lang('app.yes')], (object) ['id' => 0, 'title' => _lang('app.no')]]
+                ],
+                'has_parking' => [
+                    'name' => 'has_parking',
+                    'label' => _lang('app.has_parking'),
+                    'type' => 'radio',
+                    'values' => [(object) ['id' => 1, 'title' => _lang('app.yes')], (object) ['id' => 0, 'title' => _lang('app.no')]]
+                ],
+                'area' => [
+                    'name' => 'area',
+                    'label' => _lang('app.area') . ' ( ' . _lang('app.m²') . ' )',
+                    'type' => 'text',
+                    'values' => []
+                ],
+                'price' => [
+                    'name' => 'price',
+                    'label' => _lang('app.price'),
+                    'type' => 'text',
+                    'values' => []
+                ]
+            );
+        } else if ($params['form_type'] == 2) {
+            $data = array(
+                'area' => [
+                    'name' => 'area',
+                    'label' => _lang('app.area') . ' ( ' . _lang('app.m²') . ' )',
+                    'type' => 'text',
+                    'values' => []
+                ],
+                'price' => [
+                    'name' => 'price',
+                    'label' => _lang('app.price'),
+                    'type' => 'text',
+                    'values' => []
+                ]
+            );
+        } else if ($params['form_type'] == 3) {
+            $current_year = (int) date('Y');
+            $data = array(
+                'engine_capacities' => [
+                    'name' => 'engine_capacity',
+                    'label' => _lang('app.engine_capacity'),
+                    'type' => 'dropdown',
+                    'values' => array()
+                ],
+                'fuel_types' => [
+                    'name' => 'fuel_type',
+                    'label' => _lang('app.fuel_type'),
+                    'type' => 'dropdown',
+                    'values' => array()
+                ],
+                'motion_vectors' => [
+                    'name' => 'motion_vector',
+                    'label' => _lang('app.motion_vector'),
+                    'type' => 'dropdown',
+                    'values' => array()
+                ],
+                'propulsion_systems' => [
+                    'name' => 'propulsion_system',
+                    'label' => _lang('app.propulsion_system'),
+                    'type' => 'dropdown',
+                    'values' => array()
+                ],
+                'measruing_unit' => [
+                    'name' => 'measruing_unit',
+                    'label' => _lang('app.measruing_unit'),
+                    'type' => 'dropdown',
+                    'values' => [(object) ['id' => 6, 'title' => _lang('app.kilo')], (object) ['id' => 7, 'title' => _lang('app.mileage')]]
+                ],
+                'car_speedometer' => [
+                    'name' => 'car_speedometer',
+                    'label' => _lang('app.car_speedometer'),
+                    'type' => 'dropdown',
+                    'values' => array()
+                ],
+                'manufacturing_year' => [
+                    'name' => 'manufacturing_year',
+                    'label' => _lang('app.manufacturing_year'),
+                    'type' => 'range',
+                    'from' => (int) $settings['manufacturing_year_start']->value,
+                    'to' => $current_year
+                ],
+                 'status' => [
+                    'name' => 'status',
+                    'label' => _lang('app.status'),
+                    'type' => 'dropdown',
+                    'values' => [(object) ['id' => 1, 'title' => _lang('app.new')], (object) ['id' => 0, 'title' => _lang('app.used')]]
+                ],
+                'price' => [
+                    'name' => 'price',
+                    'label' => _lang('app.price'),
+                    'type' => 'text',
+                    'values' => []
+                ]
+            );
+        }
+
+        $category_childrens = Category::getAll($params['category_id']);
+
+        if ($category_childrens->count() > 0) {
+            $first_parent_id = explode(",", $category_childrens[0]->parents_ids);
+            $first_parent = Category::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')
+                    ->where('trans.locale', static::getLangCode())
+                    ->select('trans.label')
+                    ->where('categories.id', $first_parent_id[0])
+                    ->first();
+            $data[] = [
+                'name' => 'category',
+                'label' => $first_parent->label,
+                'type' => 'dropdown',
+                'values' => self::transformCollection($category_childrens)
+            ];
+        }
+
+
+        return $data;
+    }
+
+    public static function getAllFront($params = array()) {
+
+        $result = static::join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id')
+                ->orderBy('basic_data.this_order', 'ASC')
+                ->where('trans.locale', static::getLangCode())
+                ->where('basic_data.active', true)
+                ->whereIn('basic_data.type', self::$form_type_basic_data[$params['form_type']])
+                ->select('basic_data.id', 'trans.title', 'basic_data.type')
+                ->get();
+
+        $data = static::getDataFront($params);
+        //dd($params);
+        if ($params['form_type'] == 1) {
+            $data['property_types']['values'] = self::transformCollection($result);
+        } else if ($params['form_type'] == 3) {
+
+            foreach ($result as $item) {
+                switch ($item->type) {
+                    case 2:
+                        $data['engine_capacities']['values'][] = self::transform($item);
+                        break;
+                    case 3:
+                        $data['fuel_types']['values'][] = self::transform($item);
+                        break;
+                    case 4:
+                        $data['motion_vectors']['values'][] = self::transform($item);
+                        break;
+                    case 5:
+                        $data['propulsion_systems']['values'][] = self::transform($item);
+                        break;
+
+
+                    default:
+                        // code...
+                        break;
+                }
+            }
+        }
+        if (empty($data)) {
+            $data = new \stdClass();
+        }
+        return $data;
+    }
+
     private static function getData($request) {
         $data = array();
         $settings = Setting::get()->keyBy('name');
@@ -91,6 +403,7 @@ class BasicData extends MyModel {
         }
 
         $category_childrens = Category::getAll($request->input('category_id'));
+
         if ($category_childrens->count() > 0) {
             $first_parent_id = explode(",", $category_childrens[0]->parents_ids);
             $first_parent = Category::join('categories_translations as trans', 'categories.id', '=', 'trans.category_id')

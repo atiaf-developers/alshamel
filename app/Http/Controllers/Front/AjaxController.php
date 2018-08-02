@@ -73,19 +73,34 @@ class AjaxController extends FrontController {
         if(!$category){
             
         }
-        $request->merge(['form_type' => $category->form_type]);
-        if($request->form_type==1){
-            $view='property';
-        }else if($request->form_type==3){
-            $view='cars';
-        }else if($request->form_type==2){
-            $view='lands';
-        }else{
-            $view='default';
-        }
-        $this->data['basic_data'] = BasicData::getAll($request);
     
-        echo $this->_view('ajax.ads.'.$view)->render();
+    
+        $this->data['basic_data'] = BasicData::getAllFront(['category_id' => $category->id,'form_type' => $category->form_type]);
+      
+        echo $this->_view('ajax.ad_form')->render();
+    }
+    public function getBasicDataParams(Request $request,$category_id) {
+        $category=Category::find($category_id);
+        if(!$category){
+            
+        }
+    
+        $basic_data = BasicData::getDataFrontAjax(['category_id' => $category->id,'form_type' => $category->form_type]);
+    
+         return _json('success', $basic_data);
+    }
+    public function getCarSpeedometer(Request $request,$type) {
+       $result = BasicData::join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id')
+                ->orderBy('basic_data.this_order', 'ASC')
+                ->where('trans.locale', $this->lang_code)
+                ->where('basic_data.active', true)
+                ->where('basic_data.type', $type)
+                ->select('basic_data.id', 'trans.title', 'basic_data.type')
+                ->get();
+       //dd($result);
+       $result= BasicData::transformCollection($result);
+    
+         return _json('success', $result);
     }
 
     public function resend_code(Request $request) {

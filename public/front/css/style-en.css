@@ -222,11 +222,12 @@ a.youtube .front {
     float: right;
     text-align: center;
     box-shadow: 1px 2px 3px #8a8a8a;
+    direction: rtl;
 }
 .details-icon{
     width:100%;
     display: block;
-    float: right;
+    float: left;
     padding-top: 10px;
     border-top: 2px solid #fff;
 }
@@ -236,9 +237,10 @@ a.youtube .front {
     margin: 5px 0;
     direction: rtl;
     width: 50%;
-    float: right;
+    float: left;
     display: block;
     font-weight: normal;
+    direction: ltr;
 }
 .details h4{
     margin: 10px 0 15px;
@@ -246,7 +248,7 @@ a.youtube .front {
     color: #764576;
     font-weight: bold;
     height:40px;
-    direction: rtl;
+    direction: ltr;
 }
 .fa-star{
     margin: 7px 0;
@@ -304,11 +306,10 @@ li.share {
 /*--social-icons--*/
 .logo_agile {
     text-align: center;
-    float: right;
 }
 .logo_agile img {
     width:55%;
-    float: right;
+    float: left;
 }
 
 
@@ -416,9 +417,7 @@ li.share {
     background-image: -webkit-linear-gradient(left, #5E285C 0%, #8A5C8B 100%);
     background-image: linear-gradient(to right, #5E285C 0%, #8A5C8B 100%);
 }
-.ban-top .col-md-8{
-    float: right;
-}
+
 .ban-top .col-md-4{
     float: left;
 }
@@ -433,9 +432,6 @@ li.share {
 navbar-default {
     border-color: transparent;
     background: none;
-}
-.navbar-nav{
-    float: right;
 }
 .dropdown-menu ul li {
     list-style-type: none;
@@ -459,6 +455,10 @@ navbar-default {
     background: none;
     color:#fff;
 }
+.navbar-default li.menu__item--current a{
+    margin-left: 0;
+    padding-left: 0;
+}
 .navbar {
     margin-bottom:0;
     border:none;
@@ -468,17 +468,14 @@ navbar-default {
     background:none;
 }
 ul.dropdown-menu li a{
-    text-align: right;
-    direction: rtl;
+    text-align: left;
+    direction: ltr;
 }
 ul.dropdown-menu li a i.fa-angle-left{
     padding-left: 5px;
     color:#fff;
 }
-.dropdown-menu{
-    right: 0;
-    left:auto;
-}
+
 .caret{
     float: left;
     margin: 20px 7px 0 0;
@@ -506,9 +503,6 @@ ul.dropdown-menu li a i.fa-angle-left{
 }
 .navbar-default{
     background: none;
-}
-.navbar-nav > li{
-    float: right;
 }
 .navbar-nav > li > a{
     line-height: 40px;
@@ -566,7 +560,7 @@ button.search {
 .phone-w3l ul li {
     display: inline;
     font-size: 16px;
-    float: left;
+    float: right;
     color: #fff;
     padding: 7px 10px;
     background: #8a5c8b;
@@ -949,6 +943,7 @@ figure.effect-roxy h3 {
     color: #fff;
     text-shadow:1px 1px #000;
     font-weight: bold;
+    text-align: left;
 }
 figure.effect-roxy p {
 	opacity: 0;
@@ -956,6 +951,7 @@ figure.effect-roxy p {
 	transition: opacity 0.35s, transform 0.35s;
 	-webkit-transform: translate3d(-10px,0,0);
 	transform: translate3d(-10px,0,0);
+        text-align: left;
 }
 
 figure.effect-roxy:hover img,.agileinfo_banner_bottom_grid_three_left:hover img{
@@ -985,7 +981,6 @@ figure.effect-roxy:hover p,.agileinfo_banner_bottom_grid_three_left:hover figcap
 }
 /*-- //banner-bottom --*/
 .banner-bootom-w3-agileits .col-md-4{
-    float: right;
     margin-top:15px;
 }
 .carousel-control.right, .carousel-control.left{
@@ -1010,8 +1005,8 @@ ul.social-nav.model-3d-0.footer-social.w3_agile_social.two {
     float: none;
 }
 .footer .footer-grid{
-    float: right;
-    text-align: right;
+    float: left;
+    text-align: left;
 }
 .footer .footer-grid p{
     color: #737070;
@@ -1055,6 +1050,7 @@ ul.social-nav.model-3d-0.footer-social.w3_agile_social.two {
     color: #FFFFFF;
     font-size: 0.9em;
     margin: 0;
+    direction: rtl;
 }
 .w3-address-right p a{
     color: #703e70;
@@ -1076,7 +1072,7 @@ p.copy-right {
     text-align: center;
     margin-top: 62px;
     font-size: 14px;
-    direction: rtl;
+    direction: ltr;
     border-top: 1px solid #8d5c8d;
     padding: 10px 0 0 0;
 }
@@ -1098,6 +1094,7 @@ color: #aeaeae;
     font-weight: bold;
     padding: 10px;
     text-shadow: 1px 1px 3px #000;
+    direction: ltr;
 }
 .multi-gd-img.multi-gd-text h4  span{
     font-weight:700;
@@ -1111,14 +1108,14 @@ color: #aeaeae;
 } 
 .address-grid {
     padding: 1em 0em 0 0em;
-    float: right;
-    text-align: right;
+    float: left;
+    text-align: left;
 }
 .contact-form {
     background: #eee;
     padding:2em;
-    text-align: right;
-    direction: rtl;
+    text-align: left;
+    direction: ltr;
     border-radius: 5px;
     height: auto;
 }
@@ -1810,7 +1807,7 @@ a.single-item{
 }
 .sale-w3ls h5 {
     font-size: 2.2em;
-    text-align: right;
+    text-align: left;
     color: #000;
     font-weight: 700;
     margin-bottom: 0.5em;
@@ -1818,7 +1815,7 @@ a.single-item{
 }
 .sale-w3ls h6{
     font-size: 1.5em;
-    text-align: right;
+    text-align: left;
     color: #000;
     font-weight: 700;
     margin-bottom: 0.5em;
@@ -1836,14 +1833,14 @@ a.single-item{
     padding: 8px 20px;
     margin-top: 2em;
     direction: rtl;
-    float: right;
+    float: left;
 }
 .sale-w3ls a img{
     width: 24px;
     height:24px;
-    float: right;
+    float: left;
     display: block;
-    margin-left: 5px;
+    margin-right: 5px;
     margin-top: 0;
 }
 .sale-w3ls .col-md-8{
@@ -1851,7 +1848,7 @@ a.single-item{
 }
 .sale-w3ls p{
     text-align: justify;
-    direction: rtl;
+    direction: ltr;
     padding-bottom: 20px;
     border-bottom: 1px solid #000;
     font-size: 16px;
@@ -1931,7 +1928,7 @@ a.single-item{
 /*-- //login --*/
 /*-- navigation --*/
 .agile_inner_drop_nav_info .col-sm-4{
-    float: right;
+    float: left;
 }
 ul.multi-column-dropdown li {
     list-style-type: none;
@@ -1942,6 +1939,7 @@ ul.multi-column-dropdown li a {
     font-size: 1em;
     color: #545454;
     font-weight: bold;
+    text-align: left;
 }
 .col-sm-3.multi-gd-img {
     padding: 0;
@@ -2090,9 +2088,6 @@ color: #545454;
 .agile_ab_w3ls_info .ab_pic_w3ls{
     float: right;
 }
-.agile_ab_w3ls_info .col-md-8{
-    float:right;
-}
 hr.hr-short{
     position: relative;
     max-width: 55px;
@@ -2133,10 +2128,12 @@ ul.w3_short li {
     color: #fff;
     font-size:18px;
     font-weight:600;
+    float: left;
 }
 ul.w3_short li a {
     color: #8a5c8b;
     text-decoration: none;
+    float: left;
 }
 .services-breadcrumb {
     padding: 0;
@@ -2148,7 +2145,7 @@ ul.w3_short li a {
     padding: 0 1em;
 }
 ul.w3_short {
-    text-align: right;
+    text-align: left;
     padding-top: 2.5em;
 }
 
@@ -2169,6 +2166,7 @@ ul.w3_short {
 .agile_ab_w3ls_info p{
     color: #545454;
     line-height: 2em;
+    direction: ltr;
 }
 .ab_pic_w3ls_text_info a.bg{
     padding: 7px 15px;
@@ -2230,7 +2228,7 @@ h3.tittle {
 .mail-agileits-w3layouts i {
     color: #8a5c8b;
     font-size: 23px;
-    float: right;
+    float: left;
     width: 70px;
     height: 70px;
     border: 2px solid #ddd;
@@ -2262,8 +2260,8 @@ h3.tittle {
     display: block;
 }
 .contact-right {
-    padding-right: 2em;
-    float: right;
+    padding-left: 2em;
+    float: left;
 }
 .contact-form input[type="text"], .contact-form input[type="email"], .contact-form textarea {
     font-size: 15px;
@@ -2491,6 +2489,7 @@ h3.agileits-icons-title {
 }
 .panel-padding{
     padding: 40px;
+    direction: rtl;
 }
 h3.title{
     text-align: center;
@@ -2506,25 +2505,26 @@ h3.title{
     padding-top: 30px;
 }
 .login .form-horizontal{
-    direction: rtl;
+    direction: ltr;
 }
 .login .input-group-addon:first-child{
     border-left: 0;
     border: 1px solid #ccc; 
     border-radius: 4px;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
 }
 .login .input-group .form-control:last-child{
     border: 1px solid #ccc; 
     border-radius: 4px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 .login .forget a{
-    text-align: left;
+    text-align: right;
     width: 100%;
     display: block;
+    direction: ltr;
 }
 .login span.input-group-addon i{
     color:#8a5c8b;
@@ -2549,7 +2549,8 @@ h3.title{
     width: 50%;
 }
 .activation{
-    text-align: right;
+    text-align: left;
+    direction: ltr;
 }
 .activation h4{
     text-align: center;
@@ -2558,9 +2559,6 @@ h3.title{
 .activation img{
     display: block;
     margin: 35px auto;
-}
-.cars .col-md-3{
-    float: right;
 }
 .product-men .share{
     position: absolute;
@@ -2584,9 +2582,9 @@ h3.title{
     display: block;
 }
 .cars .details .right{
-    float: right;
+    float: left;
     width:75%;
-    border-left: 2px solid #fff;
+    border-right: 2px solid #fff;
 }
 .cars .details .right i{
     padding: 0 5px;
@@ -2650,10 +2648,10 @@ h3.title{
     margin: 40px 0 25px;
 }
 .ads .men-pro-item{
-    float: right;
+    float: left;
 }
 .ads .men-thumb-item{
-    float: right;
+    float: left;
     width: 50%;
 }
 .ads .men-thumb-item img{
@@ -2674,8 +2672,9 @@ h3.title{
     color:#fff;
 }
 .ads .product-new-top{
-    top:2px;
-    right:2px;
+    top: 2px;
+    left: 2px;
+    right: auto;
 }
 .ads .men-pro-item, .ads .details{
     box-shadow: 1px 2px 3px #c9c9c9;
@@ -2721,9 +2720,9 @@ h3.title{
 .products-left .panel-group{
     direction: rtl;
 }
-.products-left .pull-right, .pull-right{
-    float:left;
-}
+/*.products-left .pull-right, .pull-right{
+    float:left !important;
+}*/
 .products-left label{
     color: #855686;
 }
@@ -2757,27 +2756,25 @@ h3.title{
     right: 0;
 }
 .product-inner .col-md-4{
-    float:left;
+    float:right;
 }
 .product-inner .col-md-8{
     text-align: right;
 }
 .product-inner .single-right-left p, .product-inner .single-right-left h3{
-    direction: rtl;
+    direction: ltr;
+    text-align: left;
 }
 .product-inner .buttons{
-    float:right;
+    float:left;
 }
 .product-inner .resp-tabs-list li{
-    float:right;
+    float:left;
 }
 .product-inner ul.resp-tabs-list, .product-inner .single_page_agile_its_w3ls, .product-inner .calling{
     display: block;
     width:100%;
     float: right;
-}
-.product-inner table{
-    direction: rtl;
 }
 .product-inner .bootstrap-tab-text-grid-left img{
     width:70px;
@@ -2786,18 +2783,21 @@ h3.title{
     margin: 0 auto;
 }
 .product-inner .add-review, .product-inner .add-review textarea{
-    text-align: right;
+    text-align: left;
+    direction: ltr;
 }
 .product-inner .add-review{
     display: block;
     width: 100%;
-    float: right;
+    float: left;
+    text-align: left;
+    direction: ltr;
 }
 
 .product-inner .rating1 input.star { display: none; }
 
 .product-inner .rating1 label.star {
-  float: left;
+  float: right;
   padding: 5px;
   font-size: 22px;
   color: #3c3d41;
@@ -2824,14 +2824,14 @@ h3.title{
   font-family: FontAwesome;
 }
 .product-inner .rating1{
-    float: right;
+    float: left;
 }
 .product-inner .calling{
     border-top:1px solid #eee;
     border-bottom:1px solid #eee;
     padding: 10px 0;
-    text-align: right;
-    direction: rtl;
+    text-align: left;
+    direction: ltr;
     margin: 10px 0 25px 0;
 }
 .product-inner .calling h4{
@@ -2840,18 +2840,18 @@ h3.title{
 }
 .product-inner .calling span.name{
     display: inline-block;
-    text-align: right;
-    float: right;
-    padding: 10px 0 0 30px;
+    text-align: left;
+    float: left;
+    padding: 10px 30px 0 0;
 }
 .product-inner .calling img{
     margin: 0 10px;
-    float: right;
+    float: left;
     width:45px;
     height:45px;
 }
 .product-inner .calling .report{
-    float: left;
+    float: right;
     width:20%;
     text-align: center;
     cursor:pointer;
@@ -2880,19 +2880,19 @@ h3.title{
     border-bottom: 1px solid #eee;
 }
 .product-inner .details-icon h5{
-    float: right;
+    float: left;
     width: auto;
-    margin: 5px 0 15px 15px;
+    margin: 5px 15px 15px 0;
     display: inline-block;
     font-size: 16px;
-    direction: rtl;
+    direction: ltr;
     color: #8a5c8b;
 }
 .product-inner .details-icon  p.location{
     cursor: pointer;
     display: inline-block;
     margin: 0;
-    float: left;
+    float: right;
     font-size: 16px;
     text-decoration: underline;
     color: #703e70;
@@ -2903,7 +2903,7 @@ h3.title{
     width:100%;
     max-height:300px;
     overflow: auto;
-    direction: rtl;
+    direction: ltr;
 }
 span.quantity-filter{
     float: right;
@@ -2942,12 +2942,12 @@ input.aa-cart-quantity{
 .profile .profile-area table {
     border-collapse: collapse;
     width: 100%;
-    direction: rtl;
+    direction: ltr;
     margin-top:20px;
 }
 
 .profile .profile-area table td{
-	text-align:right;
+	text-align:left;
 	direction: ltr;
 }
 .profile .profile-area table td:nth-child(2n+1) {
@@ -2979,14 +2979,15 @@ input.aa-cart-quantity{
     margin-top: 10px;
 }
 .profile .profile-area #loginform{
-    direction: rtl;
+    direction: ltr;
 }
 .profile .profile-area #loginform .col-sm-3{
     float: right;
 }
 .profile .profile-area #loginform label.col-sm-3{
-    text-align: right;
+    text-align: left;
     padding: 5px;
+    float: left;
 }
 .profile .profile-area #loginform .radio{
     padding-top: 0;
@@ -3010,12 +3011,15 @@ input.aa-cart-quantity{
 .favourite .block .col-md-9{
     padding: 15px;
     position: relative;
+    direction: ltr;
+    text-align: left;
 }
 .favourite .block .col-md-9 span.glyphicon-remove{
     cursor: pointer;
     position: absolute;
-    top:10px;
-    left:10px;
+    top: 10px;
+    right: 10px;
+    left: auto;
 }
 .favourite .block .col-md-9 h4{
     margin: 5px 0 10px 0;
@@ -3028,12 +3032,12 @@ input.aa-cart-quantity{
     font-size: 16px;
 }
 .favourite .block .col-md-9 .details-icon h5{
-    float: right;
+    float: left;
     width: auto;
-    margin: 5px 0 15px 15px;
+    margin: 5px 15px 15px 0;
     display: inline-block;
     font-size: 16px;
-    direction: rtl;
+    direction: ltr;
     color: #8a5c8b;
 }
 
@@ -3048,20 +3052,21 @@ input.aa-cart-quantity{
 .favourite .dropdown{
     display: block;
     width: 100%;
-    float: left;
+    float: right;
     position: absolute;
     top: 10px;
-    left: 10px;
+    right: 10px;
+    left: auto;
 }
 .favourite .dropdown .btn-default{
-    float:left;
+    float:right;
     border-color:#8a5c8b;
     border:1px solid #8a5c8b;
     padding: 6px 8px;
 }
 .favourite .dropdown .dropdown-menu{
-    left: 0;
-    right: auto;
+    left: auto;
+    right: 0;
     padding: 0;
 }
 .favourite .dropdown .dropdown-menu li{
@@ -3088,6 +3093,9 @@ input.aa-cart-quantity{
     width:30%;
     font-size: 18px;
     font-weight: bold;
+}
+.profile .col-md-9{
+    float: right;
 }
 .offer .block{
     padding: 10px;
@@ -3177,6 +3185,7 @@ form.form-horizontal select.country{
 }
 .error .agile_ab_w3ls_info{
     text-align: center;
+    direction: ltr;
 }
 .error h3.error{
     display: inline-block;
@@ -3185,6 +3194,7 @@ form.form-horizontal select.country{
     margin-bottom: 30px;
     text-shadow: 0 2px 2px #ddd;
     color: #B0181D;
+    direction: ltr;
 }
 .error p{
     text-align: center;
@@ -3269,7 +3279,8 @@ width: 100%;
 }
 #regForm .tab input, #regForm .tab select{
     margin: 10px 0;
-    text-align: right;
+    text-align: left;
+    direction: ltr;
 }
 #regForm .tab input.text-center{
     text-align: center;
@@ -3281,7 +3292,7 @@ width: 100%;
     font-size: 20px;
     color: #8a5c8b;
     text-align: center;
-    direction: rtl;
+    direction: ltr;
     padding-bottom: 25px;
     font-weight: bold;
 }
@@ -3380,7 +3391,7 @@ ul.check-img{
 ul.check-img li.check{
     display: block;
     font-size: 13px;
-    background: url(../images/blank-check-box.png) right 12px no-repeat;
+    background: url(../images/blank-check-box.png) left 12px no-repeat;
     padding-right: 25px;
     cursor: pointer;
     padding: 5px 25px;
@@ -3392,7 +3403,7 @@ ul.check-img li a{
 ul.check-img li.active{
     display: block;
     font-size: 13px;
-    background: url(../images/checked-box.png) right 12px no-repeat;
+    background: url(../images/checked-box.png) left 12px no-repeat;
     padding-right: 25px;
     cursor: pointer;
     padding: 5px 25px;
@@ -3415,6 +3426,11 @@ h3.country{
     font-size: 20px;
     font-weight: bold;
     cursor: pointer;
+    text-align: right;
+    direction: rtl;
+}
+.flex-control-thumbs li{
+    float: left;
 }
 h3.country i{
     padding: 0 5px;
@@ -3422,9 +3438,34 @@ h3.country i{
 .search-agileinfo .modal{
     direction: rtl;
 }
-
-
-
+.modal-content{
+    direction: ltr;
+    text-align: left;
+}
+.carousel-caption{
+    direction: ltr;
+}
+.sale-w3ls .col-md-9{
+    float: right;
+}
+.filter-setting{
+    direction: ltr;
+}
+.pull-right{
+    float: left !important;
+    padding-right: 10px;
+    padding-left: 0;
+}
+.collapsed-icon-toggle .on-opened{
+    padding-right: 10px;
+    padding-left: 0;
+}
+.glyphicon-triangle-left::before {
+    content: "\e250";
+}
+.fa-angle-double-left::before {
+    content: "\f101";
+}
 
 
 
@@ -3456,6 +3497,14 @@ h3.country i{
 		width: 50%;
 		float: left;
 	}
+        h3.country{
+            text-align: center;
+        }
+        .profile .col-md-9{
+            float: none;
+            width:100%;
+            display: block;
+        }
 }
 @media (max-width:768px){
         .navbar-nav > li > .dropdown-menu{
@@ -3465,7 +3514,7 @@ h3.country i{
         ul.multi-column-dropdown li a{
             text-align: center;
         }
-       
+        
 	h3.agileits-icons-title {
 		font-size: 28px;
 	}
@@ -3634,7 +3683,7 @@ section#tables  p {
 }
 .product-inner .table td, .product-inner .table>tbody>tr>td, .product-inner .table>tbody>tr>th, .product-inner .table>tfoot>tr>td, .product-inner .table>tfoot>tr>th, .product-inner .table>thead>tr>td, .product-inner .table>thead>tr>th {
 	padding: 15px!important;
-        text-align: right;
+        text-align: left;
 }
 .product-inner .table > thead > tr > th, .product-inner .table > tbody > tr > th, .product-inner .table > tfoot > tr > th, .product-inner .table > thead > tr > td, .table > tbody > tr > td, .product-inner .table > tfoot > tr > td {
 	font-size: 1em;
@@ -4026,7 +4075,7 @@ border-bottom: 1px solid #e5e3db;
 }
 
 .css-treeview a {
-    padding: 7px 31px 0 0;
+    padding: 7px 0 0 31px;
     margin: 2px;
     font-size: 14px;
 }
@@ -4061,7 +4110,7 @@ border-bottom: 1px solid #e5e3db;
 
 .css-treeview input + label + ul
 {
-	margin: 0 10px 0 0 ;
+	margin: 0 0 0 10px ;
 }
 
 .css-treeview input + label + ul
@@ -4454,12 +4503,13 @@ color: #000;
 	margin:2em 0 0;
 }
 .bootstrap-tab-text-grid-left{
-	float:right;
+	float:left;
 }
 .bootstrap-tab-text-grid-right{
 	float:left;
 	width:88%;
-        text-align: right;
+        text-align: left;
+        padding-left: 15px;
 }
 .bootstrap-tab-text-grid-right ul li{
 	display:inline-block;
@@ -4624,6 +4674,8 @@ p.w3ls_para {
 }
 .simpleCart_shelfItem .rate{
     margin: 10px 0;
+    direction: rtl;
+    text-align: left;
 }
 /*-- //to-top --*/
 /*-- responsive media queries --*/
@@ -6083,8 +6135,12 @@ p.w3ls_para {
 	}
 }
 @media (max-width: 568px){
+    .phone-w3l ul li{
+        float: left;
+    }
         .phone-w3l{
-            width:50%
+            width:50%;
+            float: right;
         }
         .logo_agile img{
             width:100%;

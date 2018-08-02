@@ -18,7 +18,8 @@
             <div class="agile_inner_breadcrumb">
 
                 <ul class="w3_short">
-                    <li><a href="index.php">الرئيسية</a><i>|</i></li>
+                    <li><a href="{{_url('')}}">{{_lang('app.home')}}</a><i>|</i></li>
+                    <li><a href="{{_url('customer/ads')}}">{{_lang('app.my_ads')}}</a><i>|</i></li>
                     <li>صفحتى</li>
                 </ul>
             </div>
@@ -70,7 +71,8 @@
 
                                 <form id="loginform" class="addEditAdsForm form-horizontal" role="form" enctype="multipart/form-data">
                                     {{ csrf_field() }}
-                                    <input type="hidden" name="id" id="id" value="0">
+                                    <input type="hidden" name="id" id="id" value="{{$ad->id}}">
+                                    <input type="hidden" name="category_id" id="category_id" value="{{$ad->category_id}}">
 
                                     <div class="form-group">
                                         <div class="col-md-12">
@@ -80,7 +82,7 @@
                                                     <select class="frm-field required sect form-control" name="ad_country">
                                                         <option value="">{{_lang('app.choose_country')}}</option>
                                                         @foreach ($countries as $key => $one)
-                                                        <option {{$country_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
+                                                        <option {{$ad->country_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -97,7 +99,7 @@
                                                         <option value="">{{_lang('app.choose')}}</option>
                                                         @if(isset($cities))
                                                         @foreach ($cities as $key => $one)
-                                                        <option {{$city_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
+                                                        <option {{$ad->city_id==$one->id?'selected':''}} value="{{$one->id}}">{{$one->title}}</option>
                                                         @endforeach
                                                         @endif
                                                     </select>
@@ -107,34 +109,6 @@
                                     </div>
 
 
-                                    <div class="form-group">
-                                        <div class="col-md-12">
-                                            <label class="col-sm-3 col-form-label">{{_lang('app.main_category')}}</label>
-                                            <div class="col-sm-9">
-                                                <div class="row">
-                                                    <select class="frm-field sect form-control" name="main_category" id="main_category">
-                                                        <option value="">{{_lang('app.choose')}}</option>
-                                                        @foreach ($main_categories as $key => $one)
-                                                        <option  value="{{$one->id}}">{{$one->title}}</option>
-                                                        @endforeach		
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <div class="col-md-12">
-                                            <label class="col-sm-3 col-form-label">{{_lang('app.sub_category')}}</label>
-                                            <div class="col-sm-9">
-                                                <div class="row">
-                                                    <select class="frm-field sect form-control" name="sub_category" id="sub_category">
-                                                        <option value="">{{_lang('app.choose')}}</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
 
 
                                     <div class="form-group">
@@ -142,7 +116,7 @@
                                             <label class="col-sm-3 col-form-label">{{_lang('app.title')}}</label>
                                             <div class="col-sm-9">
                                                 <div class="row">
-                                                    <input type="text" class="form-control" name="title">
+                                                    <input type="text" class="form-control" name="title" value="{{$ad->title}}">
                                                 </div>
                                             </div>
                                         </div>
@@ -153,7 +127,7 @@
                                             <label class="col-sm-3 col-form-label">{{_lang('app.mobile')}}</label>
                                             <div class="col-sm-9">
                                                 <div class="row">
-                                                    <input type="text" class="form-control" name="mobile">
+                                                    <input type="text" class="form-control" name="mobile" value="{{$ad->mobile}}">
                                                 </div>
                                             </div>
                                         </div>
@@ -164,7 +138,7 @@
                                             <label class="col-sm-3 col-form-label">{{_lang('app.email')}}</label>
                                             <div class="col-sm-9">
                                                 <div class="row">
-                                                    <input type="email" class="form-control" name="email">
+                                                    <input type="email" class="form-control" name="email" value="{{$ad->email}}">
                                                 </div>
                                             </div>
                                         </div>
@@ -175,22 +149,22 @@
                                             <label class="col-sm-3 col-form-label">{{_lang('app.details')}}</label>
                                             <div class="col-sm-9">
                                                 <div class="row">
-                                                    <textarea rows="5" cols="30" class="form-control" name="details"></textarea>
+                                                    <textarea rows="5" cols="30" class="form-control" name="details">{{$ad->details}}</textarea>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div id="basic-data-content">
-
+                                        @include('main_content/front/ajax/ad_form')
                                     </div>
 
                                   
                                         <div class="col-md-12">
                                             <label class="col-sm-3 col-form-label">{{_lang('app.location')}}</label>
                                             <div class="col-sm-9 form-group">
-                                                <input value="" type="hidden"  id="latlng" name="latlng">
-                                                <input value="" type="hidden"  id="lat" name="lat">
-                                                <input value="" type="hidden"  id="lng" name="lng">
+                                                <input value="" type="hidden"  id="latlng" name="latlng" value="{{$ad->lat.','.$ad->lng}}">
+                                                <input value="" type="hidden"  id="lat" name="lat" value="{{$ad->lat}}">
+                                                <input value="" type="hidden"  id="lng" name="lng" value="{{$ad->lng}}">
                                                 <div class="row">
 
                                                     <input id="pac-input" class="controls" type="text" placeholder="Enter a location">

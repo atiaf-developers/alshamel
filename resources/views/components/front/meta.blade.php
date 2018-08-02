@@ -20,6 +20,7 @@
 
 <link rel="icon" type="image/png" sizes="32x32" href="{{url('public/front/images')}}/fav.png">
 
+<link rel="stylesheet" href="{{url('public/front/css')}}/my.css" media="all">
 @if ($lang_code == 'ar')
 <link rel="stylesheet" href="{{url('public/front/css')}}/style.css" media="all">
 @else

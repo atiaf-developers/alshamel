@@ -16,6 +16,7 @@ class LoginController extends FrontController {
 
     private $rules = array(
         'username' => 'required',
+        'password' => 'required'
     );
 
     public function __construct() {

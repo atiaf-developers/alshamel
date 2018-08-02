@@ -33,7 +33,7 @@
                         <div class="col-md-9">
 
                             <div class="row">
-                                <form id="loginform" class="form-horizontal" role="form">
+                                <form id="loginform" class="editProfileForm form-horizontal" role="form">
                                      {{ csrf_field() }}
                                     <div class="form-group">
                                         <div class="col-md-12">
@@ -88,7 +88,7 @@
                                             <label class="col-sm-3 col-form-label">تعديل كلمة المرور</label>
                                             <div class="col-sm-9">
                                                 <div class="row">
-                                                    <input type="password" name="password" class="form-control">
+                                                    <input type="password" name="password" id="password" class="form-control">
                                                 </div>
                                             </div>
                                         </div>
@@ -99,7 +99,7 @@
                                             <label class="col-sm-3 col-form-label">اعادة كلمة المرور الجديدة</label>
                                             <div class="col-sm-9">
                                                 <div class="row">
-                                                    <input type="password" name="confirm_password" class="form-control">
+                                                    <input type="password" name="confirm_password" id="confirm_passowrd" class="form-control">
                                                 </div>
                                             </div>
                                         </div>

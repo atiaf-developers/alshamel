@@ -1,0 +1,20 @@
+.alshamel-tooltip {
+    background-color: #774141;
+}
+.tooltip.bottom .alshamel-tooltip-arrow {
+    border-bottom-color: #774141;
+}
+.form-group.location .tooltip {
+    top: 20%!important;
+    left: 50%!important;
+}
+.form-group.location .tooltip .alshamel-tooltip-arrow {
+    left: 50%!important;
+}
+.form-group.ad-radio .tooltip {
+    top: 80%!important;
+    left: -94%!important;
+}
+.form-group.ad-radio .tooltip .alshamel-tooltip-arrow {
+    left: 50%!important;
+}

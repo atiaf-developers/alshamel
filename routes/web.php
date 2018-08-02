@@ -40,6 +40,8 @@ if (in_array($currentLanguageCode, $languages)) {
             Route::get('get-cities/{id}', 'AjaxController@getCities');
             Route::get('get-cats/{id}', 'AjaxController@getCategories');
             Route::get('get-basic-data/{id}', 'AjaxController@getBasicData');
+            Route::get('get-car-speedometer/{id}', 'AjaxController@getCarSpeedometer');
+            Route::get('get-params/{id}', 'AjaxController@getBasicDataParams');
             Route::get('resend_code', 'AjaxController@resend_code');
         });
         

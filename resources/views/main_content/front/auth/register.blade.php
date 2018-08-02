@@ -110,7 +110,7 @@
                             <div class="form-group">
                                 <div class="col-md-12">
                                     <div class="row">
-                                        <input type="password" class="form-control" name="password" placeholder="{{ _lang('app.password') }}">
+                                        <input type="password" class="form-control" name="password" id="password" placeholder="{{ _lang('app.password') }}">
                                         <span class="help-block"></span>
                                     </div>
                                 </div>
@@ -118,7 +118,7 @@
                             <div class="form-group">
                                 <div class="col-md-12">
                                     <div class="row">
-                                        <input type="password" class="form-control" name="confirm_password" placeholder="{{ _lang('app.confirm_password') }}">
+                                        <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="{{ _lang('app.confirm_password') }}">
                                         <span class="help-block"></span>
                                     </div>
                                 </div>

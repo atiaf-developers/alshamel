@@ -60,6 +60,9 @@ class Ad extends MyModel {
         'mobile',
     ];
     private static $columns = ['ads.id', 'ads.lat', 'ads.lng', 'ads.category_id', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile', 'ads.email', 'categories.form_type', 'categories.parent_id as category_parent', 'categories_translations.title as category', 'users.name', 'locations.id as city_id', 'locations.parent_id as country_id', 'locations_translations.title as city', 'ads.details', 'ads.images', 'ads.user_id', 'ads.active', 'currency_translations.title as currency'];
+    private static $columns_front = ['ads.id', 'categories.id as category_id', 'ads.lat', 'ads.lng', 'ads.title', 'ads.rate', 'ads.special', 'ads.created_at', 'ads.price', 'ads.mobile',
+        'ads.email', 'categories.form_type', 'categories.parent_id as category_parent', 'categories_translations.title as category', 'users.name', 'locations.id as city_id', 'locations.parent_id as country_id',
+        'locations_translations.title as city', 'ads.details', 'ads.images', 'ads.user_id', 'ads.active', 'currency_translations.title as currency'];
 
     public static function get_All() {
         
@@ -112,12 +115,24 @@ class Ad extends MyModel {
         //return  $ads = $ads->get();
     }
 
-    public static function getAdsFront($where_array = array(), $user, $id = null, $type = null) {
+    public static function getAdsFront($where_array = array()) {
         $lang_code = static::getLangCode();
 
+        $ads = static::join(DB::raw("(SELECT max(id) as id,ad_id
+                                        FROM ads_categories
+                                        GROUP BY ad_id
+                                        ) as ads_cats_1"), function($join) {
 
-        $ads = Ad::join('ads_categories', 'ads.id', '=', 'ads_categories.ad_id')
-                ->join('categories', 'categories.id', '=', 'ads_categories.category_id')
+                    $join->on("ads.id", "=", "ads_cats_1.ad_id");
+                });
+        $ads->join(DB::raw("(SELECT id,category_id,ad_id
+                                        FROM ads_categories
+                                        ) as ads_cats_2"), function($join) {
+
+            $join->on("ads_cats_1.id", "=", "ads_cats_2.id");
+        });
+        //$ads = Ad::join('ads_categories', 'ads.id', '=', 'ads_categories.ad_id')
+        $ads->join('categories', 'categories.id', '=', 'ads_cats_2.category_id')
                 ->join('categories_translations', 'categories.id', '=', 'categories_translations.category_id')
                 ->join('locations', 'ads.city_id', '=', 'locations.id')
                 ->join('locations_translations', 'locations.id', '=', 'locations_translations.location_id')
@@ -125,34 +140,29 @@ class Ad extends MyModel {
                 ->join('locations as l2', 'ads.country_id', '=', 'l2.id')
                 ->join('currency', 'l2.currency_id', '=', 'currency.id')
                 ->join('currency_translations', function($join) {
-            $join->on('currency.id', '=', 'currency_translations.currency_id')
-            ->where('currency_translations.locale', static::getLangCode());
-        });
+                    $join->on('currency.id', '=', 'currency_translations.currency_id')
+                    ->where('currency_translations.locale', static::getLangCode());
+                });
         $ads->where('locations_translations.locale', $lang_code);
         $ads->where('categories_translations.locale', $lang_code);
-        $ads = static::handleFromTypeJoin($ads, $where_array, $user);
-        $ads = static::handleFromTypeWhere($ads, $where_array, $type);
+        $ads = static::handleFromTypeJoinFront($ads, $where_array);
+        $ads = static::handleFromTypeWhereFront($ads, $where_array);
+        $ads->select(static::$columns_front);
 
-        //here
-        $ads->select(static::$columns);
 
-        if ($id) {
-            $ads->where('ads.id', $id);
+
+        if (isset($where_array['id'])) {
+            //dd($where_array);
+            $ads->where('ads.id', $where_array['id']);
             $ads = $ads->first();
-            if (!$ads) {
-                return false;
+            if ($ads) {
+                $ads = static::transformDetailsFront($ads);
             }
         } else {
-            if ($type == 1) {
-                $ads = $ads->paginate(2);
-            } else if ($type == 2) {
-                $ads = $ads->paginate(10);
-            } else {
-                $ads = $ads->paginate(10);
-            }
-            return Ad::transformCollection($ads, 'PaginationApi', ['user' => $user]);
+            $ads = $ads->paginate(static::$limit);
+            $ads = Ad::transformCollection($ads, 'PaginationFront');
         }
-        //return  $ads = $ads->get();
+        return $ads;
     }
 
     public static function transformPaginationApi($item, $extra_params = array()) {
@@ -185,6 +195,37 @@ class Ad extends MyModel {
         } else {
             $transformer->is_favourite = 0;
         }
+        return $transformer;
+    }
+
+    public static function transformPaginationFront($item, $extra_params = array()) {
+        $lang = static::getLangCode();
+
+        $transformer = new \stdClass();
+        $transformer->id = $item->id;
+        $transformer->title = $item->title;
+        $transformer->rate = $item->rate;
+        $transformer->lat = $item->lat;
+        $transformer->lng = $item->lng;
+        $transformer->special = $item->special == 1 ? true : false;
+        $transformer->created_at = date('Y-m-d H:i', strtotime($item->created_at));
+        $transformer->price = $item->price ;
+        $transformer->form_type = $item->form_type;
+        $transformer->category_id = $item->category_id;
+        $transformer->currency = $item->currency;
+        $transformer->distance = '';
+        $ad_images = json_decode($item->images);
+        if (count($ad_images) > 0) {
+            foreach ($ad_images as $key => $value) {
+                $ad_images[$key] = static::rmv_prefix($value);
+            }
+            $prefixed_array = preg_filter('/^/', url('public/uploads/ads') . '/m_', $ad_images);
+            $transformer->image = $prefixed_array[0];
+        } else {
+            $transformer->image = url('public/uploads/ads') . '/default.png';
+        }
+        $transformer->is_favourite = $item->is_favourite ? true : false;
+        $transformer->url = _url('ads/ID-' . $item->id);
         return $transformer;
     }
 
@@ -371,6 +412,134 @@ class Ad extends MyModel {
         $transformer->name = $item->name;
         $transformer->mobile = $item->mobile;
         $transformer->email = $item->email;
+
+
+        return $transformer;
+    }
+
+    public static function transformDetailsFront($item, $extra_params = array()) {
+
+        $lang = static::getLangCode();
+
+        $transformer = new \stdClass();
+        $transformer->id = $item->id;
+        $transformer->city = $item->city;
+        $transformer->category_id = $item->category_id;
+        $transformer->city_id = (int) $item->city_id;
+        $transformer->country_id = (int) $item->country_id;
+        $transformer->title = $item->title;
+        $transformer->details = $item->details;
+        $transformer->rate = $item->rate;
+        $transformer->lat = $item->lat;
+        $transformer->lng = $item->lng;
+        $transformer->address = getAddress($item->lat, $item->lng, $lang);
+        $transformer->special = $item->special == 1 ? true : false;
+        $transformer->is_favourite = $item->is_favourite ? true : false;
+        $transformer->created_at = date('Y-m-d H:i', strtotime($item->created_at));
+        $transformer->price = $item->price;
+        $transformer->form_type = $item->form_type;
+        $transformer->distance = round($item->distance, 1);
+        $transformer->images = array();
+        if (count($item->images) > 0) {
+            foreach ($item->images as $key => $value) {
+                $item->images[$key] = static::rmv_prefix($value);
+            }
+            $transformer->images = preg_filter('/^/', url('public/uploads/ads') . '/m_', $item->images);
+        }
+        $transformer->name = $item->name;
+        $transformer->mobile = $item->mobile;
+        $transformer->email = $item->email;
+        if ($item->form_type == 1) {
+            $transformer->area = $item->area;
+            $transformer->rooms_number = (int) $item->rooms_number;
+            $transformer->baths_number = (int) $item->baths_number;
+            $transformer->furnished = (int) $item->is_furnished;
+            $transformer->has_parking = (int) $item->has_parking;
+            $transformer->property_type = (int) $item->property_type_id;
+            $data = array(
+                [
+                    'name' => _lang('app.property_type'),
+                    'value' => $item->property_type
+                ],
+                [
+                    'name' => _lang('app.rooms_number'),
+                    'value' => $item->rooms_number
+                ],
+                [
+                    'name' => _lang('app.baths_number'),
+                    'value' => $item->baths_number
+                ],
+                [
+                    'name' => _lang('app.furnished'),
+                    'value' => $item->is_furnished == 1 ? _lang('app.yes') : _lang('app.no')
+                ],
+                [
+                    'name' => _lang('app.parking_place'),
+                    'value' => $item->has_parking == 1 ? _lang('app.exist') : _lang('app.none')
+                ],
+                [
+                    'name' => _lang('app.area'),
+                    'value' => $item->area . ' ' . _lang('app.m²')
+                ],
+            );
+            $transformer->features = $data;
+        } else if ($item->form_type == 2) {
+            $transformer->area = $item->area;
+            $data = array(
+                [
+                    'name' => _lang('app.area'),
+                    'value' => $item->area . ' ' . _lang('app.m²')
+                ]
+            );
+            $transformer->features = $data;
+        } else if ($item->form_type == 3) {
+            $transformer->motion_vector = (int) $item->motion_vector_id;
+            $transformer->engine_capacity = (int) $item->engine_capacity_id;
+            $transformer->propulsion_system = (int) $item->propulsion_system_id;
+            $transformer->fuel_type = (int) $item->fuel_type_id;
+            $transformer->mileage = (int) $item->mileage_id;
+            $transformer->mileage_unit = (int) $item->mileage_unit;
+            $transformer->status = (int) $item->status;
+            $transformer->manufacturing_year = (int) $item->manufacturing_year;
+            $mileage_unit = $item->mileage_unit == 1 ? _lang('app.km') : _lang('app.mi');
+            $mileage = $item->mileage . ' ' . $mileage_unit;
+            $status = $item->status == 0 ? _lang('app.new') : _lang('app.used');
+            $data = array(
+                [
+                    'name' => _lang('app.car_condition'),
+                    'value' => $status
+                ],
+                [
+                    'name' => _lang('app.model'),
+                    'value' => $item->category
+                ],
+                [
+                    'name' => _lang('app.manufacturing_year'),
+                    'value' => $item->manufacturing_year
+                ],
+                [
+                    'name' => _lang('app.motion_vector'),
+                    'value' => $item->motion_vector
+                ],
+                [
+                    'name' => _lang('app.engine_capacity'),
+                    'value' => $item->engine_capacity
+                ],
+                [
+                    'name' => _lang('app.propulsion_system'),
+                    'value' => $item->propulsion_system
+                ],
+                [
+                    'name' => _lang('app.kilometers'),
+                    'value' => $mileage
+                ],
+                [
+                    'name' => _lang('app.fuel_type'),
+                    'value' => $item->fuel_type
+                ],
+            );
+            $transformer->features = $data;
+        }
 
 
         return $transformer;
@@ -665,61 +834,61 @@ class Ad extends MyModel {
         return $ads;
     }
 
-    private static function handleFromTypeJoinFront($ads, $where_array, $user) {
+    private static function handleFromTypeJoinFront($ads, $where_array) {
         $lang_code = static::getLangCode();
-        if ($where_array['form_type'] == 1) {
-            $ads->join('real_states_ads', 'real_states_ads.ad_id', '=', 'ads.id');
-            $ads->join('basic_data', 'real_states_ads.property_type_id', '=', 'basic_data.id');
-            $ads->join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id');
-            $ads->where('trans.locale', $lang_code);
-            static::$columns = array_merge(static::$columns, [
-                "trans.title as property_type", "real_states_ads.has_parking", "real_states_ads.area", "real_states_ads.property_type_id", "real_states_ads.rooms_number",
-                "real_states_ads.baths_number", "real_states_ads.is_furnished"]);
-        } else if ($where_array['form_type'] == 2) {
-            $ads->join('lands_ads', 'lands_ads.ad_id', '=', 'ads.id');
-            static::$columns = array_merge(static::$columns, ["lands_ads.area"]);
-        } else if ($where_array['form_type'] == 3) {
-            $ads->join('vehicles_ads', 'vehicles_ads.ad_id', '=', 'ads.id');
-            $ads->join('basic_data as b1', 'vehicles_ads.motion_vector_id', '=', 'b1.id');
-            $ads->join('basic_data as b2', 'vehicles_ads.engine_capacity_id', '=', 'b2.id');
-            $ads->join('basic_data as b3', 'vehicles_ads.propulsion_system_id', '=', 'b3.id');
-            $ads->join('basic_data as b4', 'vehicles_ads.fuel_type_id', '=', 'b4.id');
-            $ads->join('basic_data as b5', 'vehicles_ads.mileage_id', '=', 'b5.id');
-            $ads->join('basic_data_translations as motion_vector_trans', 'b1.id', '=', 'motion_vector_trans.basic_data_id');
-            $ads->join('basic_data_translations as engine_capacity_trans', 'b2.id', '=', 'engine_capacity_trans.basic_data_id');
-            $ads->join('basic_data_translations as propulsion_system_trans', 'b3.id', '=', 'propulsion_system_trans.basic_data_id');
-            $ads->join('basic_data_translations as fuel_type_trans', 'b4.id', '=', 'fuel_type_trans.basic_data_id');
-            $ads->join('basic_data_translations as mileage_trans', 'b5.id', '=', 'mileage_trans.basic_data_id');
-            $ads->where('motion_vector_trans.locale', $lang_code);
-            $ads->where('engine_capacity_trans.locale', $lang_code);
-            $ads->where('propulsion_system_trans.locale', $lang_code);
-            $ads->where('fuel_type_trans.locale', $lang_code);
-            $ads->where('mileage_trans.locale', $lang_code);
-            static::$columns = array_merge(static::$columns, ["b1.id as motion_vector_id", "motion_vector_trans.title as motion_vector", "b2.id as engine_capacity_id", "engine_capacity_trans.title as engine_capacity",
-                "b3.id as propulsion_system_id", "propulsion_system_trans.title as propulsion_system", "b4.id as fuel_type_id", "fuel_type_trans.title as fuel_type",
-                "b5.id as mileage_id", "mileage_trans.title as mileage", "vehicles_ads.mileage_unit", "vehicles_ads.status", "vehicles_ads.manufacturing_year"]);
-        }
-        if (isset($where_array['lat']) && isset($where_array['lng'])) {
-            static::$columns[] = DB::raw(static::iniDiffLocations("ads", $where_array['lat'], $where_array['lng']));
-        }
-        if ($user && isset($where_array['options'])) {
-
-            if ($where_array['options'] == 1) {
-                $ads->where('ads.user_id', $user->id);
-            } else if ($where_array['options'] == 2) {
-                $ads->join('favourites', function($join) use($user) {
-                    $join->on('favourites.ad_id', '=', 'ads.id')
-                            ->where('favourites.user_id', $user->id);
-                });
-                static::$columns[] = "favourites.id as is_favourite";
+        if (isset($where_array['form_type'])) {
+            if ($where_array['form_type'] == 1) {
+                $ads->join('real_states_ads', 'real_states_ads.ad_id', '=', 'ads.id');
+                $ads->join('basic_data', 'real_states_ads.property_type_id', '=', 'basic_data.id');
+                $ads->join('basic_data_translations as trans', 'basic_data.id', '=', 'trans.basic_data_id');
+                $ads->where('trans.locale', $lang_code);
+                static::$columns_front = array_merge(static::$columns_front, [
+                    "trans.title as property_type", "real_states_ads.has_parking", "real_states_ads.area", "real_states_ads.property_type_id", "real_states_ads.rooms_number",
+                    "real_states_ads.baths_number", "real_states_ads.is_furnished"]);
+                
+            } else if ($where_array['form_type'] == 2) {
+                $ads->join('lands_ads', 'lands_ads.ad_id', '=', 'ads.id');
+                static::$columns_front = array_merge(static::$columns_front, ["lands_ads.area"]);
+            } else if ($where_array['form_type'] == 3) {
+                $ads->join('vehicles_ads', 'vehicles_ads.ad_id', '=', 'ads.id');
+                $ads->join('basic_data as b1', 'vehicles_ads.motion_vector_id', '=', 'b1.id');
+                $ads->join('basic_data as b2', 'vehicles_ads.engine_capacity_id', '=', 'b2.id');
+                $ads->join('basic_data as b3', 'vehicles_ads.propulsion_system_id', '=', 'b3.id');
+                $ads->join('basic_data as b4', 'vehicles_ads.fuel_type_id', '=', 'b4.id');
+                $ads->join('basic_data as b5', 'vehicles_ads.mileage_id', '=', 'b5.id');
+                $ads->join('basic_data_translations as motion_vector_trans', 'b1.id', '=', 'motion_vector_trans.basic_data_id');
+                $ads->join('basic_data_translations as engine_capacity_trans', 'b2.id', '=', 'engine_capacity_trans.basic_data_id');
+                $ads->join('basic_data_translations as propulsion_system_trans', 'b3.id', '=', 'propulsion_system_trans.basic_data_id');
+                $ads->join('basic_data_translations as fuel_type_trans', 'b4.id', '=', 'fuel_type_trans.basic_data_id');
+                $ads->join('basic_data_translations as mileage_trans', 'b5.id', '=', 'mileage_trans.basic_data_id');
+                $ads->where('motion_vector_trans.locale', $lang_code);
+                $ads->where('engine_capacity_trans.locale', $lang_code);
+                $ads->where('propulsion_system_trans.locale', $lang_code);
+                $ads->where('fuel_type_trans.locale', $lang_code);
+                $ads->where('mileage_trans.locale', $lang_code);
+                static::$columns_front = array_merge(static::$columns_front, ["b1.id as motion_vector_id", "motion_vector_trans.title as motion_vector", "b2.id as engine_capacity_id", "engine_capacity_trans.title as engine_capacity",
+                    "b3.id as propulsion_system_id", "propulsion_system_trans.title as propulsion_system", "b4.id as fuel_type_id", "fuel_type_trans.title as fuel_type",
+                    "b5.id as mileage_id", "mileage_trans.title as mileage", "vehicles_ads.mileage_unit", "vehicles_ads.status", "vehicles_ads.manufacturing_year"]);
             }
+        }
+
+        if (isset($where_array['lat']) && isset($where_array['lng'])) {
+            static::$columns_front[] = DB::raw(static::iniDiffLocations("ads", $where_array['lat'], $where_array['lng']));
+        }
+        if (isset($where_array['user_id'])) {
+
+            $ads->leftJoin('favourites', function($join) use($where_array) {
+                $join->on('favourites.ad_id', '=', 'ads.id')
+                        ->where('favourites.user_id', $where_array['user_id']);
+            });
+            static::$columns_front[] = "favourites.id as is_favourite";
         }
 
         return $ads;
     }
 
-    private static function handleFromTypeWhereFront($ads, $where_array, $type) {
-      
+    private static function handleFromTypeWhereFront($ads, $where_array) {
+
         if (isset($where_array['search'])) {
             $ads->whereRaw(handleKeywordWhere(['ads.title', 'ads.details'], $where_array['search']));
         }
@@ -732,13 +901,15 @@ class Ad extends MyModel {
         if (isset($where_array['category_id'])) {
             $ads->where('ads_categories.category_id', $where_array['category_id']);
         }
-
-
-        if ($type == 1 || $type == 3) {
-            $ads->where('ads.special', 1);
-        } else if ($type == 2) {
-            $ads->where('ads.special', 0);
+        if (isset($where_array['user_id'])) {
+            $ads->where('ads.user_id', $where_array['user_id']);
         }
+        if (isset($where_array['option'])) {
+            if ($where_array['option'] == 'favorites') {
+                $ads->whereNotNull('favourites.id');
+            }
+        }
+
 
 
         //filter
@@ -758,116 +929,6 @@ class Ad extends MyModel {
 //            }
         }
 
-        return $ads;
-    }
-
-    private static function handleFromTypeWhere2($ads, $request, $type) {
-        $options = json_decode($request->input('filter')) ? json_decode($request->input('filter')) : new \stdClass();
-        //dd($options);
-        //admin
-        if ($request->status != "all") {
-            $ads->where('ads.active', true);
-        }
-
-        //api
-        //normal where
-        if ($request->input('search')) {
-            $ads->whereRaw(handleKeywordWhere(['ads.title', 'ads.details'], $request->input('search')));
-        }
-        if ($request->input('country_id')) {
-            $ads->where('ads.country_id', $request->input('country_id'));
-        }
-        if ($request->input('city_id')) {
-            $ads->where('ads.city_id', $request->input('city_id'));
-        }
-
-        if ($type == 1 || $type == 3) {
-            $ads->where('ads.special', 1);
-        } else if ($type == 2) {
-            $ads->where('ads.special', 0);
-        }
-        //dd($request->input('category_id') );
-        if ($request->input('category_id') && !isset($options->category)) {
-
-            $ads->where('ads.category_id', $request->input('category_id'));
-        } else if (isset($options->category) && !empty($options->category)) {
-            $ads->whereIn('ads.category_id', $options->category);
-        }
-
-        //filter
-        //show [1 => added today ,2  => only address ,3 => contain images ,4 => near to me]
-        if (isset($options->show) && !empty($options->show)) {
-            if (in_array(1, $options->show)) {
-                $ads->where('ads.created_at', '>=', Carbon::today());
-            }
-            if (in_array(2, $options->show)) {
-                $ads->whereNull('ads.images');
-            }
-            if (in_array(3, $options->show)) {
-                $ads->whereNotNull('ads.images');
-            }
-            if (in_array(4, $options->show)) {
-                $ads->orderBy('distance');
-            }
-        }
-        //realstates
-        if ($request->input('form_type') == 1) {
-            if (isset($options->property_type) && !empty($options->property_type)) {
-                $ads->whereIn('real_states_ads.property_type_id', $options->property_type);
-            }
-            if (isset($options->rooms_number) && !empty($options->rooms_number)) {
-
-                $ads->whereBetween('real_states_ads.rooms_number', [$options->rooms_number[0], $options->rooms_number[1]]);
-            }
-            if (isset($options->baths_number) && !empty($options->baths_number)) {
-                $ads->whereBetween('real_states_ads.baths_number', [$options->baths_number[0], $options->baths_number[1]]);
-            }
-            if (isset($options->is_furnished) && $options->is_furnished != -1) {
-                $ads->where('real_states_ads.is_furnished', $options->is_furnished);
-            }
-            if (isset($options->has_parking) && $options->has_parking != -1) {
-                $ads->where('real_states_ads.has_parking', $options->has_parking);
-            }
-            if (isset($options->area) && !empty($options->area)) {
-                $ads->whereBetween('real_states_ads.area', [$options->area[0], $options->area[1]]);
-            }
-        } else if ($request->input('form_type') == 2) {
-
-            //lands
-            if (isset($options->area) && !empty($options->area)) {
-                $ads->whereBetween('lands_ads.area', [$options->area[0], $options->area[1]]);
-            }
-        } else if ($request->input('form_type') == 3) {
-            //cars
-            if (isset($options->status) && $options->status != -1) {
-                $ads->where('vehicles_ads.status', $options->status);
-            }
-            if (isset($options->manufacturing_year) && !empty($options->manufacturing_year)) {
-                $ads->whereBetween('vehicles_ads.manufacturing_year', [$options->manufacturing_year[0], $options->manufacturing_year[1]]);
-            }
-            if (isset($options->motion_vector) && !empty($options->motion_vector)) {
-                $ads->whereIn('vehicles_ads.motion_vector_id', $options->motion_vector);
-            }
-            if (isset($options->engine_capacity) && !empty($options->engine_capacity)) {
-                $ads->whereIn('vehicles_ads.engine_capacity_id', $options->engine_capacity);
-            }
-            if (isset($options->propulsion_system) && !empty($options->propulsion_system)) {
-                $ads->whereIn('vehicles_ads.propulsion_system_id', $options->propulsion_system);
-            }
-            if (isset($options->fuel_type) && !empty($options->fuel_type)) {
-                $ads->whereIn('vehicles_ads.fuel_type_id', $options->fuel_type);
-            }
-            if (isset($options->mileage_unit) && $options->mileage_unit != -1) {
-                $ads->where('vehicles_ads.mileage_unit', $options->mileage_unit);
-            }
-            if (isset($options->mileage) && !empty($options->mileage)) {
-                $ads->whereIn('vehicles_ads.mileage_id', $options->mileage);
-            }
-        }
-        //all
-        if (isset($options->price) && !empty($options->price)) {
-            $ads->whereBetween('ads.price', [$options->price[0], $options->price[1]]);
-        }
         return $ads;
     }
 

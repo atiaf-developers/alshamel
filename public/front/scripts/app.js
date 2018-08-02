@@ -57,6 +57,23 @@ var App = function () {
 
             }, 1000);
         },
+        showValidateTooltip: function (element, title, placement, fontSize, container) {
+            console.log(element.attr('name'));
+            //element.addClass('has-validate');
+            if (element.attr('name') == 'latlng') {
+                element.closest('.form-group').addClass('location');
+            } else if (element.attr('name') == 'furnished') {
+                element.closest('.form-group').addClass('furnished');
+                element = element.closest('.form-group');
+            }
+//            if(element){
+//                  element.css({"background-color": "yellow", "font-size": "200%"});
+//            }
+
+            element.tooltip({'template': '<div class="tooltip newValidateTooltip" style="font-size:' + fontSize + '" role="tooltip"><div class="tooltip-arrow  alshamel-tooltip-arrow"></div><div class="tooltip-inner  alshamel-tooltip"></div></div>', 'container': container, 'title': title, 'placement': placement, 'trigger': 'manual', 'animation': false}).tooltip('show');
+
+
+        },
         getParameterByName: function (name, url) {
             if (!url)
                 url = window.location.href;

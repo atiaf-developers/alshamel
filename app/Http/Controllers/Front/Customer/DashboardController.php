@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Front\Customer;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\FrontController;
+use App\Http\Controllers\CustomerController;
 
-class DashboardController extends FrontController {
+class DashboardController extends CustomerController {
 
     /**
      * Create a new controller instance.

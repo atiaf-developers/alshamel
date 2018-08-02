@@ -18,27 +18,31 @@ var Login = function () {
             rules: {
                 username: {
                     required: true,
+                },
+                password: {
+                    required: true,
                 }
             },
 
             highlight: function (element) { // hightlight error inputs
                 $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
 
+
             },
             unhighlight: function (element) {
                 $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-                $(element).closest('.form-group').find('.help-block').html('');
+                $(element).tooltip('destroy');
 
             },
             errorPlacement: function (error, element) {
-                errorElements1.push(element);
-                $(element).closest('.form-group').find('.help-block').html($(error).html());
+                errorElements.push(element);
+                App.showValidateTooltip($(element), $(error).html(), 'bottom', '14', false)
+
             }
 
         });
         $('#login-form .submit-form').click(function () {
             var validate_2 = $('#login-form').validate().form();
-            errorElements = errorElements1.concat(errorElements2);
             if (validate_2) {
                 $('#login-form .submit-form').prop('disabled', true);
                 $('#login-form .submit-form').html('<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>');
@@ -106,7 +110,7 @@ var Login = function () {
                             {
                                 $('[name="' + i + '"]')
                                         .closest('.form-group').addClass('has-error').removeClass("has-success");
-                                $('[name="' + i + '"]').closest('.form-group').find(".help-block").html(data.errors[i][0])
+                                App.showValidateTooltip($('[name="' + i + '"]'), data.errors[i][0], 'bottom', '14', false)
                             }
                         }
                         if (typeof data.message !== 'undefined') {
@@ -704,46 +708,54 @@ var Login = function () {
         $("#regForm").validate({
             //ignore: "",
             rules: {
-//                name: {
-//                    required: true
-//                },
-//                reservation_date: {
-//                    required: true
-//                },
-//                reservation_time: {
-//                    required: true
-//                },
-//                payment_method: {
-//                    required: true
-//                },
-//                email: {
-//                    required: true,
-//                    email: true
-//                },
-//                phone: {
-//                    required: true
-//                },
-//                lat: {
-//                    required: true
-//                },
-//                lng: {
-//                    required: true
-//                },
+                mobile: {
+                    required: true
+                },
+                'code[0]': {
+                    required: true
+                },
+                'code[1]': {
+                    required: true
+                },
+                'code[2]': {
+                    required: true
+                },
+                'code[3]': {
+                    required: true
+                },
+                name: {
+                    required: true
+                },
+                username: {
+                    required: true
+                },
+                email: {
+                    required: true
+                },
+                password: {
+                    required: true
+                },
+                confirm_password: {
+                    required: true,
+                    equalTo: "#password"
+                }
 
             },
 
             highlight: function (element) { // hightlight error inputs
                 $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
 
+
             },
             unhighlight: function (element) {
                 $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-                $(element).closest('.form-group').find('.help-block').html('');
+                $(element).tooltip('destroy');
 
             },
             errorPlacement: function (error, element) {
-                errorElements1.push(element);
-                $(element).closest('.form-group').find('.help-block').html($(error).html());
+                errorElements.push(element);
+                App.showValidateTooltip($(element), $(error).html(), 'bottom', '14', false)
+
             }
 
         });
@@ -817,9 +829,10 @@ var Login = function () {
                                     $('#activation-code-message').html(message);
                                     continue;
                                 }
+
                                 $('[name="' + i + '"]')
                                         .closest('.form-group').addClass('has-error').removeClass("has-success");
-                                $('[name="' + i + '"]').closest('.form-group').find(".help-block").html(message)
+                                App.showValidateTooltip($('[name="' + i + '"]'), message, 'bottom', '14', false)
                             }
                         }
                         if (typeof data.message !== 'undefined') {
